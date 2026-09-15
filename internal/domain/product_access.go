@@ -29,7 +29,6 @@ type UserProductAssignment struct {
 	ProductKey       string
 	Status           UserProductAssignmentStatus
 	Active           bool
-	EffectiveActive  bool
 	AssignedBy       string
 	AssignedAt       time.Time
 	RevokedBy        string

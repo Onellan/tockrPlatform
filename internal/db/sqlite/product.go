@@ -33,6 +33,7 @@ type productAuditDetails struct {
 	ProductKey     string `json:"product_key"`
 	OrganisationID string `json:"organisation_id,omitempty"`
 	EntitlementID  string `json:"entitlement_id,omitempty"`
+	AssignmentID   string `json:"assignment_id,omitempty"`
 	Status         string `json:"status,omitempty"`
 	Reason         string `json:"reason,omitempty"`
 }

@@ -44,7 +44,7 @@ func TestUserProductAssignmentAndEffectiveAccessRequireEveryPredicate(t *testing
 		t.Fatalf("owner without assignment access = %v, want denied", err)
 	}
 	assignment, err := persistence.AssignUserProduct(ctx, users[1].ID, organisation.ID, users[2].ID, "product.tockrctrl", "assign CTRL member", now.Add(6*time.Minute))
-	if err != nil || !assignment.EffectiveActive {
+	if err != nil || !assignment.Active {
 		t.Fatalf("effective assignment = %#v, err=%v", assignment, err)
 	}
 	access, err := persistence.ProveProductAccess(ctx, users[2].ID, organisation.ID, "product.tockrctrl", workspace.ID)
@@ -62,14 +62,14 @@ func TestUserProductAssignmentAndEffectiveAccessRequireEveryPredicate(t *testing
 	}
 
 	assignmentOnly, err := persistence.AssignUserProduct(ctx, users[1].ID, organisation.ID, users[2].ID, "product.tockrims", "stage IMS assignment", now.Add(9*time.Minute))
-	if err != nil || assignmentOnly.EffectiveActive {
+	if err != nil || !assignmentOnly.Active {
 		t.Fatalf("assignment without entitlement = %#v, err=%v", assignmentOnly, err)
 	}
 	if _, err := persistence.ProveProductAccess(ctx, users[2].ID, organisation.ID, "product.tockrims", workspace.ID); !errors.Is(err, store.ErrProductAccessDenied) {
 		t.Fatalf("assignment-only access = %v, want denied", err)
 	}
 	assignments, err := persistence.ListUserProductAssignments(ctx, users[0].ID, organisation.ID)
-	if err != nil || len(assignments) != 2 || !assignments[0].EffectiveActive || assignments[1].EffectiveActive {
+	if err != nil || len(assignments) != 2 || !assignments[0].Active || !assignments[1].Active {
 		t.Fatalf("assignment read model = %#v, err=%v", assignments, err)
 	}
 	if err := persistence.RevokeUserProduct(ctx, users[1].ID, organisation.ID, assignment.ID, "revoke CTRL assignment", now.Add(10*time.Minute)); err != nil {

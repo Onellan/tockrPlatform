@@ -104,7 +104,7 @@ func TestProductAccessHTTPUsesCentralEvaluatorAndFailsClosed(t *testing.T) {
 		t.Fatalf("HTTP assignment = %d/%s", response.Code, response.Body.String())
 	}
 	var assignment userProductAssignmentResponse
-	if err := json.Unmarshal(response.Body.Bytes(), &assignment); err != nil || !assignment.Active || !assignment.EffectiveActive || assignment.UserID != f.users[2].ID {
+	if err := json.Unmarshal(response.Body.Bytes(), &assignment); err != nil || !assignment.Active || assignment.UserID != f.users[2].ID {
 		t.Fatalf("assignment response = %#v, err=%v", response.Body.String(), err)
 	}
 	response = organisationHTTPRequest(t, f, http.MethodGet, accessPath, memberSession, memberCSRF, "", "")

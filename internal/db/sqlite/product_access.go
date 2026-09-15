@@ -74,17 +74,13 @@ func (s *Store) AssignUserProduct(ctx context.Context, actorUserID, organisation
 	if _, err := tx.ExecContext(ctx, `INSERT INTO user_product_assignments(public_id,user_id,organisation_id,product_key,status,assigned_by,assigned_at) VALUES(?,?,?,?,'active',?,?)`, assignmentID, targetInternalID, organisationInternalID, productKey, actorInternalID, formatTime(at.UTC())); err != nil {
 		return domain.UserProductAssignment{}, fmt.Errorf("create user product assignment: %w", err)
 	}
-	var effectiveActive int
-	if err := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM organisation_product_entitlements WHERE organisation_id=? AND product_key=? AND status='active')`, organisationInternalID, productKey).Scan(&effectiveActive); err != nil {
-		return domain.UserProductAssignment{}, fmt.Errorf("check assignment effective entitlement: %w", err)
-	}
 	if err := recordOrganisationProductAuditTx(ctx, tx, actorInternalID, organisationID, eventAssignmentGranted, productAuditDetails{ProductKey: productKey, OrganisationID: organisationID, AssignmentID: assignmentID, Status: string(domain.UserProductAssignmentActive), Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return domain.UserProductAssignment{}, err
 	}
 	if err := tx.Commit(); err != nil {
 		return domain.UserProductAssignment{}, fmt.Errorf("commit user product assignment: %w", err)
 	}
-	return domain.UserProductAssignment{ID: assignmentID, UserID: targetUserID, OrganisationID: organisationID, ProductKey: productKey, Status: domain.UserProductAssignmentActive, Active: true, EffectiveActive: effectiveActive == 1, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
+	return domain.UserProductAssignment{ID: assignmentID, UserID: targetUserID, OrganisationID: organisationID, ProductKey: productKey, Status: domain.UserProductAssignmentActive, Active: true, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
 }
 
 func (s *Store) RevokeUserProduct(ctx context.Context, actorUserID, organisationID, assignmentID, reason string, at time.Time) error {
@@ -131,9 +127,6 @@ func (s *Store) ListUserProductAssignments(ctx context.Context, requesterUserID,
 		return nil, err
 	}
 	rows, err := s.db.QueryContext(ctx, `SELECT a.public_id,u.public_id,o.public_id,a.product_key,a.status,
-		(a.status='active' AND u.active=1 AND o.status='active' AND p.status='active' AND
-		 EXISTS(SELECT 1 FROM organisation_memberships m WHERE m.organisation_id=a.organisation_id AND m.user_id=a.user_id AND m.active=1) AND
-		 EXISTS(SELECT 1 FROM organisation_product_entitlements e WHERE e.organisation_id=a.organisation_id AND e.product_key=a.product_key AND e.status='active')),
 		assigned.public_id,a.assigned_at,revoked.public_id,a.revoked_at,a.revocation_reason
 		FROM user_product_assignments a
 		JOIN users u ON u.id=a.user_id
@@ -150,14 +143,12 @@ func (s *Store) ListUserProductAssignments(ctx context.Context, requesterUserID,
 	for rows.Next() {
 		var assignment domain.UserProductAssignment
 		var status, assignedAt string
-		var effectiveActive int
 		var revokedBy, revokedAt, revocationReason sql.NullString
-		if err := rows.Scan(&assignment.ID, &assignment.UserID, &assignment.OrganisationID, &assignment.ProductKey, &status, &effectiveActive, &assignment.AssignedBy, &assignedAt, &revokedBy, &revokedAt, &revocationReason); err != nil {
+		if err := rows.Scan(&assignment.ID, &assignment.UserID, &assignment.OrganisationID, &assignment.ProductKey, &status, &assignment.AssignedBy, &assignedAt, &revokedBy, &revokedAt, &revocationReason); err != nil {
 			return nil, fmt.Errorf("read user product assignment: %w", err)
 		}
 		assignment.Status = domain.UserProductAssignmentStatus(status)
 		assignment.Active = assignment.Status == domain.UserProductAssignmentActive
-		assignment.EffectiveActive = effectiveActive == 1
 		assignment.AssignedAt = parseTime(assignedAt)
 		if revokedBy.Valid {
 			assignment.RevokedBy = revokedBy.String

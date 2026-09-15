@@ -348,7 +348,6 @@ type userProductAssignmentResponse struct {
 	ProductKey       string                             `json:"product_key"`
 	Status           domain.UserProductAssignmentStatus `json:"status"`
 	Active           bool                               `json:"active"`
-	EffectiveActive  bool                               `json:"effective_active"`
 	AssignedBy       string                             `json:"assigned_by"`
 	AssignedAt       time.Time                          `json:"assigned_at"`
 	RevokedBy        string                             `json:"revoked_by,omitempty"`
@@ -1074,7 +1073,7 @@ func organisationProductEntitlementResponseFromDomain(entitlement domain.Organis
 }
 
 func userProductAssignmentResponseFromDomain(assignment domain.UserProductAssignment) userProductAssignmentResponse {
-	return userProductAssignmentResponse{ID: assignment.ID, UserID: assignment.UserID, OrganisationID: assignment.OrganisationID, ProductKey: assignment.ProductKey, Status: assignment.Status, Active: assignment.Active, EffectiveActive: assignment.EffectiveActive, AssignedBy: assignment.AssignedBy, AssignedAt: assignment.AssignedAt, RevokedBy: assignment.RevokedBy, RevokedAt: assignment.RevokedAt, RevocationReason: assignment.RevocationReason}
+	return userProductAssignmentResponse{ID: assignment.ID, UserID: assignment.UserID, OrganisationID: assignment.OrganisationID, ProductKey: assignment.ProductKey, Status: assignment.Status, Active: assignment.Active, AssignedBy: assignment.AssignedBy, AssignedAt: assignment.AssignedAt, RevokedBy: assignment.RevokedBy, RevokedAt: assignment.RevokedAt, RevocationReason: assignment.RevocationReason}
 }
 
 func (s *Server) mfaSetup(w http.ResponseWriter, r *http.Request) {
