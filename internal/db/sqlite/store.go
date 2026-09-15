@@ -272,6 +272,39 @@ func supportedMigrations() []migration {
 				`CREATE INDEX workspace_memberships_scope_idx ON workspace_memberships(workspace_id,user_id,active,role)`,
 			},
 		},
+		{
+			version: 6,
+			name:    "product-catalogue-organisation-entitlements",
+			statements: []string{
+				`CREATE TABLE products (
+					product_key TEXT PRIMARY KEY CHECK(length(product_key)>8 AND substr(product_key,1,8)='product.'),
+					display_name TEXT NOT NULL CHECK(length(trim(display_name))>0 AND length(display_name)<=200),
+					status TEXT NOT NULL CHECK(status IN ('active','retired')),
+					created_at TEXT NOT NULL,
+					retired_at TEXT,
+					CHECK((status='active' AND retired_at IS NULL) OR (status='retired' AND retired_at IS NOT NULL))
+				)`,
+				`INSERT INTO products(product_key,display_name,status,created_at) VALUES
+					('product.tockrctrl','TockrCTRL','active','2026-09-16T00:00:00Z'),
+					('product.tockrims','TockrIMS','active','2026-09-16T00:00:00Z')`,
+				`CREATE TABLE organisation_product_entitlements (
+					id INTEGER PRIMARY KEY,
+					public_id TEXT NOT NULL UNIQUE,
+					organisation_id INTEGER NOT NULL REFERENCES organisations(id),
+					product_key TEXT NOT NULL REFERENCES products(product_key),
+					status TEXT NOT NULL CHECK(status IN ('active','revoked')),
+					granted_by INTEGER NOT NULL REFERENCES users(id),
+					granted_at TEXT NOT NULL,
+					revoked_by INTEGER REFERENCES users(id),
+					revoked_at TEXT,
+					revocation_reason TEXT NOT NULL DEFAULT '',
+					CHECK((status='active' AND revoked_by IS NULL AND revoked_at IS NULL AND revocation_reason='') OR
+						(status='revoked' AND revoked_by IS NOT NULL AND revoked_at IS NOT NULL AND length(trim(revocation_reason))>0))
+				)`,
+				`CREATE UNIQUE INDEX organisation_product_entitlements_current_idx ON organisation_product_entitlements(organisation_id,product_key) WHERE status='active'`,
+				`CREATE INDEX organisation_product_entitlements_scope_idx ON organisation_product_entitlements(organisation_id,product_key,status,granted_at,id)`,
+			},
+		},
 	}
 }
 

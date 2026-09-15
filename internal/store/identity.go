@@ -59,5 +59,6 @@ type PlatformStore interface {
 	SecurityEventStore
 	OrganisationStore
 	WorkspaceStore
+	ProductStore
 	AccessScopeStore
 }

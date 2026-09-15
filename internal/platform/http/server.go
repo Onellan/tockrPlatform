@@ -83,6 +83,11 @@ func (s *Server) Handler() http.Handler {
 		protected.Patch("/api/organisations/{organisationID}/members/{userID}", s.changeOrganisationMemberRole)
 		protected.Delete("/api/organisations/{organisationID}/members/{userID}", s.deactivateOrganisationMember)
 		protected.Post("/api/organisations/{organisationID}/archive", s.archiveOrganisation)
+		protected.Get("/api/platform/products", s.listProducts)
+		protected.Post("/api/platform/products/{productKey}/retire", s.retireProduct)
+		protected.Get("/api/organisations/{organisationID}/product-entitlements", s.listOrganisationProductEntitlements)
+		protected.Post("/api/organisations/{organisationID}/product-entitlements", s.entitleOrganisation)
+		protected.Delete("/api/organisations/{organisationID}/product-entitlements/{entitlementID}", s.revokeOrganisationEntitlement)
 		workspaceRead := protected.With(s.requireWorkspaceScope(false))
 		workspaceRead.Get("/api/workspaces/{workspaceID}", s.getWorkspace)
 		workspaceAdmin := protected.With(s.requireWorkspaceScope(true))
@@ -273,6 +278,11 @@ type organisationReasonRequest struct {
 	Reason string `json:"reason"`
 }
 
+type productEntitlementRequest struct {
+	ProductKey string `json:"product_key"`
+	Reason     string `json:"reason"`
+}
+
 type organisationResponse struct {
 	ID         string                    `json:"id"`
 	Name       string                    `json:"name"`
@@ -298,6 +308,27 @@ type organisationAuditResponse struct {
 	Event          string    `json:"event"`
 	Details        string    `json:"details"`
 	OccurredAt     time.Time `json:"occurred_at"`
+}
+
+type productResponse struct {
+	Key         string               `json:"key"`
+	DisplayName string               `json:"display_name"`
+	Status      domain.ProductStatus `json:"status"`
+	CreatedAt   time.Time            `json:"created_at"`
+	RetiredAt   *time.Time           `json:"retired_at,omitempty"`
+}
+
+type organisationProductEntitlementResponse struct {
+	ID               string                                      `json:"id"`
+	OrganisationID   string                                      `json:"organisation_id"`
+	ProductKey       string                                      `json:"product_key"`
+	Status           domain.OrganisationProductEntitlementStatus `json:"status"`
+	Active           bool                                        `json:"active"`
+	GrantedBy        string                                      `json:"granted_by"`
+	GrantedAt        time.Time                                   `json:"granted_at"`
+	RevokedBy        string                                      `json:"revoked_by,omitempty"`
+	RevokedAt        *time.Time                                  `json:"revoked_at,omitempty"`
+	RevocationReason string                                      `json:"revocation_reason,omitempty"`
 }
 
 type organisationWorkspaceEntryResponse struct {
@@ -727,6 +758,103 @@ func (s *Server) archiveOrganisation(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Server) listProducts(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	products, err := s.store.ListProducts(r.Context(), session.User.ID)
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	response := make([]productResponse, 0, len(products))
+	for _, product := range products {
+		response = append(response, productResponseFromDomain(product))
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) retireProduct(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationReasonRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := s.store.RetireProduct(r.Context(), session.User.ID, chi.URLParam(r, "productKey"), request.Reason, time.Now().UTC()); err != nil {
+		writeProductError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) listOrganisationProductEntitlements(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	entitlements, err := s.store.ListOrganisationProductEntitlements(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"))
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	response := make([]organisationProductEntitlementResponse, 0, len(entitlements))
+	for _, entitlement := range entitlements {
+		response = append(response, organisationProductEntitlementResponseFromDomain(entitlement))
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) entitleOrganisation(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request productEntitlementRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	entitlement, err := s.store.EntitleOrganisation(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), request.ProductKey, request.Reason, time.Now().UTC())
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, organisationProductEntitlementResponseFromDomain(entitlement))
+}
+
+func (s *Server) revokeOrganisationEntitlement(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationReasonRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := s.store.RevokeOrganisationEntitlement(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), chi.URLParam(r, "entitlementID"), request.Reason, time.Now().UTC()); err != nil {
+		writeProductError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) verifyMutationCSRF(w http.ResponseWriter, r *http.Request) bool {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
@@ -804,12 +932,37 @@ func writeWorkspaceError(w http.ResponseWriter, err error) {
 	http.Error(w, http.StatusText(status), status)
 }
 
+func writeProductError(w http.ResponseWriter, err error) {
+	status := http.StatusInternalServerError
+	switch {
+	case errors.Is(err, store.ErrProductNotFound), errors.Is(err, store.ErrEntitlementNotFound), errors.Is(err, store.ErrUnauthorisedProductAction), errors.Is(err, store.ErrOrganisationNotFound), errors.Is(err, store.ErrOrganisationArchived), errors.Is(err, store.ErrUnauthorisedOrganisationAction):
+		status = http.StatusNotFound
+	case errors.Is(err, store.ErrProductRetired), errors.Is(err, store.ErrEntitlementInactive), errors.Is(err, store.ErrDuplicateOrganisationEntitlement):
+		status = http.StatusConflict
+	case errors.Is(err, domain.ErrInvalidProduct), errors.Is(err, domain.ErrInvalidProductKey), errors.Is(err, domain.ErrInvalidProductStatus), errors.Is(err, domain.ErrInvalidEntitlement), errors.Is(err, domain.ErrInvalidEntitlementID), errors.Is(err, domain.ErrInvalidEntitlementStatus), errors.Is(err, domain.ErrInvalidReason):
+		status = http.StatusBadRequest
+	}
+	if status == http.StatusInternalServerError {
+		http.Error(w, "service unavailable", status)
+		return
+	}
+	http.Error(w, http.StatusText(status), status)
+}
+
 func organisationResponseFromDomain(organisation domain.Organisation) organisationResponse {
 	return organisationResponse{ID: organisation.ID, Name: organisation.Name, Status: organisation.Status, CreatedAt: organisation.CreatedAt, ArchivedAt: organisation.ArchivedAt}
 }
 
 func workspaceResponseFromDomain(workspace domain.Workspace) workspaceResponse {
 	return workspaceResponse{ID: workspace.ID, OrganisationID: workspace.OrganisationID, Name: workspace.Name, Status: workspace.Status, CreatedAt: workspace.CreatedAt, ArchivedAt: workspace.ArchivedAt}
+}
+
+func productResponseFromDomain(product domain.Product) productResponse {
+	return productResponse{Key: product.Key, DisplayName: product.DisplayName, Status: product.Status, CreatedAt: product.CreatedAt, RetiredAt: product.RetiredAt}
+}
+
+func organisationProductEntitlementResponseFromDomain(entitlement domain.OrganisationProductEntitlement) organisationProductEntitlementResponse {
+	return organisationProductEntitlementResponse{ID: entitlement.ID, OrganisationID: entitlement.OrganisationID, ProductKey: entitlement.ProductKey, Status: entitlement.Status, Active: entitlement.Active, GrantedBy: entitlement.GrantedBy, GrantedAt: entitlement.GrantedAt, RevokedBy: entitlement.RevokedBy, RevokedAt: entitlement.RevokedAt, RevocationReason: entitlement.RevocationReason}
 }
 
 func (s *Server) mfaSetup(w http.ResponseWriter, r *http.Request) {
