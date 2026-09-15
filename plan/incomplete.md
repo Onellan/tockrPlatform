@@ -7,7 +7,7 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **19 open execution plans** across **10 Batches**. The
+Current inventory: **18 open execution plans** across **10 Batches**. The
 repository-control-plane foundation Slice is terminal, while Platform runtime
 implementation has not started; this tracker must not be read as runtime
 implementation evidence.
@@ -50,14 +50,14 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B1-S03 | **BLOCKED / NOT RUN** | PF-B1-S01 and PF-B1-S02 terminal; Platform measurement prerequisite unavailable | [runtime, persistence and presentation foundation](active/pf-b1-s03-runtime-foundation.md) |
+| 1 | PF-B2-S01 | **Ready** | PF-B1 terminal | [User and authentication authority](active/pf-b2-s01-user-authentication.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
 | Batch | Slices | State | Depends on |
 | --- | --- | --- | --- |
-| PF-B1 | S01, S02, S03 | S01/S02 Terminal; S03 BLOCKED / NOT RUN | S02 follows S01; S03 follows S02 plus Platform measurement prerequisite |
-| PF-B2 | S01, S02 | Planned | PF-B1-S03 |
+| PF-B1 | S01, S02, S03 | **Terminal** | S01 → S02 → S03 |
+| PF-B2 | S01, S02 | S01 Ready; S02 Planned | PF-B1-S03 |
 | PF-B3 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B4 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B5 | S01, S02 | Planned | PF-B2-S02 + PF-B3-S02 + PF-B4-S02 |
@@ -102,16 +102,15 @@ programme plan.
 > the required gates pass. Do not implement work from a later Batch or any
 > scope outside the selected Batch.
 
-## Current blocked Slice prompt
+## Copy-ready first Slice prompt
 
-> Resume **PF-B1-S03 — Runtime, persistence and presentation foundation** from
-> [`plan/active/pf-b1-s03-runtime-foundation.md`](active/pf-b1-s03-runtime-foundation.md).
-> First establish an authorised Platform measurement prerequisite for the
-> SQLite pool-width decision. Do not guess the pool width, add runtime code
-> outside the authorised prerequisite, or mark the Slice Ready while the
-> blocker remains. Once the prerequisite exists, re-read the plan and current
-> evidence, then obtain independent review, independent acceptance and
-> exact-candidate validation before changing the tracker or certifying PF-B1.
+> Deliver **PF-B2-S01 — User and authentication authority** from
+> [`plan/active/pf-b2-s01-user-authentication.md`](active/pf-b2-s01-user-authentication.md).
+> Re-read the plan, verify the current candidate and repository state, implement
+> only its authorised scope, then obtain independent review and independent
+> acceptance. Repair findings sequentially, rerun exact-candidate local
+> validation, and update the tracker/index and implementation reconciliation only
+> if every required gate passes. Do not implement PF-B2-S02 or any later Batch.
 
 ## Closeout update
 

@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1-S03 is BLOCKED / NOT RUN.
+**Status:** Planned / active owner-authorised programme; PF-B1 is terminal and PF-B2-S01 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -112,8 +112,8 @@ independent tester acceptance remain separate gates.
 
 | Batch | Purpose | Slices | Status |
 | --- | --- | --- | --- |
-| PF-B1 | Repository, standards and architecture foundation | S01–S03 | S01/S02 Terminal; S03 BLOCKED / NOT RUN |
-| PF-B2 | Identity and authentication | S01–S02 | Planned |
+| PF-B1 | Repository, standards and architecture foundation | S01–S03 | **Terminal** |
+| PF-B2 | Identity and authentication | S01–S02 | S01 Ready; S02 Planned |
 | PF-B3 | Organisation authority | S01–S02 | Planned |
 | PF-B4 | Workspace authority | S01–S02 | Planned |
 | PF-B5 | Product catalogue and product access | S01–S02 | Planned |
@@ -153,7 +153,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | --- | --- |
 | PF-B1-S01 | [repository, standards, agents and validation — terminal](completed/pf-b1-s01-repository-foundation.md) |
 | PF-B1-S02 | [ownership and shared contracts — terminal](completed/pf-b1-s02-ownership-contracts.md) |
-| PF-B1-S03 | [runtime, persistence and presentation foundation](active/pf-b1-s03-runtime-foundation.md) |
+| PF-B1-S03 | [runtime, persistence and presentation foundation — terminal](completed/pf-b1-s03-runtime-foundation.md) |
 | PF-B2-S01 | [User and authentication](active/pf-b2-s01-user-authentication.md) |
 | PF-B2-S02 | [sessions, MFA, recovery and revocation](active/pf-b2-s02-sessions-security.md) |
 | PF-B3-S01 | [Organisation authority](active/pf-b3-s01-organisation-authority.md) |

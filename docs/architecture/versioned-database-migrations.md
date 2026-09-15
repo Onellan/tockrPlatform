@@ -1,7 +1,10 @@
 # Platform SQLite migration contract
 
 The first runtime database is `platform.db`. SQLite schema evolution is owned
-by one ordered named `schema_migrations` ledger.
+by one ordered named `schema_migrations` ledger. The initial Platform runtime
+uses one SQLite connection. Any later connection-pool upgrade is a separate
+authorized change and must be supported by Platform measurements and fresh
+concurrency, migration and reopen evidence.
 
 ## Ledger rules
 

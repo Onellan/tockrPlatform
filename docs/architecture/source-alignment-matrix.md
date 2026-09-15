@@ -27,12 +27,14 @@ authoritative because both product checkouts were behind their remotes.
 
 ## Conflicts and decisions
 
-1. **SQLite pool width:** CTRL describes a single open connection while IMS
-   records a measured file-backed `4/2` pool after serialized migrations. This
-   is a real implementation semantic conflict. PF freezes WAL, serialized
-   migration startup and the single-instance boundary, but deliberately does
-   not choose a pool width; PF-B1-S03 must make that decision from Platform
-   measurements before runtime code.
+1. **SQLite pool width — resolved initial policy:** CTRL describes a single open
+   connection while IMS records a measured file-backed `4/2` pool after
+   serialized migrations. Platform adopts **one SQLite connection** for its
+   initial runtime, with WAL, serialized migration startup and a single-instance
+   boundary. This is an owner-authorized initial policy, not a claim that the
+   IMS pool is invalid. A later pool-width upgrade requires a new authorized
+   plan, Platform measurements and fresh concurrency/migration/reopen evidence;
+   it is not part of PF-B1.
 2. **Presentation incumbent:** CTRL has templ-based migration inventory while
    IMS still has legacy `html/template` inventory. Both current-main contracts
    converge on real templ layouts/components and Tailwind. Platform adopts the

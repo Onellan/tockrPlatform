@@ -1,6 +1,6 @@
 # PF-B1-S03 — Runtime, persistence and presentation foundation
 
-Status: **Blocked / NOT RUN — Platform measurement prerequisite unavailable.**
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -22,9 +22,10 @@ only until implementation authority is separately invoked.
 
 ## Ordered work
 
-1. Decide and record the measured initial SQLite connection policy, serialized
+1. Decide and record the owner-authorized initial one-connection SQLite policy,
 ### WP01 - Ordered work package
-   migration startup and WAL/single-instance boundary.
+   serialized migration startup and WAL/single-instance boundary; define the
+   evidence required before any later pool-width upgrade.
 Route: kind=other; risk=H[DATA,CONC,OPS]
 2. Freeze package dependency rules, `/healthz`/`/readyz` semantics, graceful
 ### WP02 - Ordered work package
@@ -61,25 +62,25 @@ Architecture, frontend and quality profiles; independent architecture review of
 the package graph and runtime contract; no build claim until a Dockerfile and Go
 module exist in a later implementation candidate.
 
-## Current execution outcome
+## Terminal evidence
 
-On candidate `2f27ca5eed2cc0af12111c9ea1623af23a5df3b4`, independent review and
-tester acceptance classified the Slice as **BLOCKED / NOT RUN**, not terminal:
+On candidate `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`, the owner-authorized
+initial one-connection policy resolved the inherited CTRL/IMS pool-width
+conflict. The policy preserves WAL, serialized migrations and a single-instance
+boundary; any later pool-width upgrade is explicitly deferred to a new
+authorized, measured change.
 
-- AC02 package boundaries and dependency direction: **PASS** from the target
-  architecture package map.
-- AC03 health/readiness, runtime targets and presentation rules: **PASS** from
-  the security-runtime, presentation and source-alignment contracts.
-- AC04 prohibited ORM/service-mesh/broker/shared-database/runtime-Node targets:
-  **PASS** from the architecture and presentation contracts.
-- AC01 SQLite pool-width owner decision: **BLOCKED / NOT RUN**. CTRL records a
-  single connection and IMS records a measured file-backed `4/2` pool, while
-  Platform has no `go.mod`, runtime package or measurement harness. Choosing a
-  width now would be an unsupported guess.
-
-Resume only when an authorised Platform measurement prerequisite exists and
-the pool-width decision can be bound to fresh evidence. Do not add runtime code,
-choose a pool width, or certify PF-B1 while this blocker remains.
+- Independent engineering review: **PASS**; package boundaries,
+  health/readiness, presentation, migration and runtime target contracts were
+  reviewed read-only.
+- Independent tester acceptance: **PASS** for all four acceptance criteria.
+- Exact-candidate evidence: `python scripts/validate.py run full/local`,
+  `python scripts/audit_codebase.py`, all active/completed plan-routing checks,
+  delivery-contract tests and `git diff --check`.
+- Runtime, migration, unit, integration, race and container profiles remain
+  `NOT_APPLICABLE` where their prerequisites are not introduced by this
+  planning Slice; no runtime implementation is claimed.
+- No CTRL/IMS code, data, migration or authority was changed.
 
 ## Dependencies
 

@@ -26,3 +26,29 @@ repository-control-plane Slice is terminally recorded:
 - Runtime and data migration profiles were `NOT_APPLICABLE` because this Slice
   changes contracts and documentation only.
 - No CTRL/IMS code, data, migration or authority was changed.
+
+## PF-B1-S03 — Runtime, persistence and presentation foundation
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b1-s03-runtime-foundation.md`](../../plan/completed/pf-b1-s03-runtime-foundation.md)
+- Accepted implementation candidate: `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`
+- Initial SQLite policy: one connection, with WAL, serialized migration
+  startup and a single-instance boundary. Any later pool-width upgrade is a
+  separate authorized, measured change.
+- Evidence: independent review, independent tester acceptance, foundation
+  audit, full/local validation, routing/contract tests and exact-candidate
+  diff checks all passed.
+- Runtime/build profiles were `NOT_APPLICABLE` because no runtime module or
+  Dockerfile is introduced by this planning Slice.
+- No CTRL/IMS code, data, migration or authority was changed.
+
+## PF-B1 — Repository, standards and architecture foundation
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B1-S01, PF-B1-S02 and PF-B1-S03 are terminal in
+  `plan/completed/`.
+- Accepted Batch candidate: `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local validation and all 63 Slice route signatures: **PASS**.
+- No Platform runtime implementation, CTRL/IMS migration or authority cutover
+  is claimed.
