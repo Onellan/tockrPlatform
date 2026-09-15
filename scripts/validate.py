@@ -92,7 +92,9 @@ def run_one(profile: str) -> dict[str, object]:
         missing = [term for term in required if term.lower() not in text.lower()]
         return {"profile": profile, "status": "PASS" if not missing else "FAIL", "missing": missing}
     if profile == "quality":
-        plans = sorted((ROOT / "plan/active").glob("pf-b*-s*-*.md"))
+        active_plans = sorted((ROOT / "plan/active").glob("pf-b*-s*-*.md"))
+        completed_plans = sorted((ROOT / "plan/completed").glob("pf-b*-s*-*.md"))
+        plans = active_plans + completed_plans
         routes = sum(path.read_text(encoding="utf-8").count("Route: kind=") for path in plans)
         route_failures = []
         for path in plans:
@@ -109,6 +111,8 @@ def run_one(profile: str) -> dict[str, object]:
             "profile": profile,
             "status": "PASS" if len(plans) == 21 and routes >= 63 and not route_failures else "FAIL",
             "slice_plan_count": len(plans),
+            "active_slice_plan_count": len(active_plans),
+            "completed_slice_plan_count": len(completed_plans),
             "route_signature_count": routes,
             "route_failures": route_failures,
         }

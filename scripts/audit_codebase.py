@@ -28,7 +28,9 @@ def main() -> int:
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     missing = [path for path in REQUIRED if not (ROOT / path).exists()]
-    plans = sorted((ROOT / "plan/active").glob("pf-b*-s*-*.md"))
+    active_plans = sorted((ROOT / "plan/active").glob("pf-b*-s*-*.md"))
+    completed_plans = sorted((ROOT / "plan/completed").glob("pf-b*-s*-*.md"))
+    plans = active_plans + completed_plans
     runtime_files = sorted(str(path.relative_to(ROOT)) for path in ROOT.rglob("*.go"))
     report = {
         "schema_version": 1,

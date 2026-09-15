@@ -1,6 +1,6 @@
 # PF-B1-S01 — Repository, standards, agents and validation foundation
 
-Status: **Ready**
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -75,3 +75,19 @@ proof without its prerequisite. Go only with direct local output.
 
 Revert the foundation commit as one recoverable Git change; no runtime data or
 external product system is touched.
+
+## Terminal evidence
+
+- Accepted candidate: `d1737088b47e3180ac250f3f268c1d92e9719f17`.
+- Independent engineering review: **PASS**; foundation scope, authority
+  boundaries, routing and absence of runtime files were reviewed read-only.
+- Independent tester acceptance: **PASS** for all five acceptance criteria.
+- Exact-candidate evidence: `python scripts/audit_codebase.py`,
+  `python scripts/validate.py run full/local`,
+  `python scripts/test_plan_routing.py`,
+  `python scripts/test_reasoning_routing.py`,
+  `python scripts/test_shared_delivery_contract.py` and `git diff --check`.
+- Runtime, migration, unit, integration, race and container profiles were
+  `NOT_APPLICABLE` because their prerequisites are not introduced by this
+  Slice; this is not runtime implementation evidence.
+- No CTRL/IMS code, data, migration or authority was changed.

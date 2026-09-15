@@ -1,6 +1,6 @@
 # PF-B1-S02 — Platform ownership and shared contracts
 
-Status: Planned
+Status: **Ready**
 
 ## Objective
 
