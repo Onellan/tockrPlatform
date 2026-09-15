@@ -1,6 +1,6 @@
 # PF-B4-S01 — Workspace authority
 
-Status: Planned
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -66,3 +66,26 @@ from product capability tables.
 
 Use explicit archive/reopen policy and compensating membership changes; retain
 history and do not drop Workspace tables.
+
+## Terminal evidence
+
+Accepted implementation candidate: `0835ba67bd38460676740cdf058e56b17b1330c7`.
+
+- Independent engineering review: **PASS** with no R1 findings after the
+  active-Organisation parent-authority repair.
+- Independent tester acceptance: **PASS** for opaque Workspace identity,
+  fixed admin/member/viewer roles, Organisation ownership, membership
+  lifecycle/history, cross-tenant and inactive-parent denial, audit continuity,
+  HTTP CSRF/redaction/safe errors and deterministic default selection.
+- Exact-candidate local validation: `full/local` **PASS**; format,
+  architecture, security, migration, frontend, quality, unit, SQLite/HTTP
+  integration and race profiles **PASS**.
+- Schema v5 fresh, upgrade, close/reopen and divergent-ledger evidence:
+  **PASS**. Container build profiles are **NOT_APPLICABLE** because no
+  authorised Dockerfile exists in this foundation scope.
+- Concurrent membership assignment and stale Workspace-membership after
+  Organisation revocation are explicitly covered and fail closed.
+- Workspace membership remains subordinate to active Platform Organisation
+  membership; CTRL/IMS Project roles, records, routes and authority are absent.
+- The retained Platform SQLite policy remains one connection until a separate
+  authorised, measured upgrade.

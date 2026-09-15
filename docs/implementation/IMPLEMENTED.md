@@ -124,5 +124,24 @@ The following Platform Foundation Slices are terminally recorded:
 - Batch-local `full/local` validation, audit/reconciliation, migration and
   Platform boundary checks: **PASS**; container builds **NOT_APPLICABLE** without
   an authorised Dockerfile.
-- PF-B4-S01 is the next dependency-ready Slice. No CTRL/IMS authority cutover,
+- PF-B4-S01 was the next dependency-ready Slice at this Batch certification
+  point; it is now terminally recorded below. No CTRL/IMS authority cutover,
   product role or production-data import is claimed.
+
+## PF-B4-S01 — Workspace authority
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b4-s01-workspace-authority.md`](../../plan/completed/pf-b4-s01-workspace-authority.md)
+- Accepted implementation candidate: `0835ba67bd38460676740cdf058e56b17b1330c7`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, v5 fresh/upgrade/reopen/divergence
+  migration checks, concurrent membership proof, HTTP authorization/CSRF/
+  redaction/safe-error tests and Workspace audit/history assertions all passed.
+- Platform now owns Organisation-owned Workspace lifecycle, generic
+  admin/member/viewer membership, deterministic authorised default selection,
+  audit continuity and active Organisation parent-scope enforcement.
+- SQLite remains intentionally limited to one connection until a separate
+  authorised, measured upgrade. Container builds are **NOT_APPLICABLE** without
+  an authorised Dockerfile.
+- No CTRL/IMS code, data, migration, product role or authority cutover was
+  changed. PF-B4-S02 is the next dependency-ready Slice.

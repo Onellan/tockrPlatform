@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1, PF-B2 and PF-B3 are terminal, and PF-B4-S01 is Ready.
+**Status:** Planned / active owner-authorised programme; PF-B1, PF-B2, PF-B3 and PF-B4-S01 are terminal, and PF-B4-S02 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -47,9 +47,10 @@ acceptance candidate. At the current foundation state Platform contains the
 terminal repository-control-plane foundation plus the PF-B2-S01 Platform-owned
 identity and authentication runtime, SQLite migration ledger, secure sessions,
 MFA/recovery controls, Organisation lifecycle, canonical membership authority
-and narrow administration seams with focused acceptance evidence. PF-B4-S01 is
-the next sequential Slice; containers, production-data import and CTRL/IMS
-authority cutover remain out of scope.
+and narrow administration seams with focused acceptance evidence. PF-B4-S01
+adds Organisation-owned Workspace lifecycle, generic membership history and
+entry seams; PF-B4-S02 is the next sequential Slice. Containers,
+production-data import and CTRL/IMS authority cutover remain out of scope.
 
 ## Plan contract
 
@@ -118,7 +119,7 @@ independent tester acceptance remain separate gates.
 | PF-B1 | Repository, standards and architecture foundation | S01–S03 | **Terminal** |
 | PF-B2 | Identity and authentication | S01–S02 | **Terminal** |
 | PF-B3 | Organisation authority | S01–S02 | **Terminal** |
-| PF-B4 | Workspace authority | S01–S02 | S01 Ready; S02 Planned |
+| PF-B4 | Workspace authority | S01–S02 | S01 **Terminal**; S02 **Ready** |
 | PF-B5 | Product catalogue and product access | S01–S02 | Planned |
 | PF-B6 | Product assertion and consumer contract | S01–S02 | Planned |
 | PF-B7 | Events and local projection support | S01–S02 | Planned |
@@ -161,7 +162,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B2-S02 | [sessions, MFA, recovery and revocation — terminal](completed/pf-b2-s02-sessions-security.md) |
 | PF-B3-S01 | [Organisation authority — terminal](completed/pf-b3-s01-organisation-authority.md) |
 | PF-B3-S02 | [Organisation administration seams — terminal](completed/pf-b3-s02-organisation-administration.md) |
-| PF-B4-S01 | [Workspace authority](active/pf-b4-s01-workspace-authority.md) |
+| PF-B4-S01 | [Workspace authority — terminal](completed/pf-b4-s01-workspace-authority.md) |
 | PF-B4-S02 | [Workspace access and scope guard](active/pf-b4-s02-workspace-access.md) |
 | PF-B5-S01 | [Product catalogue and entitlements](active/pf-b5-s01-product-catalogue.md) |
 | PF-B5-S02 | [User assignment and effective access](active/pf-b5-s02-product-access.md) |
