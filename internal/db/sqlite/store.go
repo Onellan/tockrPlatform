@@ -241,6 +241,37 @@ func supportedMigrations() []migration {
 				`CREATE INDEX system_role_assignments_active_idx ON system_role_assignments(user_id,active,role)`,
 			},
 		},
+		{
+			version: 5,
+			name:    "workspace-authority",
+			statements: []string{
+				`CREATE TABLE workspaces (
+					id INTEGER PRIMARY KEY,
+					public_id TEXT NOT NULL UNIQUE,
+					organisation_id INTEGER NOT NULL REFERENCES organisations(id),
+					name TEXT NOT NULL,
+					status TEXT NOT NULL CHECK(status IN ('active','archived')),
+					created_at TEXT NOT NULL,
+					archived_at TEXT
+				)`,
+				`CREATE INDEX workspaces_organisation_status_idx ON workspaces(organisation_id,status,public_id)`,
+				`CREATE TABLE workspace_memberships (
+					id INTEGER PRIMARY KEY,
+					public_id TEXT NOT NULL UNIQUE,
+					workspace_id INTEGER NOT NULL REFERENCES workspaces(id),
+					user_id INTEGER NOT NULL REFERENCES users(id),
+					role TEXT NOT NULL CHECK(role IN ('admin','member','viewer')),
+					active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
+					assigned_by INTEGER NOT NULL REFERENCES users(id),
+					assigned_at TEXT NOT NULL,
+					removed_by INTEGER REFERENCES users(id),
+					removed_at TEXT,
+					removal_reason TEXT NOT NULL DEFAULT ''
+				)`,
+				`CREATE UNIQUE INDEX workspace_memberships_current_idx ON workspace_memberships(workspace_id,user_id) WHERE active=1`,
+				`CREATE INDEX workspace_memberships_scope_idx ON workspace_memberships(workspace_id,user_id,active,role)`,
+			},
+		},
 	}
 }
 

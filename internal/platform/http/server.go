@@ -73,6 +73,8 @@ func (s *Server) Handler() http.Handler {
 		protected.Post("/api/organisations", s.createOrganisation)
 		protected.Get("/api/organisations/{organisationID}", s.getOrganisation)
 		protected.Get("/api/organisations/{organisationID}/workspace-entry", s.getOrganisationWorkspaceEntry)
+		protected.Post("/api/organisations/{organisationID}/workspaces", s.createWorkspace)
+		protected.Get("/api/organisations/{organisationID}/workspaces", s.listOrganisationWorkspaces)
 		protected.Get("/api/organisations/{organisationID}/members", s.listOrganisationMembers)
 		protected.Get("/api/organisations/{organisationID}/audit", s.listOrganisationAudit)
 		protected.Patch("/api/organisations/{organisationID}", s.renameOrganisation)
@@ -80,6 +82,13 @@ func (s *Server) Handler() http.Handler {
 		protected.Patch("/api/organisations/{organisationID}/members/{userID}", s.changeOrganisationMemberRole)
 		protected.Delete("/api/organisations/{organisationID}/members/{userID}", s.deactivateOrganisationMember)
 		protected.Post("/api/organisations/{organisationID}/archive", s.archiveOrganisation)
+		protected.Get("/api/workspaces/{workspaceID}", s.getWorkspace)
+		protected.Get("/api/workspaces/{workspaceID}/members", s.listWorkspaceMembers)
+		protected.Get("/api/workspaces/{workspaceID}/audit", s.listWorkspaceAudit)
+		protected.Post("/api/workspaces/{workspaceID}/members", s.addWorkspaceMember)
+		protected.Patch("/api/workspaces/{workspaceID}/members/{userID}", s.changeWorkspaceMemberRole)
+		protected.Delete("/api/workspaces/{workspaceID}/members/{userID}", s.deactivateWorkspaceMember)
+		protected.Post("/api/workspaces/{workspaceID}/archive", s.archiveWorkspace)
 	})
 	return r
 }
@@ -241,6 +250,11 @@ type organisationCreateRequest struct {
 	Reason string `json:"reason"`
 }
 
+type workspaceCreateRequest struct {
+	Name   string `json:"name"`
+	Reason string `json:"reason"`
+}
+
 type organisationRenameRequest struct {
 	Name   string `json:"name"`
 	Reason string `json:"reason"`
@@ -284,9 +298,39 @@ type organisationAuditResponse struct {
 }
 
 type organisationWorkspaceEntryResponse struct {
-	OrganisationID string `json:"organisation_id"`
-	Resource       string `json:"resource"`
-	Available      bool   `json:"available"`
+	OrganisationID     string              `json:"organisation_id"`
+	Resource           string              `json:"resource"`
+	Available          bool                `json:"available"`
+	DefaultWorkspaceID string              `json:"default_workspace_id,omitempty"`
+	Workspaces         []workspaceResponse `json:"workspaces"`
+}
+
+type workspaceResponse struct {
+	ID             string                 `json:"id"`
+	OrganisationID string                 `json:"organisation_id"`
+	Name           string                 `json:"name"`
+	Status         domain.WorkspaceStatus `json:"status"`
+	CreatedAt      time.Time              `json:"created_at"`
+	ArchivedAt     *time.Time             `json:"archived_at,omitempty"`
+}
+
+type workspaceMemberResponse struct {
+	MembershipID string               `json:"membership_id"`
+	WorkspaceID  string               `json:"workspace_id"`
+	UserID       string               `json:"user_id"`
+	Email        string               `json:"email,omitempty"`
+	DisplayName  string               `json:"display_name,omitempty"`
+	Role         domain.WorkspaceRole `json:"role"`
+	AssignedAt   time.Time            `json:"assigned_at"`
+}
+
+type workspaceAuditResponse struct {
+	ID          int64     `json:"id"`
+	WorkspaceID string    `json:"workspace_id"`
+	ActorUserID string    `json:"actor_user_id"`
+	Event       string    `json:"event"`
+	Details     string    `json:"details"`
+	OccurredAt  time.Time `json:"occurred_at"`
 }
 
 func (s *Server) createOrganisation(w http.ResponseWriter, r *http.Request) {
@@ -384,7 +428,195 @@ func (s *Server) getOrganisationWorkspaceEntry(w http.ResponseWriter, r *http.Re
 		writeOrganisationError(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, organisationWorkspaceEntryResponse{OrganisationID: entry.OrganisationID, Resource: entry.Resource, Available: entry.Available})
+	workspaces := make([]workspaceResponse, 0, len(entry.Workspaces))
+	for _, workspace := range entry.Workspaces {
+		workspaces = append(workspaces, workspaceResponseFromDomain(workspace))
+	}
+	writeJSON(w, http.StatusOK, organisationWorkspaceEntryResponse{OrganisationID: entry.OrganisationID, Resource: entry.Resource, Available: entry.Available, DefaultWorkspaceID: entry.DefaultWorkspaceID, Workspaces: workspaces})
+}
+
+func (s *Server) createWorkspace(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request workspaceCreateRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	workspace, _, err := s.store.CreateWorkspace(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), domain.Workspace{Name: request.Name}, request.Reason, time.Now().UTC())
+	if err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, workspaceResponseFromDomain(workspace))
+}
+
+func (s *Server) listOrganisationWorkspaces(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	workspaces, err := s.store.ListOrganisationWorkspaces(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"))
+	if err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	response := make([]workspaceResponse, 0, len(workspaces))
+	for _, workspace := range workspaces {
+		response = append(response, workspaceResponseFromDomain(workspace))
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) getWorkspace(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	workspace, err := s.store.GetWorkspace(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"))
+	if err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, workspaceResponseFromDomain(*workspace))
+}
+
+func (s *Server) listWorkspaceMembers(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	members, err := s.store.ListWorkspaceMembers(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"))
+	if err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	response := make([]workspaceMemberResponse, 0, len(members))
+	for _, member := range members {
+		response = append(response, workspaceMemberResponse{MembershipID: member.MembershipID, WorkspaceID: member.WorkspaceID, UserID: member.UserID, Email: member.Email, DisplayName: member.DisplayName, Role: member.Role, AssignedAt: member.AssignedAt})
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) listWorkspaceAudit(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	limit := 50
+	if value := strings.TrimSpace(r.URL.Query().Get("limit")); value != "" {
+		parsed, err := strconv.Atoi(value)
+		if err != nil {
+			http.Error(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+		limit = parsed
+	}
+	if limit < 1 || limit > 100 {
+		http.Error(w, "invalid limit", http.StatusBadRequest)
+		return
+	}
+	events, err := s.store.ListWorkspaceAudit(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"), limit)
+	if err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	response := make([]workspaceAuditResponse, 0, len(events))
+	for _, event := range events {
+		response = append(response, workspaceAuditResponse{ID: event.ID, WorkspaceID: event.WorkspaceID, ActorUserID: event.ActorUserID, Event: event.Event, Details: event.Details, OccurredAt: event.OccurredAt})
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) addWorkspaceMember(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationMemberMutationRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	membership, err := s.store.AddWorkspaceMember(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"), strings.TrimSpace(request.UserID), domain.WorkspaceRole(strings.TrimSpace(request.Role)), request.Reason, time.Now().UTC())
+	if err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, workspaceMemberResponse{MembershipID: membership.ID, WorkspaceID: membership.WorkspaceID, UserID: membership.UserID, Role: membership.Role, AssignedAt: membership.AssignedAt})
+}
+
+func (s *Server) changeWorkspaceMemberRole(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationMemberMutationRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	membership, err := s.store.ChangeWorkspaceMemberRole(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"), chi.URLParam(r, "userID"), domain.WorkspaceRole(strings.TrimSpace(request.Role)), request.Reason, time.Now().UTC())
+	if err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, workspaceMemberResponse{MembershipID: membership.ID, WorkspaceID: membership.WorkspaceID, UserID: membership.UserID, Role: membership.Role, AssignedAt: membership.AssignedAt})
+}
+
+func (s *Server) deactivateWorkspaceMember(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationReasonRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := s.store.DeactivateWorkspaceMember(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"), chi.URLParam(r, "userID"), request.Reason, time.Now().UTC()); err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) archiveWorkspace(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationReasonRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := s.store.ArchiveWorkspace(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"), request.Reason, time.Now().UTC()); err != nil {
+		writeWorkspaceError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Server) renameOrganisation(w http.ResponseWriter, r *http.Request) {
@@ -552,8 +784,29 @@ func writeOrganisationError(w http.ResponseWriter, err error) {
 	http.Error(w, http.StatusText(status), status)
 }
 
+func writeWorkspaceError(w http.ResponseWriter, err error) {
+	status := http.StatusInternalServerError
+	switch {
+	case errors.Is(err, store.ErrWorkspaceNotFound), errors.Is(err, store.ErrWorkspaceArchived), errors.Is(err, store.ErrWorkspaceMembershipNotFound), errors.Is(err, store.ErrUnauthorisedWorkspaceAction):
+		status = http.StatusNotFound
+	case errors.Is(err, store.ErrDuplicateWorkspaceMember):
+		status = http.StatusConflict
+	case errors.Is(err, domain.ErrInvalidWorkspace), errors.Is(err, domain.ErrInvalidWorkspaceID), errors.Is(err, domain.ErrInvalidWorkspaceName), errors.Is(err, domain.ErrInvalidWorkspaceRole), errors.Is(err, domain.ErrInvalidWorkspaceMember), errors.Is(err, domain.ErrInvalidReason):
+		status = http.StatusBadRequest
+	}
+	if status == http.StatusInternalServerError {
+		http.Error(w, "service unavailable", status)
+		return
+	}
+	http.Error(w, http.StatusText(status), status)
+}
+
 func organisationResponseFromDomain(organisation domain.Organisation) organisationResponse {
 	return organisationResponse{ID: organisation.ID, Name: organisation.Name, Status: organisation.Status, CreatedAt: organisation.CreatedAt, ArchivedAt: organisation.ArchivedAt}
+}
+
+func workspaceResponseFromDomain(workspace domain.Workspace) workspaceResponse {
+	return workspaceResponse{ID: workspace.ID, OrganisationID: workspace.OrganisationID, Name: workspace.Name, Status: workspace.Status, CreatedAt: workspace.CreatedAt, ArchivedAt: workspace.ArchivedAt}
 }
 
 func (s *Server) mfaSetup(w http.ResponseWriter, r *http.Request) {

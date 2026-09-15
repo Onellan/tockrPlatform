@@ -37,9 +37,11 @@ type OrganisationAuditRecord struct {
 }
 
 type OrganisationWorkspaceEntry struct {
-	OrganisationID string
-	Resource       string
-	Available      bool
+	OrganisationID     string
+	Resource           string
+	Available          bool
+	DefaultWorkspaceID string
+	Workspaces         []domain.Workspace
 }
 
 // OrganisationStore is the narrow Platform caller contract for shared

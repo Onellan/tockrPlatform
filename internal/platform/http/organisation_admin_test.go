@@ -152,6 +152,71 @@ func TestOrganisationHTTPAuthorizationCSRFRedactionAndSafeScopeErrors(t *testing
 	}
 }
 
+func TestWorkspaceHTTPAuthorizationLifecycleAndDefaultEntry(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	ownerSession, ownerCSRF := loginHTTPUser(t, f, f.users[0])
+	memberSession, memberCSRF := loginHTTPUser(t, f, f.users[2])
+	outsiderSession, outsiderCSRF := loginHTTPUser(t, f, f.users[3])
+	organisationPath := "/api/organisations/" + f.organisation.ID
+
+	createBody := `{"name":"HTTP Workspace","reason":"create workspace through API"}`
+	response := organisationHTTPRequest(t, f, http.MethodPost, organisationPath+"/workspaces", ownerSession, ownerCSRF, createBody, "csrf-header")
+	if response.Code != http.StatusCreated || strings.Contains(response.Body.String(), "product_role") {
+		t.Fatalf("workspace create response = %d/%s", response.Code, response.Body.String())
+	}
+	var workspace workspaceResponse
+	if err := json.Unmarshal(response.Body.Bytes(), &workspace); err != nil || workspace.ID == "" || workspace.Status != domain.WorkspaceActive {
+		t.Fatalf("created workspace = %s, err=%v", response.Body.String(), err)
+	}
+	if !strings.HasPrefix(workspace.ID, "wsp_") || workspace.OrganisationID != f.organisation.ID {
+		t.Fatalf("created workspace identity = %#v", workspace)
+	}
+
+	response = organisationHTTPRequest(t, f, http.MethodGet, organisationPath+"/workspace-entry", ownerSession, ownerCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `"available":true`) || !strings.Contains(response.Body.String(), workspace.ID) || !strings.Contains(response.Body.String(), `"default_workspace_id":"`+workspace.ID+`"`) {
+		t.Fatalf("workspace entry response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, organisationPath+"/workspaces", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusOK || response.Body.String() != "[]\n" {
+		t.Fatalf("organisation member workspace list = %d/%s, want empty", response.Code, response.Body.String())
+	}
+
+	addBody := `{"user_id":"` + f.users[2].ID + `","role":"member","reason":"grant workspace access"}`
+	response = organisationHTTPRequest(t, f, http.MethodPost, "/api/workspaces/"+workspace.ID+"/members", ownerSession, ownerCSRF, addBody, "csrf-header")
+	if response.Code != http.StatusCreated {
+		t.Fatalf("workspace member create response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/api/workspaces/"+workspace.ID, memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), workspace.ID) || strings.Contains(response.Body.String(), "password_hash") {
+		t.Fatalf("workspace member read response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/api/workspaces/"+workspace.ID+"/members", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("workspace member enumeration response = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/api/workspaces/"+workspace.ID+"/members", ownerSession, ownerCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), f.users[2].ID) {
+		t.Fatalf("workspace admin member enumeration response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/api/workspaces/"+workspace.ID, outsiderSession, outsiderCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("cross-organisation workspace response = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+
+	response = organisationHTTPRequest(t, f, http.MethodPost, "/api/workspaces/"+workspace.ID+"/archive", memberSession, memberCSRF, `{"reason":"member archive attempt"}`, "csrf-header")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("workspace member archive response = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodPost, "/api/workspaces/"+workspace.ID+"/archive", ownerSession, ownerCSRF, `{"reason":"archive workspace"}`, "csrf-header")
+	if response.Code != http.StatusNoContent {
+		t.Fatalf("workspace archive response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/api/workspaces/"+workspace.ID, ownerSession, ownerCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("archived workspace HTTP read = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+}
+
 func loginHTTPUser(t *testing.T, f organisationHTTPFixture, user domain.User) (*http.Cookie, *http.Cookie) {
 	t.Helper()
 	page := httptest.NewRecorder()

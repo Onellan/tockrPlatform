@@ -489,7 +489,15 @@ func (s *Store) GetOrganisationWorkspaceEntry(ctx context.Context, requesterUser
 	if _, err := s.GetOrganisation(ctx, requesterUserID, organisationID); err != nil {
 		return store.OrganisationWorkspaceEntry{}, err
 	}
-	return store.OrganisationWorkspaceEntry{OrganisationID: organisationID, Resource: "workspaces", Available: false}, nil
+	workspaces, err := s.ListOrganisationWorkspaces(ctx, requesterUserID, organisationID)
+	if err != nil {
+		return store.OrganisationWorkspaceEntry{}, err
+	}
+	entry := store.OrganisationWorkspaceEntry{OrganisationID: organisationID, Resource: "workspaces", Available: len(workspaces) > 0, Workspaces: workspaces}
+	if len(workspaces) > 0 {
+		entry.DefaultWorkspaceID = workspaces[0].ID
+	}
+	return entry, nil
 }
 
 func (s *Store) authorisedOrganisationRead(ctx context.Context, requesterUserID, organisationID string, adminOnly bool) (int64, error) {
