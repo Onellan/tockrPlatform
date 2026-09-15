@@ -1,6 +1,6 @@
 # PF-B1-S03 — Runtime, persistence and presentation foundation
 
-Status: **Ready**
+Status: **Blocked / NOT RUN — Platform measurement prerequisite unavailable.**
 
 ## Objective
 
@@ -60,6 +60,26 @@ data.
 Architecture, frontend and quality profiles; independent architecture review of
 the package graph and runtime contract; no build claim until a Dockerfile and Go
 module exist in a later implementation candidate.
+
+## Current execution outcome
+
+On candidate `2f27ca5eed2cc0af12111c9ea1623af23a5df3b4`, independent review and
+tester acceptance classified the Slice as **BLOCKED / NOT RUN**, not terminal:
+
+- AC02 package boundaries and dependency direction: **PASS** from the target
+  architecture package map.
+- AC03 health/readiness, runtime targets and presentation rules: **PASS** from
+  the security-runtime, presentation and source-alignment contracts.
+- AC04 prohibited ORM/service-mesh/broker/shared-database/runtime-Node targets:
+  **PASS** from the architecture and presentation contracts.
+- AC01 SQLite pool-width owner decision: **BLOCKED / NOT RUN**. CTRL records a
+  single connection and IMS records a measured file-backed `4/2` pool, while
+  Platform has no `go.mod`, runtime package or measurement harness. Choosing a
+  width now would be an unsupported guess.
+
+Resume only when an authorised Platform measurement prerequisite exists and
+the pool-width decision can be bound to fresh evidence. Do not add runtime code,
+choose a pool width, or certify PF-B1 while this blocker remains.
 
 ## Dependencies
 

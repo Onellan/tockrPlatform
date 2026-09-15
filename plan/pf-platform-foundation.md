@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1-S03 is Ready.
+**Status:** Planned / active owner-authorised programme; PF-B1-S03 is BLOCKED / NOT RUN.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -112,7 +112,7 @@ independent tester acceptance remain separate gates.
 
 | Batch | Purpose | Slices | Status |
 | --- | --- | --- | --- |
-| PF-B1 | Repository, standards and architecture foundation | S01–S03 | S01/S02 Terminal; S03 Ready |
+| PF-B1 | Repository, standards and architecture foundation | S01–S03 | S01/S02 Terminal; S03 BLOCKED / NOT RUN |
 | PF-B2 | Identity and authentication | S01–S02 | Planned |
 | PF-B3 | Organisation authority | S01–S02 | Planned |
 | PF-B4 | Workspace authority | S01–S02 | Planned |

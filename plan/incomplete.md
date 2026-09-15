@@ -50,13 +50,13 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B1-S03 | **Ready** | PF-B1-S01 and PF-B1-S02 terminal | [runtime, persistence and presentation foundation](active/pf-b1-s03-runtime-foundation.md) |
+| 1 | PF-B1-S03 | **BLOCKED / NOT RUN** | PF-B1-S01 and PF-B1-S02 terminal; Platform measurement prerequisite unavailable | [runtime, persistence and presentation foundation](active/pf-b1-s03-runtime-foundation.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
 | Batch | Slices | State | Depends on |
 | --- | --- | --- | --- |
-| PF-B1 | S01, S02, S03 | S01/S02 Terminal; S03 Ready | S02 follows S01; S03 follows S02 |
+| PF-B1 | S01, S02, S03 | S01/S02 Terminal; S03 BLOCKED / NOT RUN | S02 follows S01; S03 follows S02 plus Platform measurement prerequisite |
 | PF-B2 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B3 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B4 | S01, S02 | Planned | PF-B1-S03 |
@@ -102,17 +102,16 @@ programme plan.
 > the required gates pass. Do not implement work from a later Batch or any
 > scope outside the selected Batch.
 
-## Copy-ready first Slice prompt
+## Current blocked Slice prompt
 
-> Deliver **PF-B1-S03 — Runtime, persistence and presentation foundation** from
+> Resume **PF-B1-S03 — Runtime, persistence and presentation foundation** from
 > [`plan/active/pf-b1-s03-runtime-foundation.md`](active/pf-b1-s03-runtime-foundation.md).
-> Re-read the plan, verify the current candidate and repository state, implement
-> only its authorised scope, then obtain independent review and independent
-> acceptance. Repair findings sequentially, rerun the required local validation
-> against the exact final candidate, and update the PF tracker/index and
-> implementation reconciliation only if every required gate passes. Do not
-> implement PF-B2 or identity behaviour beyond the authorised foundation
-> scope in this Slice.
+> First establish an authorised Platform measurement prerequisite for the
+> SQLite pool-width decision. Do not guess the pool width, add runtime code
+> outside the authorised prerequisite, or mark the Slice Ready while the
+> blocker remains. Once the prerequisite exists, re-read the plan and current
+> evidence, then obtain independent review, independent acceptance and
+> exact-candidate validation before changing the tracker or certifying PF-B1.
 
 ## Closeout update
 
