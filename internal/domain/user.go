@@ -25,6 +25,7 @@ type User struct {
 	DisplayName  string
 	PasswordHash string
 	Active       bool
+	MFAEnabled   bool
 	CreatedAt    time.Time
 	LastLoginAt  *time.Time
 }

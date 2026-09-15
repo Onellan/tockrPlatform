@@ -12,22 +12,31 @@ import (
 	"github.com/Onellan/tockrplatform/internal/store"
 )
 
+const maxSessionLifetime = 30 * 24 * time.Hour
+
 func (s *Store) CreateSession(ctx context.Context, userID, token, csrfToken string, expiresAt time.Time) error {
 	if strings.TrimSpace(userID) == "" || strings.TrimSpace(token) == "" || strings.TrimSpace(csrfToken) == "" {
 		return errors.New("session user and tokens are required")
+	}
+	createdAt := time.Now().UTC()
+	if err := validateSessionExpiry(createdAt, expiresAt); err != nil {
+		return err
 	}
 	var internalID int64
 	if err := s.db.QueryRowContext(ctx, `SELECT id FROM users WHERE public_id=? AND active=1`, userID).Scan(&internalID); err != nil {
 		return fmt.Errorf("resolve session user: %w", err)
 	}
 	_, err := s.db.ExecContext(ctx, `INSERT INTO sessions(user_id,token_hash,csrf_token_hash,created_at,expires_at) VALUES(?,?,?,?,?)`,
-		internalID, auth.HashToken(token), auth.HashToken(csrfToken), formatTime(time.Now().UTC()), formatTime(expiresAt.UTC()))
+		internalID, auth.HashToken(token), auth.HashToken(csrfToken), formatTime(createdAt), formatTime(expiresAt.UTC()))
 	return err
 }
 
 func (s *Store) EstablishSession(ctx context.Context, userID, token, csrfToken string, expiresAt, loginAt time.Time) error {
 	if strings.TrimSpace(userID) == "" || strings.TrimSpace(token) == "" || strings.TrimSpace(csrfToken) == "" {
 		return errors.New("session user and tokens are required")
+	}
+	if err := validateSessionExpiry(loginAt, expiresAt); err != nil {
+		return err
 	}
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -56,13 +65,13 @@ func (s *Store) EstablishSession(ctx context.Context, userID, token, csrfToken s
 
 func (s *Store) AuthenticatedSession(ctx context.Context, token string, now time.Time) (store.AuthenticatedSession, error) {
 	var result store.AuthenticatedSession
-	var active int
+	var active, mfaEnabled int
 	var expires, created string
 	var lastLogin sql.NullString
-	err := s.db.QueryRowContext(ctx, `SELECT u.public_id,u.email,u.display_name,u.active,u.created_at,u.last_login_at,s.expires_at
+	err := s.db.QueryRowContext(ctx, `SELECT u.public_id,u.email,u.display_name,u.active,u.created_at,u.last_login_at,u.mfa_enabled,s.expires_at
 		FROM sessions s JOIN users u ON u.id=s.user_id
 		WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? AND u.active=1`, auth.HashToken(token), formatTime(now.UTC())).
-		Scan(&result.User.ID, &result.User.Email, &result.User.DisplayName, &active, &created, &lastLogin, &expires)
+		Scan(&result.User.ID, &result.User.Email, &result.User.DisplayName, &active, &created, &lastLogin, &mfaEnabled, &expires)
 	if errors.Is(err, sql.ErrNoRows) {
 		return store.AuthenticatedSession{}, sql.ErrNoRows
 	}
@@ -70,6 +79,7 @@ func (s *Store) AuthenticatedSession(ctx context.Context, token string, now time
 		return store.AuthenticatedSession{}, fmt.Errorf("authenticate session: %w", err)
 	}
 	result.User.Active = active == 1
+	result.User.MFAEnabled = mfaEnabled == 1
 	result.User.CreatedAt = parseTime(created)
 	if lastLogin.Valid {
 		value := parseTime(lastLogin.String)
@@ -126,4 +136,26 @@ func (s *Store) VerifySessionCSRF(ctx context.Context, token, csrfToken string) 
 		return false, err
 	}
 	return auth.VerifyTokenHash(hash, csrfToken), nil
+}
+
+func (s *Store) CleanupExpiredSessions(ctx context.Context, now time.Time, limit int) (int64, error) {
+	if limit <= 0 {
+		return 0, errors.New("session cleanup limit must be positive")
+	}
+	result, err := s.db.ExecContext(ctx, `DELETE FROM sessions WHERE id IN (SELECT id FROM sessions WHERE expires_at<=? ORDER BY expires_at,id LIMIT ?)`, formatTime(now.UTC()), limit)
+	if err != nil {
+		return 0, fmt.Errorf("cleanup expired sessions: %w", err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("count expired sessions: %w", err)
+	}
+	return rows, nil
+}
+
+func validateSessionExpiry(createdAt, expiresAt time.Time) error {
+	if !expiresAt.After(createdAt) || expiresAt.After(createdAt.Add(maxSessionLifetime)) {
+		return errors.New("session expiry is outside the bounded lifetime")
+	}
+	return nil
 }

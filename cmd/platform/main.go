@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"log"
 	"net/http"
 	"os"
@@ -15,7 +16,15 @@ func main() {
 	if path == "" {
 		path = "platform.db"
 	}
-	store, err := sqlite.Open(context.Background(), path)
+	keyText := os.Getenv("PLATFORM_MFA_KEY")
+	if keyText == "" {
+		log.Fatal("PLATFORM_MFA_KEY must be configured as 64 hex characters")
+	}
+	secretKey, err := hex.DecodeString(keyText)
+	if err != nil || len(secretKey) != 32 {
+		log.Fatal("PLATFORM_MFA_KEY must be configured as 64 hex characters")
+	}
+	store, err := sqlite.OpenWithKey(context.Background(), path, secretKey)
 	if err != nil {
 		log.Fatal(err)
 	}

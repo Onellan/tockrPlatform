@@ -12,6 +12,11 @@ type AuthenticatedSession struct {
 	User    domain.User
 }
 
+type LoginCredential struct {
+	User         domain.User
+	PasswordHash string
+}
+
 type Session struct {
 	UserID    string
 	CSRFToken string
@@ -25,6 +30,7 @@ type AuthenticationStore interface {
 	CreateUser(context.Context, domain.User, string) (domain.User, error)
 	FindUserByEmail(context.Context, string) (*domain.User, error)
 	FindUserByID(context.Context, string) (*domain.User, error)
+	FindLoginCredential(context.Context, string) (*LoginCredential, error)
 	SetUserActive(context.Context, string, bool) error
 	TouchLogin(context.Context, string, time.Time) error
 }
@@ -36,6 +42,11 @@ type SessionStore interface {
 	VerifySessionCSRF(context.Context, string, string) (bool, error)
 	RevokeSession(context.Context, string, time.Time) error
 	RevokeSessionAndRecordLogout(context.Context, string, string, time.Time) error
+	CleanupExpiredSessions(context.Context, time.Time, int) (int64, error)
+	VerifyMFA(context.Context, string, string) (bool, error)
+	UseRecoveryCode(context.Context, string, string, time.Time) (bool, error)
+	CreateMFAEnrollment(context.Context, string, string, time.Time) (string, error)
+	CompleteMFAEnrollment(context.Context, string, string, string, []string, time.Time) (bool, error)
 }
 
 type SecurityEventStore interface {

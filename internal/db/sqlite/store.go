@@ -15,10 +15,22 @@ import (
 )
 
 type Store struct {
-	db *sql.DB
+	db        *sql.DB
+	secretKey []byte
 }
 
 func Open(ctx context.Context, path string) (*Store, error) {
+	return open(ctx, path, nil)
+}
+
+func OpenWithKey(ctx context.Context, path string, secretKey []byte) (*Store, error) {
+	if len(secretKey) != 32 {
+		return nil, errors.New("Platform MFA key must be exactly 32 bytes")
+	}
+	return open(ctx, path, secretKey)
+}
+
+func open(ctx context.Context, path string, secretKey []byte) (*Store, error) {
 	if strings.TrimSpace(path) == "" {
 		return nil, errors.New("sqlite path is required")
 	}
@@ -34,7 +46,7 @@ func Open(ctx context.Context, path string) (*Store, error) {
 	// accidentally relying on multi-connection semantics.
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
-	store := &Store{db: db}
+	store := &Store{db: db, secretKey: append([]byte(nil), secretKey...)}
 	if err := store.configure(ctx); err != nil {
 		_ = db.Close()
 		return nil, err
@@ -106,11 +118,12 @@ type migration struct {
 }
 
 func supportedMigrations() []migration {
-	return []migration{{
-		version: 1,
-		name:    "identity-authentication-foundation",
-		statements: []string{
-			`CREATE TABLE users (
+	return []migration{
+		{
+			version: 1,
+			name:    "identity-authentication-foundation",
+			statements: []string{
+				`CREATE TABLE users (
 				id INTEGER PRIMARY KEY,
 				public_id TEXT NOT NULL UNIQUE,
 				email TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -120,7 +133,7 @@ func supportedMigrations() []migration {
 				created_at TEXT NOT NULL,
 				last_login_at TEXT
 			)`,
-			`CREATE TABLE sessions (
+				`CREATE TABLE sessions (
 				id INTEGER PRIMARY KEY,
 				user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 				token_hash TEXT NOT NULL UNIQUE,
@@ -129,17 +142,47 @@ func supportedMigrations() []migration {
 				expires_at TEXT NOT NULL,
 				revoked_at TEXT
 			)`,
-			`CREATE INDEX sessions_active_token_idx ON sessions(token_hash, expires_at, revoked_at)`,
-			`CREATE TABLE security_events (
+				`CREATE INDEX sessions_active_token_idx ON sessions(token_hash, expires_at, revoked_at)`,
+				`CREATE TABLE security_events (
 				id INTEGER PRIMARY KEY,
 				user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
 				event TEXT NOT NULL,
 				details TEXT NOT NULL DEFAULT '',
 				occurred_at TEXT NOT NULL
 			)`,
-			`CREATE INDEX security_events_user_time_idx ON security_events(user_id, occurred_at)`,
+				`CREATE INDEX security_events_user_time_idx ON security_events(user_id, occurred_at)`,
+			},
 		},
-	}}
+		{
+			version: 2,
+			name:    "sessions-mfa-recovery",
+			statements: []string{
+				`ALTER TABLE users ADD COLUMN mfa_enabled INTEGER NOT NULL DEFAULT 0 CHECK(mfa_enabled IN (0,1))`,
+				`ALTER TABLE users ADD COLUMN mfa_secret_ciphertext BLOB`,
+				`ALTER TABLE users ADD COLUMN mfa_last_step INTEGER NOT NULL DEFAULT -1`,
+				`CREATE TABLE mfa_enrollments (
+					id INTEGER PRIMARY KEY,
+					user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+					token_hash TEXT NOT NULL UNIQUE,
+					secret_ciphertext BLOB NOT NULL,
+					expires_at TEXT NOT NULL,
+					attempts INTEGER NOT NULL DEFAULT 0,
+					created_at TEXT NOT NULL,
+					used_at TEXT
+				)`,
+				`CREATE INDEX mfa_enrollments_expiry_idx ON mfa_enrollments(expires_at, used_at)`,
+				`CREATE TABLE mfa_recovery_codes (
+					id INTEGER PRIMARY KEY,
+					user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+					code_hash TEXT NOT NULL,
+					created_at TEXT NOT NULL,
+					used_at TEXT
+				)`,
+				`CREATE INDEX mfa_recovery_active_idx ON mfa_recovery_codes(user_id, used_at)`,
+				`CREATE INDEX sessions_expiry_idx ON sessions(expires_at, revoked_at)`,
+			},
+		},
+	}
 }
 
 func migrationChecksum(value migration) string {

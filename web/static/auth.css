@@ -19,6 +19,11 @@ button { border: 0; border-radius: .35rem; padding: .75rem 1rem; background: #17
 button:focus-visible, input:focus-visible { outline: 3px solid #f2a900; outline-offset: 2px; }
 .secondary { background: #40536a; }
 .form-error { padding: .75rem; border-inline-start: .25rem solid #a52727; background: #fff1f1; color: #7a1b1b; }
+.field-hint { color: #40536a; font-size: .85rem; font-weight: 400; }
+.security-section { border-block-start: 1px solid #e4e8ed; margin-block-start: 2rem; padding-block-start: 1.5rem; }
+.security-section h2 { font-size: 1.1rem; }
+.secret-key { background: #eef3f7; border-radius: .35rem; overflow-wrap: anywhere; padding: 1rem; }
+.recovery-codes { columns: 2; line-height: 1.9; padding-inline-start: 1.25rem; }
 .account-facts { display: grid; gap: 1rem; margin-block: 2rem; }
 .account-facts div { border-block-end: 1px solid #e4e8ed; padding-block-end: .75rem; }
 dd { margin-inline-start: 0; margin-block-start: .25rem; overflow-wrap: anywhere; }

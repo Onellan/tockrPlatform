@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -22,10 +23,12 @@ type authFixture struct {
 	h     http.Handler
 }
 
+var httpMFAKey = []byte("01234567890123456789012345678901")
+
 func newAuthFixture(t *testing.T) authFixture {
 	t.Helper()
 	ctx := context.Background()
-	store, err := sqlite.Open(ctx, filepath.Join(t.TempDir(), "platform.db"))
+	store, err := sqlite.OpenWithKey(ctx, filepath.Join(t.TempDir(), "platform.db"), httpMFAKey)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,6 +216,138 @@ func TestInactiveUserCannotContinueAnExistingSession(t *testing.T) {
 	f.h.ServeHTTP(response, account)
 	if response.Code != http.StatusSeeOther || response.Header().Get("Location") != "/login" {
 		t.Fatalf("inactive session status/location = %d/%s", response.Code, response.Header().Get("Location"))
+	}
+}
+
+func TestMFASetupRequiresCSRFAndEnablesProtectedLogin(t *testing.T) {
+	f := newAuthFixture(t)
+	loginResponse := httptest.NewRecorder()
+	f.h.ServeHTTP(loginResponse, httptest.NewRequest(http.MethodGet, "/login", nil))
+	loginCSRF := findCookie(loginResponse.Result().Cookies(), loginCSRFCookie)
+	loginForm := url.Values{"csrf": {loginCSRF.Value}, "email": {f.user.Email}, "password": {"correct horse battery staple"}}
+	loginRequest := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(loginForm.Encode()))
+	loginRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	loginRequest.AddCookie(loginCSRF)
+	loginResponse = httptest.NewRecorder()
+	f.h.ServeHTTP(loginResponse, loginRequest)
+	session := findCookie(loginResponse.Result().Cookies(), sessionCookieName)
+	csrf := findCookie(loginResponse.Result().Cookies(), "platform_csrf")
+	if session == nil || csrf == nil {
+		t.Fatal("initial session cookies missing")
+	}
+
+	missingCSRF := httptest.NewRequest(http.MethodPost, "/account/mfa/setup", strings.NewReader("csrf=wrong"))
+	missingCSRF.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	missingCSRF.AddCookie(session)
+	missingCSRF.AddCookie(csrf)
+	response := httptest.NewRecorder()
+	f.h.ServeHTTP(response, missingCSRF)
+	if response.Code != http.StatusForbidden {
+		t.Fatalf("MFA setup without CSRF status = %d", response.Code)
+	}
+
+	setupForm := url.Values{"csrf": {csrf.Value}}
+	setupRequest := httptest.NewRequest(http.MethodPost, "/account/mfa/setup", strings.NewReader(setupForm.Encode()))
+	setupRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	setupRequest.AddCookie(session)
+	setupRequest.AddCookie(csrf)
+	response = httptest.NewRecorder()
+	f.h.ServeHTTP(response, setupRequest)
+	if response.Code != http.StatusOK {
+		t.Fatalf("MFA setup status = %d, body=%s", response.Code, response.Body.String())
+	}
+	secretMatch := regexp.MustCompile(`class="secret-key"><code>([^<]+)</code>`).FindStringSubmatch(response.Body.String())
+	tokenMatch := regexp.MustCompile(`name="enrollment_token" value="([^"]+)"`).FindStringSubmatch(response.Body.String())
+	if len(secretMatch) != 2 || len(tokenMatch) != 2 {
+		t.Fatalf("MFA setup did not render enrollment material: %s", response.Body.String())
+	}
+	code, err := auth.TOTPCode(secretMatch[1], time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	confirmForm := url.Values{"csrf": {csrf.Value}, "enrollment_token": {tokenMatch[1]}, "code": {code}}
+	confirmRequest := httptest.NewRequest(http.MethodPost, "/account/mfa/confirm", strings.NewReader(confirmForm.Encode()))
+	confirmRequest.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	confirmRequest.AddCookie(session)
+	confirmRequest.AddCookie(csrf)
+	response = httptest.NewRecorder()
+	f.h.ServeHTTP(response, confirmRequest)
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Save your recovery codes") {
+		t.Fatalf("MFA confirm status/body = %d/%s", response.Code, response.Body.String())
+	}
+
+	accountRequest := httptest.NewRequest(http.MethodGet, "/account", nil)
+	accountRequest.AddCookie(session)
+	accountRequest.AddCookie(csrf)
+	response = httptest.NewRecorder()
+	f.h.ServeHTTP(response, accountRequest)
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "MFA is enabled") {
+		t.Fatalf("MFA-enabled account status/body = %d/%s", response.Code, response.Body.String())
+	}
+}
+
+func TestMFARequiresSecondFactorAndConsumesRecoveryCodeOnce(t *testing.T) {
+	f := newAuthFixture(t)
+	ctx := context.Background()
+	secret, err := auth.GenerateTOTPSecret()
+	if err != nil {
+		t.Fatal(err)
+	}
+	recoveryCodes, err := auth.GenerateRecoveryCodes(10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hashes := make([]string, 0, len(recoveryCodes))
+	for _, recoveryCode := range recoveryCodes {
+		hash, hashErr := auth.HashPassword(auth.NormalizeRecoveryCode(recoveryCode))
+		if hashErr != nil {
+			t.Fatal(hashErr)
+		}
+		hashes = append(hashes, hash)
+	}
+	enrollment, err := f.store.CreateMFAEnrollment(ctx, f.user.ID, secret, time.Now().UTC().Add(10*time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	code, err := auth.TOTPCode(secret, time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if complete, err := f.store.CompleteMFAEnrollment(ctx, f.user.ID, enrollment, code, hashes, time.Now().UTC()); err != nil || !complete {
+		t.Fatalf("complete MFA = %v, err=%v", complete, err)
+	}
+
+	login := func(fields url.Values) *httptest.ResponseRecorder {
+		page := httptest.NewRecorder()
+		f.h.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/login", nil))
+		csrf := findCookie(page.Result().Cookies(), loginCSRFCookie)
+		fields.Set("csrf", csrf.Value)
+		request := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(fields.Encode()))
+		request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		request.AddCookie(csrf)
+		response := httptest.NewRecorder()
+		f.h.ServeHTTP(response, request)
+		return response
+	}
+	withoutFactor := login(url.Values{"email": {f.user.Email}, "password": {"correct horse battery staple"}})
+	if withoutFactor.Code != http.StatusSeeOther || withoutFactor.Header().Get("Location") != "/login?error=1" {
+		t.Fatalf("MFA-less login status/location = %d/%s", withoutFactor.Code, withoutFactor.Header().Get("Location"))
+	}
+	validCode, err := auth.TOTPCode(secret, time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	withFactor := login(url.Values{"email": {f.user.Email}, "password": {"correct horse battery staple"}, "mfa_code": {validCode}})
+	if withFactor.Code != http.StatusSeeOther || withFactor.Header().Get("Location") != "/account" {
+		t.Fatalf("MFA login status/location = %d/%s", withFactor.Code, withFactor.Header().Get("Location"))
+	}
+	withRecovery := login(url.Values{"email": {f.user.Email}, "password": {"correct horse battery staple"}, "recovery_code": {recoveryCodes[0]}})
+	if withRecovery.Code != http.StatusSeeOther || withRecovery.Header().Get("Location") != "/account" {
+		t.Fatalf("recovery login status/location = %d/%s", withRecovery.Code, withRecovery.Header().Get("Location"))
+	}
+	replayed := login(url.Values{"email": {f.user.Email}, "password": {"correct horse battery staple"}, "recovery_code": {recoveryCodes[0]}})
+	if replayed.Code != http.StatusSeeOther || replayed.Header().Get("Location") != "/login?error=1" {
+		t.Fatalf("replayed recovery status/location = %d/%s", replayed.Code, replayed.Header().Get("Location"))
 	}
 }
 

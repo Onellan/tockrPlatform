@@ -29,6 +29,10 @@ templ Login(csrfToken string, message string) {
 					<input id="email" name="email" type="email" autocomplete="username" required />
 					<label for="password">Password</label>
 					<input id="password" name="password" type="password" autocomplete="current-password" required />
+					<label for="mfa_code">MFA code <span class="field-hint">Leave blank if MFA is not enabled</span></label>
+					<input id="mfa_code" name="mfa_code" inputmode="numeric" autocomplete="one-time-code" />
+					<label for="recovery_code">Recovery code <span class="field-hint">Use instead of an MFA code</span></label>
+					<input id="recovery_code" name="recovery_code" autocomplete="off" />
 					<button type="submit">Sign in</button>
 				</form>
 			</main>
@@ -57,6 +61,79 @@ templ Account(user domain.User, csrfToken string) {
 				<form method="post" action="/logout">
 					<input type="hidden" name="csrf" value={ csrfToken } />
 					<button class="secondary" type="submit">Sign out</button>
+				</form>
+				<section class="security-section" aria-labelledby="mfa-heading">
+					<h2 id="mfa-heading">Multi-factor authentication</h2>
+					if user.MFAEnabled {
+						<p>MFA is enabled. Use an authenticator app or a one-time recovery code when signing in.</p>
+					} else {
+						<p>MFA is not enabled for this identity.</p>
+						<form method="post" action="/account/mfa/setup">
+							<input type="hidden" name="csrf" value={ csrfToken } />
+							<button type="submit">Set up MFA</button>
+						</form>
+					}
+				</section>
+			</main>
+		</body>
+	</html>
+}
+
+templ MFASetup(user domain.User, csrfToken, enrollmentToken, secret, message string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<title>Set up MFA · Tockr Platform</title>
+			<link rel="stylesheet" href="/static/auth.css" />
+		</head>
+		<body>
+			<main class="account-shell">
+				<p class="eyebrow">Account security</p>
+				<h1>Set up MFA</h1>
+				if message != "" {
+					<p class="form-error" role="alert">{ message }</p>
+				}
+				if secret != "" {
+					<p>Use an authenticator app to scan or enter this setup key. The key is shown only during this enrollment.</p>
+					<p class="secret-key"><code>{ secret }</code></p>
+				}
+				<form method="post" action="/account/mfa/confirm" class="auth-card">
+					<input type="hidden" name="csrf" value={ csrfToken } />
+					<input type="hidden" name="enrollment_token" value={ enrollmentToken } />
+					<label for="code">Authenticator code</label>
+					<input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" required />
+					<button type="submit">Confirm MFA</button>
+				</form>
+				<p><a href="/account">Back to account</a></p>
+			</main>
+		</body>
+	</html>
+}
+
+templ MFARecovery(user domain.User, csrfToken string, codes []string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<title>Save recovery codes · Tockr Platform</title>
+			<link rel="stylesheet" href="/static/auth.css" />
+		</head>
+		<body>
+			<main class="account-shell">
+				<p class="eyebrow">Account security</p>
+				<h1>Save your recovery codes</h1>
+				<p>Each code can be used once if your authenticator is unavailable. They will not be shown again.</p>
+				<ul class="recovery-codes">
+				for _, code := range codes {
+					<li><code>{ code }</code></li>
+				}
+				</ul>
+				<form method="post" action="/logout">
+					<input type="hidden" name="csrf" value={ csrfToken } />
+					<button class="secondary" type="submit">Finish and sign out</button>
 				</form>
 			</main>
 		</body>

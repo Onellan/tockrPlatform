@@ -63,6 +63,8 @@ func (s *Server) Handler() http.Handler {
 		protected.Use(s.requireSession)
 		protected.Get("/", s.accountPage)
 		protected.Get("/account", s.accountPage)
+		protected.Post("/account/mfa/setup", s.mfaSetup)
+		protected.Post("/account/mfa/confirm", s.mfaConfirm)
 		protected.Post("/logout", s.logout)
 	})
 	return r
@@ -116,20 +118,20 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	user, err := s.store.FindUserByEmail(r.Context(), email)
+	credential, err := s.store.FindLoginCredential(r.Context(), email)
 	if err != nil {
 		s.serverError(w, err)
 		return
 	}
 	hash := auth.DummyPasswordHash
-	if user != nil && user.PasswordHash != "" {
-		hash = user.PasswordHash
+	if credential != nil && credential.PasswordHash != "" {
+		hash = credential.PasswordHash
 	}
 	passwordOK := auth.CheckPassword(hash, r.FormValue("password"))
-	if user == nil || !passwordOK || !user.Active {
+	if credential == nil || !passwordOK || !credential.User.Active {
 		var userID *string
-		if user != nil {
-			userID = &user.ID
+		if credential != nil {
+			userID = &credential.User.ID
 		}
 		if err := s.store.RecordSecurityEvent(r.Context(), userID, "failed_login", "credentials rejected", now); err != nil {
 			s.serverError(w, err)
@@ -143,6 +145,34 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, "/login?error=1", http.StatusSeeOther)
 		return
+	}
+	user := &credential.User
+	if user.MFAEnabled {
+		mfaValid := false
+		if code := strings.TrimSpace(r.FormValue("mfa_code")); code != "" {
+			mfaValid, err = s.store.VerifyMFA(r.Context(), user.ID, code)
+		}
+		if !mfaValid && strings.TrimSpace(r.FormValue("recovery_code")) != "" {
+			mfaValid, err = s.store.UseRecoveryCode(r.Context(), user.ID, r.FormValue("recovery_code"), now)
+		}
+		if err != nil {
+			s.serverError(w, err)
+			return
+		}
+		if !mfaValid {
+			if auditErr := s.store.RecordSecurityEvent(r.Context(), &user.ID, "failed_mfa", "second factor rejected", now); auditErr != nil {
+				s.serverError(w, auditErr)
+				return
+			}
+			if s.cfg.RateLimitEnabled {
+				if retryAfter, blocked := s.limiter.RecordFailure(key, now); blocked {
+					s.renderLoginThrottle(w, retryAfter)
+					return
+				}
+			}
+			http.Redirect(w, r, "/login?error=1", http.StatusSeeOther)
+			return
+		}
 	}
 	if s.cfg.RateLimitEnabled {
 		s.limiter.RecordSuccess(key)
@@ -192,6 +222,83 @@ func (s *Server) accountPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Server) mfaSetup(w http.ResponseWriter, r *http.Request) {
+	if err := parseBoundedForm(w, r); err != nil {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	csrfCookie, valid, err := s.sessionCSRF(r)
+	if err != nil || !valid {
+		http.Error(w, "request could not be validated", http.StatusForbidden)
+		return
+	}
+	if session.User.MFAEnabled {
+		http.Error(w, "MFA is already enabled", http.StatusConflict)
+		return
+	}
+	secret, err := auth.GenerateTOTPSecret()
+	if err != nil {
+		s.serverError(w, err)
+		return
+	}
+	enrollmentToken, err := s.store.CreateMFAEnrollment(r.Context(), session.User.ID, secret, time.Now().UTC().Add(10*time.Minute))
+	if err != nil {
+		s.serverError(w, err)
+		return
+	}
+	if err := render(w, r, templates.MFASetup(session.User, csrfCookie.Value, enrollmentToken, secret, "")); err != nil {
+		http.Error(w, "service unavailable", http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) mfaConfirm(w http.ResponseWriter, r *http.Request) {
+	if err := parseBoundedForm(w, r); err != nil {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	csrfCookie, valid, err := s.sessionCSRF(r)
+	if err != nil || !valid {
+		http.Error(w, "request could not be validated", http.StatusForbidden)
+		return
+	}
+	codes, err := auth.GenerateRecoveryCodes(10)
+	if err != nil {
+		s.serverError(w, err)
+		return
+	}
+	hashes := make([]string, 0, len(codes))
+	for _, code := range codes {
+		hash, hashErr := auth.HashPassword(auth.NormalizeRecoveryCode(code))
+		if hashErr != nil {
+			s.serverError(w, hashErr)
+			return
+		}
+		hashes = append(hashes, hash)
+	}
+	completed, err := s.store.CompleteMFAEnrollment(r.Context(), session.User.ID, r.FormValue("enrollment_token"), r.FormValue("code"), hashes, time.Now().UTC())
+	if err != nil {
+		s.serverError(w, err)
+		return
+	}
+	if !completed {
+		if err := render(w, r, templates.MFASetup(session.User, csrfCookie.Value, r.FormValue("enrollment_token"), "", "The code was invalid or the setup window expired.")); err != nil {
+			http.Error(w, "service unavailable", http.StatusInternalServerError)
+		}
+		return
+	}
+	if err := render(w, r, templates.MFARecovery(session.User, csrfCookie.Value, codes)); err != nil {
+		http.Error(w, "service unavailable", http.StatusInternalServerError)
+	}
+}
+
 func (s *Server) logout(w http.ResponseWriter, r *http.Request) {
 	if err := parseBoundedForm(w, r); err != nil {
 		return
@@ -219,6 +326,19 @@ func (s *Server) logout(w http.ResponseWriter, r *http.Request) {
 	setCookie(w, &http.Cookie{Name: sessionCookieName, Value: "", Path: "/", MaxAge: -1, HttpOnly: true, Secure: s.cfg.CookieSecure, SameSite: http.SameSiteLaxMode})
 	setCookie(w, &http.Cookie{Name: "platform_csrf", Value: "", Path: "/", MaxAge: -1, HttpOnly: true, Secure: s.cfg.CookieSecure, SameSite: http.SameSiteLaxMode})
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
+func (s *Server) sessionCSRF(r *http.Request) (*http.Cookie, bool, error) {
+	cookie, err := r.Cookie(sessionCookieName)
+	if err != nil {
+		return nil, false, err
+	}
+	csrfCookie, err := r.Cookie("platform_csrf")
+	if err != nil {
+		return nil, false, err
+	}
+	valid, err := s.store.VerifySessionCSRF(r.Context(), cookie.Value, r.FormValue("csrf"))
+	return csrfCookie, valid, err
 }
 
 func (s *Server) requireSession(next http.Handler) http.Handler {

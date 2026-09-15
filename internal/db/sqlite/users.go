@@ -10,6 +10,7 @@ import (
 
 	"github.com/Onellan/tockrplatform/internal/auth"
 	"github.com/Onellan/tockrplatform/internal/domain"
+	"github.com/Onellan/tockrplatform/internal/store"
 )
 
 func (s *Store) CreateUser(ctx context.Context, user domain.User, password string) (domain.User, error) {
@@ -45,12 +46,35 @@ func (s *Store) FindUserByID(ctx context.Context, publicID string) (*domain.User
 	return s.findUser(ctx, `WHERE public_id=?`, strings.TrimSpace(publicID))
 }
 
+func (s *Store) FindLoginCredential(ctx context.Context, email string) (*store.LoginCredential, error) {
+	var credential store.LoginCredential
+	var active, mfaEnabled int
+	var created, lastLogin sql.NullString
+	err := s.db.QueryRowContext(ctx, `SELECT public_id,email,display_name,password_hash,active,created_at,last_login_at,mfa_enabled FROM users WHERE lower(email)=lower(?)`, domain.NormalizeEmail(email)).
+		Scan(&credential.User.ID, &credential.User.Email, &credential.User.DisplayName, &credential.PasswordHash, &active, &created, &lastLogin, &mfaEnabled)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("find login credential: %w", err)
+	}
+	credential.User.Active = active == 1
+	credential.User.MFAEnabled = mfaEnabled == 1
+	credential.User.CreatedAt = parseTime(created.String)
+	if lastLogin.Valid {
+		value := parseTime(lastLogin.String)
+		credential.User.LastLoginAt = &value
+	}
+	return &credential, nil
+}
+
 func (s *Store) findUser(ctx context.Context, predicate string, arg any) (*domain.User, error) {
 	var user domain.User
-	var active int
+	var active, mfaEnabled int
+	var ciphertext []byte
 	var created, lastLogin sql.NullString
-	err := s.db.QueryRowContext(ctx, `SELECT public_id,email,display_name,password_hash,active,created_at,last_login_at FROM users `+predicate, arg).
-		Scan(&user.ID, &user.Email, &user.DisplayName, &user.PasswordHash, &active, &created, &lastLogin)
+	err := s.db.QueryRowContext(ctx, `SELECT public_id,email,display_name,password_hash,active,created_at,last_login_at,mfa_enabled,mfa_secret_ciphertext FROM users `+predicate, arg).
+		Scan(&user.ID, &user.Email, &user.DisplayName, &user.PasswordHash, &active, &created, &lastLogin, &mfaEnabled, &ciphertext)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
@@ -58,6 +82,7 @@ func (s *Store) findUser(ctx context.Context, predicate string, arg any) (*domai
 		return nil, fmt.Errorf("find user: %w", err)
 	}
 	user.Active = active == 1
+	user.MFAEnabled = mfaEnabled == 1
 	user.CreatedAt = parseTime(created.String)
 	if lastLogin.Valid {
 		value := parseTime(lastLogin.String)
