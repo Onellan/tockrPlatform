@@ -7,6 +7,7 @@ import json
 import re
 import subprocess
 import sys
+from typing import Sequence
 from pathlib import Path
 
 from validation_registry import FULL_LOCAL, PROFILES
@@ -22,6 +23,15 @@ REQUIRED_FOUNDATION_DOCS = (
     "docs/technical/testing-execution-contract.md",
     "docs/technical/engineering-workflow.md",
     "plan/pf-platform-foundation.md",
+)
+RUNTIME_REQUIRED = (
+    "go.mod",
+    "cmd/platform/main.go",
+    "internal/domain/user.go",
+    "internal/store/identity.go",
+    "internal/db/sqlite/store.go",
+    "internal/platform/http/server.go",
+    "web/templates/auth_templ.go",
 )
 SECRET_PATTERNS = (
     re.compile(r"(?i)(password|secret|private[_ -]?key)\s*[:=]\s*['\"][^'\"]+['\"]"),
@@ -42,6 +52,21 @@ def foundation_files() -> list[Path]:
     return [ROOT / relative for relative in REQUIRED_FOUNDATION_DOCS]
 
 
+def run_command(command: Sequence[str], timeout: int = 180) -> dict[str, object]:
+    try:
+        result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True, timeout=timeout, check=False)
+    except FileNotFoundError as error:
+        return {"status": "TOOL_FAIL", "reason": str(error), "command": list(command)}
+    except subprocess.TimeoutExpired:
+        return {"status": "TIMEOUT", "reason": f"command exceeded {timeout}s", "command": list(command)}
+    output = (result.stdout + result.stderr).strip()
+    return {
+        "status": "PASS" if result.returncode == 0 else "TEST_FAIL",
+        "command": list(command),
+        "output": output[-4000:],
+    }
+
+
 def run_one(profile: str) -> dict[str, object]:
     if profile not in PROFILES:
         return {"profile": profile, "status": "INVOCATION_FAIL", "reason": "unknown profile"}
@@ -58,20 +83,26 @@ def run_one(profile: str) -> dict[str, object]:
                 "status": "NOT_APPLICABLE",
                 "reason": f"runtime prerequisite not introduced yet: {definition['prerequisite']}",
             }
-        return {
-            "profile": profile,
-            "status": "PREREQUISITE_FAIL",
-            "reason": "runtime prerequisite exists but no Platform runtime validator is registered",
+        commands = {
+            "unit": ["go", "test", "./internal/domain", "./internal/auth", "./internal/store", "./web/templates"],
+            "integration": ["go", "test", "./internal/db/sqlite", "./internal/platform/http"],
+            "migration": ["go", "test", "./internal/db/sqlite"],
+            "race": ["go", "test", "-race", "./..."],
         }
+        result = run_command(commands[profile])
+        return {"profile": profile, **result}
 
     if profile == "format":
         missing = [str(path.relative_to(ROOT)) for path in foundation_files() if not path.exists()]
-        return {"profile": profile, "status": "PASS" if not missing else "FAIL", "missing": missing}
+        gofmt = run_command(["gofmt", "-l", "cmd", "internal", "web"])
+        unformatted = [line for line in str(gofmt.get("output", "")).splitlines() if line]
+        status = "PASS" if not missing and gofmt["status"] == "PASS" and not unformatted else "FAIL"
+        return {"profile": profile, "status": status, "missing": missing, "unformatted_go": unformatted}
     if profile == "architecture":
         missing = [str(path.relative_to(ROOT)) for path in foundation_files() if not path.exists()]
-        forbidden = [str(path.relative_to(ROOT)) for path in ROOT.rglob("*.go")]
-        status = "PASS" if not missing and not forbidden else "FAIL"
-        return {"profile": profile, "status": status, "missing": missing, "runtime_files": forbidden}
+        missing_runtime = [path for path in RUNTIME_REQUIRED if not (ROOT / path).exists()]
+        status = "PASS" if not missing and not missing_runtime else "FAIL"
+        return {"profile": profile, "status": status, "missing": missing, "missing_runtime": missing_runtime}
     if profile == "security":
         hits: list[str] = []
         for path in ROOT.rglob("*.md"):

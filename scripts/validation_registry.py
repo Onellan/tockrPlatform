@@ -1,8 +1,8 @@
 """Platform-local validation profile registry.
 
-The registry intentionally has no application-specific commands yet because PF
-has not implemented runtime functionality. Runtime profiles are explicit
-NOT_APPLICABLE until their owning Slice introduces the prerequisite surface.
+Runtime profiles become executable as soon as the owning Slice introduces the
+Go/SQLite surface. Container profiles remain explicit NOT_APPLICABLE until a
+container build is authorised by a later Slice.
 """
 
 from dataclasses import dataclass

@@ -16,6 +16,15 @@ REQUIRED = (
     "docs/technical/testing-execution-contract.md",
     "plan/pf-platform-foundation.md",
 )
+RUNTIME_REQUIRED = (
+    "go.mod",
+    "cmd/platform/main.go",
+    "internal/domain/user.go",
+    "internal/store/identity.go",
+    "internal/db/sqlite/store.go",
+    "internal/platform/http/server.go",
+    "web/templates/auth_templ.go",
+)
 
 
 def candidate() -> str:
@@ -32,20 +41,23 @@ def main() -> int:
     completed_plans = sorted((ROOT / "plan/completed").glob("pf-b*-s*-*.md"))
     plans = active_plans + completed_plans
     runtime_files = sorted(str(path.relative_to(ROOT)) for path in ROOT.rglob("*.go"))
+    missing_runtime = [path for path in RUNTIME_REQUIRED if not (ROOT / path).exists()]
+    runtime_status = "PASS" if not missing_runtime else "FAIL"
     report = {
         "schema_version": 1,
         "repository": "tockrPlatform",
         "candidate": candidate(),
-        "status": "PASS" if not missing and len(plans) == 21 and not runtime_files else "FAIL",
+        "status": "PASS" if not missing and len(plans) == 21 and runtime_status == "PASS" else "FAIL",
         "domains": {
             "architecture": "PASS" if not missing else "FAIL",
             "delivery": "PASS" if len(plans) == 21 else "FAIL",
-            "runtime": "NOT_APPLICABLE" if not runtime_files else "REVIEW_REQUIRED",
+            "runtime": runtime_status,
         },
         "missing_foundation_files": missing,
         "slice_plan_count": len(plans),
         "runtime_files": runtime_files,
-        "scope_note": "Foundation audit only; no Platform runtime implementation is claimed.",
+        "missing_runtime": missing_runtime,
+        "scope_note": "Platform runtime audit includes the PF-B2 authentication surface.",
     }
     payload = json.dumps(report, indent=2) + "\n"
     if args.output:

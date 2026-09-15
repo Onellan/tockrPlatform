@@ -1,0 +1,71 @@
+package templates
+
+import "github.com/Onellan/tockrplatform/internal/domain"
+
+templ Login(csrfToken string, message string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<meta name="color-scheme" content="light" />
+			<title>Sign in · Tockr Platform</title>
+			<link rel="stylesheet" href="/static/auth.css" />
+		</head>
+		<body>
+			<main class="auth-shell">
+				<section class="auth-intro" aria-labelledby="page-title">
+					<p class="eyebrow">Shared identity authority</p>
+					<h1 id="page-title">Tockr Platform</h1>
+					<p>Sign in to manage your Platform identity and access.</p>
+				</section>
+				<form class="auth-card" method="post" action="/login">
+					<h2>Sign in</h2>
+					if message != "" {
+						<p class="form-error" role="alert">{ message }</p>
+					}
+					<input type="hidden" name="csrf" value={ csrfToken } />
+					<label for="email">Email address</label>
+					<input id="email" name="email" type="email" autocomplete="username" required />
+					<label for="password">Password</label>
+					<input id="password" name="password" type="password" autocomplete="current-password" required />
+					<button type="submit">Sign in</button>
+				</form>
+			</main>
+		</body>
+	</html>
+}
+
+templ Account(user domain.User, csrfToken string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<title>Account · Tockr Platform</title>
+			<link rel="stylesheet" href="/static/auth.css" />
+		</head>
+		<body>
+			<main class="account-shell">
+				<p class="eyebrow">Platform identity</p>
+				<h1>Account</h1>
+				<dl class="account-facts">
+					<div><dt>User ID</dt><dd>{ user.ID }</dd></div>
+					<div><dt>Email</dt><dd>{ user.Email }</dd></div>
+					<div><dt>Status</dt><dd>{ accountStatus(user.Active) }</dd></div>
+				</dl>
+				<form method="post" action="/logout">
+					<input type="hidden" name="csrf" value={ csrfToken } />
+					<button class="secondary" type="submit">Sign out</button>
+				</form>
+			</main>
+		</body>
+	</html>
+}
+
+func accountStatus(active bool) string {
+	if active {
+		return "Active"
+	}
+	return "Inactive"
+}
