@@ -57,4 +57,5 @@ type PlatformStore interface {
 	AuthenticationStore
 	SessionStore
 	SecurityEventStore
+	OrganisationStore
 }

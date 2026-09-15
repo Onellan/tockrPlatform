@@ -182,6 +182,46 @@ func supportedMigrations() []migration {
 				`CREATE INDEX sessions_expiry_idx ON sessions(expires_at, revoked_at)`,
 			},
 		},
+		{
+			version: 3,
+			name:    "organisation-authority",
+			statements: []string{
+				`CREATE TABLE organisations (
+					id INTEGER PRIMARY KEY,
+					public_id TEXT NOT NULL UNIQUE,
+					name TEXT NOT NULL,
+					status TEXT NOT NULL CHECK(status IN ('active','archived')),
+					created_at TEXT NOT NULL,
+					archived_at TEXT
+				)`,
+				`CREATE TABLE organisation_memberships (
+					id INTEGER PRIMARY KEY,
+					public_id TEXT NOT NULL UNIQUE,
+					organisation_id INTEGER NOT NULL REFERENCES organisations(id),
+					user_id INTEGER NOT NULL REFERENCES users(id),
+					role TEXT NOT NULL CHECK(role IN ('owner','admin','member')),
+					active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
+					assigned_by INTEGER NOT NULL REFERENCES users(id),
+					assigned_at TEXT NOT NULL,
+					removed_by INTEGER REFERENCES users(id),
+					removed_at TEXT,
+					removal_reason TEXT NOT NULL DEFAULT ''
+				)`,
+				`CREATE UNIQUE INDEX organisation_memberships_current_idx ON organisation_memberships(organisation_id,user_id) WHERE active=1`,
+				`CREATE UNIQUE INDEX organisation_memberships_owner_idx ON organisation_memberships(organisation_id) WHERE active=1 AND role='owner'`,
+				`CREATE INDEX organisation_memberships_scope_idx ON organisation_memberships(organisation_id,user_id,active,role)`,
+				`CREATE TABLE audit_events (
+					id INTEGER PRIMARY KEY,
+					actor_user_id INTEGER NOT NULL REFERENCES users(id),
+					aggregate_type TEXT NOT NULL,
+					aggregate_id TEXT NOT NULL,
+					event TEXT NOT NULL,
+					details TEXT NOT NULL DEFAULT '',
+					occurred_at TEXT NOT NULL
+				)`,
+				`CREATE INDEX audit_events_aggregate_time_idx ON audit_events(aggregate_type,aggregate_id,occurred_at,id)`,
+			},
+		},
 	}
 }
 
