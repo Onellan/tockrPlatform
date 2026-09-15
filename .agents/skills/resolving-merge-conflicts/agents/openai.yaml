@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resolve Merge Conflicts"
+  short_description: "Resolve Git conflicts from intent and evidence"
+  default_prompt: "Use $resolving-merge-conflicts to resolve the current authorised merge/rebase conflicts safely, preserve compatible intent, validate the result, and avoid committing or pushing unless explicitly requested."

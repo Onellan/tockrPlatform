@@ -1,0 +1,4 @@
+interface:
+  display_name: "tockrPlatform Bug Diagnosis"
+  short_description: "Reproduce, minimise, diagnose, and regression-fix bugs"
+  default_prompt: "Use $diagnosing-bugs to build a red-capable reproduction, minimise the failure, test falsifiable hypotheses, identify root cause, and lock the fix in with regression evidence."

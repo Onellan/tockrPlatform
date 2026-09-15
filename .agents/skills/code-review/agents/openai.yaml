@@ -1,0 +1,4 @@
+interface:
+  display_name: "tockrPlatform Engineering Review"
+  short_description: "Review standards, design, scope, and domain integrity"
+  default_prompt: "Use $code-review to perform a read-only tockrPlatform engineering review of the implemented diff and return Pass, Fail, or Blocked with R1/R2/Note findings."

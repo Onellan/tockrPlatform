@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backlog Delivery Workflow"
+  short_description: "Plan, implement, review, test, repair, and retest backlog work"
+  default_prompt: "Use $deliver-backlog-item to deliver the specified backlog item through planning, implementation, independent engineering review, independent acceptance testing, defect repairs, re-review, and repeated retesting until all required gates pass or a genuine blocker requires user input."

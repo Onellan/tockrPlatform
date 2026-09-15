@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backlog Implementation Tester"
+  short_description: "Verify acceptance against an exact tested state"
+  default_prompt: "Use $test-backlog-implementation to independently test the specified implemented backlog item against authoritative acceptance conditions, bind the verdict to the exact tested state, and report compact evidence/findings without changing the code."

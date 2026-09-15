@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "conceptual_role": "backlog_implementer",
+  "default_effort": "high",
+  "high_runtime_agent": "backlog_implementer",
+  "medium_runtime_agent": "backlog_implementer_medium",
+  "approved_rules": [],
+  "notes": "Medium routing is opt-in. Add an enabled rule only after explicit human approval of a successful paired evaluation gate. Missing, stale, or unverifiable evidence falls back to high."
+}

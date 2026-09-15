@@ -1,0 +1,4 @@
+interface:
+  display_name: "tockrPlatform Domain Modeling"
+  short_description: "Protect canonical product meaning and terminology"
+  default_prompt: "Use $domain-modeling to resolve or review the requested tockrPlatform domain concept against the authoritative domain model and product glossary without creating a parallel CONTEXT.md."

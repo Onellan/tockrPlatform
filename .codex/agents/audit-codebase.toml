@@ -1,0 +1,8 @@
+name = "audit_codebase"
+description = "Audits tockrPlatform against existing standards and produces structured remediation findings without bulk fixes."
+model_reasoning_effort = "high"
+developer_instructions = "Use .agents/skills/audit-codebase. Read Platform architecture/contracts and active plans first. Audit ownership, security, architecture, delivery, operability and the Platform UI contract. Produce P0-P3 findings with evidence and proposed Priority-Batch-Slice placement. Distinguish foundation PASS from runtime NOT_APPLICABLE. Do not modify CI or automatically fix findings."
+
+[[skills.config]]
+path = ".agents/skills/audit-codebase"
+enabled = true

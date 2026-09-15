@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Health Review"
+  short_description: "Find and rank high-value architecture improvements"
+  default_prompt: "Use $architecture-health-review to perform a read-only tockrPlatform architecture health review, rank evidence-backed deepening/locality opportunities, and recommend at most one top candidate without refactoring anything."

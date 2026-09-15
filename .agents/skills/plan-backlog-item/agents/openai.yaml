@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backlog Implementation Planner"
+  short_description: "Create concise, implementation-ready backlog plans"
+  default_prompt: "Use $plan-backlog-item to turn the specified docs/implementation backlog item into a concise, repository-grounded execution plan. Verify the current code, resolve technical choices instead of escalating them, surface only genuine product blockers, specify exact files/symbols/schema/migrations/routes/authorization/audit/tests, preserve historical truth, do not fabricate legacy history or absorb unrelated repository defects into the backlog item, remove duplicated rationale and verification sections, and write only the matching plan/<number-and-slug>.md file. Do not implement or commit changes."

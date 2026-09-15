@@ -1,0 +1,67 @@
+# PF-B7-S02 — Projection inbox and reconciliation support
+
+Status: Planned
+
+## Objective
+
+Provide idempotent local projection/inbox support for Platform events and
+explicit stale/gap/reconciliation states.
+
+## Authority and current evidence
+
+Authority is the events/projection contract and CTRL/IMS PD resilience plans.
+Products remain owners of their local projections and product authorization.
+
+## Affected files/packages
+
+`internal/events` projection contracts, inbox schema/adapter, replay and
+reconciliation commands, observability and tests.
+
+## Ordered work
+
+1. Define inbox identity, per-aggregate sequence, gap and stale-state model.
+### WP01 - Ordered work package
+
+Route: kind=migration; risk=H[DATA,CONC,API]
+2. Implement idempotent apply/replay boundaries with bounded batch work.
+### WP02 - Ordered work package
+
+Route: kind=other; risk=H[DATA,OPS,PERF]
+3. Prove duplicate, out-of-order, missing and unavailable cases remain explicit
+### WP03 - Ordered work package
+   and fail closed for security-sensitive reads.
+Route: kind=authorization; risk=H[AUTH,CONC,OPS]
+
+## Migration impact
+
+Inbox/projection migrations require fresh/upgrade/reopen and replay fixtures;
+unknown source versions are retained as blocked, not discarded.
+
+## Security impact
+
+Stale projections cannot silently grant access. Reconciliation data is scoped,
+redacted and audited.
+
+## Acceptance criteria
+
+Duplicate events are harmless, gaps are detected, replay is bounded and
+security-sensitive consumers distinguish current/stale/unavailable state.
+
+## Tests and evidence
+
+Idempotency/order/replay tests, migration tests, failure/recovery evidence,
+performance budget and independent tester acceptance.
+
+## Dependencies
+
+PF-B7-S01 and PF-B6-S02.
+
+## Stop/go conditions
+
+Stop if eventual state is used as unconditional authorization or if events are
+silently dropped to make a projection appear current.
+
+## Rollback
+
+Pause projection consumption, preserve inbox/outbox state and replay after a
+corrective version; no destructive truncation.

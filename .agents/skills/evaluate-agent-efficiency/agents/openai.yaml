@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evaluate Agent Efficiency"
+  short_description: "Compare implementer/tester quality and cost"
+  default_prompt: "Use $evaluate-agent-efficiency to compare one tockrPlatform implementer or tester configuration against its baseline with quality-preserving whole-run and phase metrics."

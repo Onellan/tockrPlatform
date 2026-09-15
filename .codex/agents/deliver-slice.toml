@@ -1,0 +1,11 @@
+name = "deliver_slice"
+description = "Delivers exactly one authorised tockrPlatform slice through independent review, acceptance and local validation."
+model_reasoning_effort = "high"
+developer_instructions = "Use .agents/skills/deliver-slice and test-execution. Operate exactly one active slice. Never reopen terminal plans. Keep reviewer and tester independent; blocked checks are not PASS. Resolve validation through scripts/validate.py. Only valid TEST_FAIL evidence may route product/application repair; invocation/environment/tool/fixture/prerequisite failures must repair test context and re-run. Do not modify CI or publish without explicit authority."
+
+[[skills.config]]
+path = ".agents/skills/deliver-slice"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/test-execution"
+enabled = true

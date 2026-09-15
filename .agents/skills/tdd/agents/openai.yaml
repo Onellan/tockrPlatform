@@ -1,0 +1,4 @@
+interface:
+  display_name: "tockrPlatform TDD"
+  short_description: "Implement behavior test-first at stable seams"
+  default_prompt: "Use $tdd to implement the requested tockrPlatform behavior in small red-to-green vertical slices at the narrowest stable public seam."

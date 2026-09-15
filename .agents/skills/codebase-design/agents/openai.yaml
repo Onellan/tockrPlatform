@@ -1,0 +1,4 @@
+interface:
+  display_name: "tockrPlatform Codebase Design"
+  short_description: "Design deep modules and stable seams"
+  default_prompt: "Use $codebase-design to design or review the requested tockrPlatform module, interface, seam, or adapter for depth, locality, leverage, and testability."

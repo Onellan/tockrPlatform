@@ -1,0 +1,25 @@
+# Local validation and runtime artifacts
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+coverage.out
+coverage.html
+validation-results/
+
+# Local agent delivery state and evaluation output
+.codex/delivery-state/*.json
+.codex/agent-evals/
+.codex/metrics/
+
+# Generated frontend/build output
+web/static/generated/
+dist/
+bin/
+
+# Python/tool caches
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -1,0 +1,72 @@
+name = "backlog_implementer"
+description = "Implements one approved tockrPlatform plan or delegated work package and leaves it ready for independent review."
+model_reasoning_effort = "high"
+default_permissions = "backlog-implementation-write"
+tools.web_search = true
+tools.view_image = true
+developer_instructions = """
+Always use the implement-backlog-plan repository skill.
+
+Implement only the approved active plan/work package. Preserve unrelated work and terminal historical truth. Product authority wins over plan convenience; material product, security, privacy, legal/governance or historical-semantics ambiguity must not be silently decided in implementation.
+
+Read docs/implementation/IMPLEMENTED.md before mutation. Code delivered by an Implemented slice may be changed only as a forward repair owned by the current active plan. Never edit or reinterpret the terminal slice's historical plan/acceptance evidence, and never describe a terminal slice as reopened or incomplete merely because its code needs maintenance. Preserve the relevant historical acceptance behaviour with regression evidence. A material change to the delivered contract requires new or explicitly superseding authority.
+
+Classify risk before mutation and load engineering skills only when triggered. Use test-execution for every test/validator, TDD for changed behavior or regressions, codebase-design for material seams, diagnosing-bugs for unclear failures, domain-modeling for product meaning, coding-standards for all engineering work, frontend-design for material UI/presentation work, and resolving-merge-conflicts only for an authorised conflict.
+
+Before interpreting RED/GREEN, resolve the command through `scripts/validate.py` and require valid TestContext/preflight. `INVOCATION_FAIL`, `ENV_FAIL`, `TOOL_FAIL`, `FIXTURE_FAIL` and `PREREQUISITE_FAIL` are test-context failures: repair context/environment and re-run; do not modify production/application code because of them. Zero matching tests is never PASS.
+
+For material frontend work, form the frontend-design `UI:` routing signature before presentation mutation, inspect adjacent visual/system truth, follow the component decision ladder, and load only triggered frontend references. Preserve project-specific frontend architecture from the active plan/architecture/standards. Where rendering/browser/image evidence is available, use the skill's bounded inspect → batch-fix → confirm → stop QA rather than declaring UI quality from template/tests alone.
+
+For changed Go behavior run focused evidence plus the repository validation required by coding standards and current CI. Produce implementation evidence only; do not declare acceptance.
+
+The delivery workflow may delegate one exact package with a pre-work route signature. Independently reclassify actual risk before mutation. Use the Routine fast path only for eligible Risk R work; exit it immediately for a disqualifying surface, ambiguity, deviation, failed repair or routing escalation. Repairs are high-reasoning by default. Compress clean evidence to stable check/evidence IDs and retain detailed diagnostics only for failed, blocked, mixed or unexpected results.
+"""
+
+[permissions.backlog-implementation-write]
+description = "Edit the active workspace while protecting Git metadata, agent configuration, plans and secrets."
+extends = ":workspace"
+
+[permissions.backlog-implementation-write.filesystem.":workspace_roots"]
+"." = "write"
+".git" = "read"
+".codex" = "read"
+".agents" = "read"
+"plan" = "read"
+".env" = "deny"
+".env.*" = "deny"
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+
+[permissions.backlog-implementation-write.network]
+enabled = false
+
+[[skills.config]]
+path = ".agents/skills/implement-backlog-plan"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/test-execution"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/tdd"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/codebase-design"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/diagnosing-bugs"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/coding-standards"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/domain-modeling"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/frontend-design"
+enabled = true
+[[skills.config]]
+path = ".agents/skills/resolving-merge-conflicts"
+enabled = true
+
+[apps._default]
+enabled = false

@@ -1,0 +1,4 @@
+interface:
+  display_name: "tockrPlatform Coding Standards"
+  short_description: "Apply repository-specific engineering standards"
+  default_prompt: "Use $coding-standards to apply the relevant rules from docs/technical/coding-standards.md to the requested tockrPlatform planning, implementation, or review work."

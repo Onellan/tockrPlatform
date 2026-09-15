@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backlog Plan Implementer"
+  short_description: "Implement and verify one approved backlog plan"
+  default_prompt: "Use $implement-backlog-plan to implement the specified plan/ backlog item completely, verify every acceptance condition, and leave the changes ready for review without committing or pushing."
