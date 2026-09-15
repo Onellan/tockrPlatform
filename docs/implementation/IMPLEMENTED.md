@@ -2,6 +2,22 @@
 
 The following Platform Foundation Slices are terminally recorded:
 
+## PF-B5-S01 — Product catalogue and Organisation entitlements
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b5-s01-product-catalogue.md`](../../plan/completed/pf-b5-s01-product-catalogue.md)
+- Accepted implementation candidate: `9727f848c2e1c762ed8cc8fad6edfae59bf1de22`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/migration/quality/unit,
+  SQLite/HTTP integration and race validation all passed.
+- Platform now owns the stable `product.tockrctrl` and `product.tockrims`
+  catalogue records and auditable OrganisationProductEntitlement lifecycle.
+  Product assignment and effective-access evaluation remain PF-B5-S02-owned.
+- Container build profiles are **NOT_APPLICABLE** because no authorised
+  Dockerfile exists. The initial one-connection SQLite policy is unchanged.
+- No CTRL/IMS code, data, product role, migration or authority cutover was
+  changed.
+
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 
 - Status: **Implemented / terminal**

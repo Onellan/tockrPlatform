@@ -1,6 +1,6 @@
 # PF-B5-S01 — Product catalogue and Organisation entitlements
 
-Status: Planned
+Status: **Implemented / terminal**
 
 ## Objective
 
@@ -67,3 +67,27 @@ product keys are treated as mutable display labels.
 
 Revoke/restore entitlement through forward audited transitions; never delete the
 catalogue or invent a historical billing reason.
+
+## Terminal evidence
+
+Accepted implementation candidate: `9727f848c2e1c762ed8cc8fad6edfae59bf1de22`.
+
+- Independent engineering review: **PASS**, with no R1 findings.
+- Independent tester acceptance: **PASS** for the initial catalogue,
+  authorization matrix, entitlement/assignment separation, active-state
+  checking, audit/history and HTTP protection criteria.
+- Exact-candidate local validation: `format`, `architecture`, `security`,
+  `migration`, `quality`, `unit`, `integration` and `race`: **PASS**.
+- Fresh, v5 upgrade, reopen and divergence rejection migration evidence:
+  **PASS**.
+- Container build profiles: **NOT_APPLICABLE** because no authorised
+  Dockerfile exists.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  code, data, product role, migration or authority cutover was changed.
+- PF-B5-S02 UserProductAssignment and effective-access evaluation remain
+  separate and were not implemented by this Slice.
+
+Detailed evidence:
+[`PF-B5-S01 reconciliation`](../../docs/implementation/audits/pf-b5-s01-product-catalogue.md),
+[`independent review`](../../docs/implementation/audits/pf-b5-s01-independent-review.md),
+[`independent acceptance`](../../docs/implementation/audits/pf-b5-s01-independent-acceptance.md).

@@ -7,8 +7,9 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **12 open execution plans** across **10 Batches**. PF-B1,
-PF-B2, PF-B3 and PF-B4 are terminal; PF-B5-S01 is the next active Slice. This tracker records
+Current inventory: **11 open execution plans** across **10 Batches**. PF-B1,
+PF-B2, PF-B3 and PF-B4 are terminal; PF-B5-S01 is terminal and PF-B5-S02 is
+the next active Slice. This tracker records
 runtime implementation evidence only through the linked terminal plan and
 candidate-bound closeout evidence.
 
@@ -50,7 +51,7 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B5-S01 | **Ready** | PF-B2-S02 + PF-B3-S02 + PF-B4-S02 terminal | [Product catalogue and entitlements](active/pf-b5-s01-product-catalogue.md) |
+| 1 | PF-B5-S02 | **Ready** | PF-B5-S01 terminal | [User assignment and effective access](active/pf-b5-s02-product-access.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -60,7 +61,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B2 | S01, S02 | **Terminal** | PF-B1-S03; S01 → S02 |
 | PF-B3 | S01, S02 | **Terminal** | PF-B1-S03; S01 → S02 |
 | PF-B4 | S01, S02 | **Terminal** | PF-B1-S03; S01 → S02 |
-| PF-B5 | S01, S02 | S01 **Ready**; S02 Planned | PF-B2-S02 + PF-B3-S02 + PF-B4-S02 |
+| PF-B5 | S01, S02 | S01 **Terminal**; S02 **Ready** | PF-B2-S02 + PF-B3-S02 + PF-B4-S02; S01 → S02 |
 | PF-B6 | S01, S02 | Planned | PF-B5-S02 |
 | PF-B7 | S01, S02 | Planned | PF-B5-S02 |
 | PF-B8 | S01, S02 | Planned | PF-B6-S02 + PF-B7-S02 |
@@ -104,8 +105,8 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver **PF-B5-S01 — Product catalogue and entitlements** from
-> [`plan/active/pf-b5-s01-product-catalogue.md`](active/pf-b5-s01-product-catalogue.md).
+> Deliver **PF-B5-S02 — User assignment and effective product access** from
+> [`plan/active/pf-b5-s02-product-access.md`](active/pf-b5-s02-product-access.md).
 > Re-read the plan, verify the current candidate and repository state, implement
 > only its authorised scope, then obtain independent review and independent
 > acceptance. Repair findings sequentially, rerun exact-candidate local
