@@ -8,7 +8,8 @@ concurrency, migration and reopen evidence.
 
 ## Ledger rules
 
-- each migration has a positive ordered version and stable name;
+- each migration has a positive ordered version, stable name and content
+  checksum;
 - applied rows must be an exact supported prefix;
 - renamed, missing, reordered or unknown rows fail closed;
 - each migration and ledger row commit in one transaction;

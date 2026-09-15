@@ -7,10 +7,10 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **18 open execution plans** across **10 Batches**. The
-repository-control-plane foundation Slice is terminal, while Platform runtime
-implementation has not started; this tracker must not be read as runtime
-implementation evidence.
+Current inventory: **17 open execution plans** across **10 Batches**. PF-B1 and
+PF-B2-S01 are terminal; PF-B2-S02 is the next active Slice. This tracker records
+runtime implementation evidence only through the linked terminal plan and
+candidate-bound closeout evidence.
 
 ## How to use this tracker
 
@@ -50,14 +50,14 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B2-S01 | **Ready** | PF-B1 terminal | [User and authentication authority](active/pf-b2-s01-user-authentication.md) |
+| 1 | PF-B2-S02 | **Ready** | PF-B2-S01 terminal | [Sessions, MFA, recovery and revocation](active/pf-b2-s02-sessions-security.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
 | Batch | Slices | State | Depends on |
 | --- | --- | --- | --- |
 | PF-B1 | S01, S02, S03 | **Terminal** | S01 → S02 → S03 |
-| PF-B2 | S01, S02 | S01 Ready; S02 Planned | PF-B1-S03 |
+| PF-B2 | S01, S02 | S01 Terminal; S02 Ready | PF-B1-S03; S01 → S02 |
 | PF-B3 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B4 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B5 | S01, S02 | Planned | PF-B2-S02 + PF-B3-S02 + PF-B4-S02 |
@@ -75,7 +75,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 
 The full PF dependency spine, authority boundary and stop conditions are in
 [`pf-platform-foundation.md`](pf-platform-foundation.md). Slice-level acceptance and
-routing remain in the linked active plan files.
+routing remain in the linked active or completed plan files.
 
 ## Copy-ready next Batch prompt
 
@@ -104,13 +104,13 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver **PF-B2-S01 — User and authentication authority** from
-> [`plan/active/pf-b2-s01-user-authentication.md`](active/pf-b2-s01-user-authentication.md).
+> Deliver **PF-B2-S02 — Sessions, MFA, recovery and revocation** from
+> [`plan/active/pf-b2-s02-sessions-security.md`](active/pf-b2-s02-sessions-security.md).
 > Re-read the plan, verify the current candidate and repository state, implement
 > only its authorised scope, then obtain independent review and independent
 > acceptance. Repair findings sequentially, rerun exact-candidate local
 > validation, and update the tracker/index and implementation reconciliation only
-> if every required gate passes. Do not implement PF-B2-S02 or any later Batch.
+> if every required gate passes. Do not implement any later Batch.
 
 ## Closeout update
 

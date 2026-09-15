@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1 is terminal and PF-B2-S01 is Ready.
+**Status:** Planned / active owner-authorised programme; PF-B1 and PF-B2-S01 are terminal, and PF-B2-S02 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -44,10 +44,10 @@ independently provable.
 
 The baseline records the source evidence used to create PF; it is not an
 acceptance candidate. At the current foundation state Platform contains the
-terminal repository-control-plane foundation, documentation, contracts,
-agent/skill configuration, validation scaffolding and remaining plans. It does
-not yet contain Platform runtime code, a database schema, migrations,
-containers, production-data import or CTRL/IMS authority cutover.
+terminal repository-control-plane foundation plus the PF-B2-S01 Platform-owned
+identity and authentication runtime, SQLite migration ledger and focused
+acceptance evidence. PF-B2-S02 remains the next sequential Slice; containers,
+production-data import and CTRL/IMS authority cutover remain out of scope.
 
 ## Plan contract
 
@@ -97,9 +97,10 @@ plan → implement → independent engineering review → independent acceptance
 ```
 
 Use the repository validation authority through `scripts/validate.py` and its
-registry. The current foundation candidate has no `go.mod` or Dockerfile, so
-runtime/build profiles are reported as `NOT_APPLICABLE` until their
-prerequisites exist; they must never be represented as runtime PASS evidence.
+registry. The current foundation candidate has a Go/SQLite runtime but no
+Dockerfile, so runtime profiles are executable while container build profiles
+remain `NOT_APPLICABLE`; unavailable profiles must never be represented as
+runtime PASS evidence.
 Context failures such as `INVOCATION_FAIL`, `ENV_FAIL`, `TOOL_FAIL`,
 `FIXTURE_FAIL` and `PREREQUISITE_FAIL` are reported truthfully and do not
 justify application repair.
@@ -113,7 +114,7 @@ independent tester acceptance remain separate gates.
 | Batch | Purpose | Slices | Status |
 | --- | --- | --- | --- |
 | PF-B1 | Repository, standards and architecture foundation | S01–S03 | **Terminal** |
-| PF-B2 | Identity and authentication | S01–S02 | S01 Ready; S02 Planned |
+| PF-B2 | Identity and authentication | S01–S02 | S01 Terminal; S02 Ready |
 | PF-B3 | Organisation authority | S01–S02 | Planned |
 | PF-B4 | Workspace authority | S01–S02 | Planned |
 | PF-B5 | Product catalogue and product access | S01–S02 | Planned |
@@ -154,7 +155,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B1-S01 | [repository, standards, agents and validation — terminal](completed/pf-b1-s01-repository-foundation.md) |
 | PF-B1-S02 | [ownership and shared contracts — terminal](completed/pf-b1-s02-ownership-contracts.md) |
 | PF-B1-S03 | [runtime, persistence and presentation foundation — terminal](completed/pf-b1-s03-runtime-foundation.md) |
-| PF-B2-S01 | [User and authentication](active/pf-b2-s01-user-authentication.md) |
+| PF-B2-S01 | [User and authentication — terminal](completed/pf-b2-s01-user-authentication.md) |
 | PF-B2-S02 | [sessions, MFA, recovery and revocation](active/pf-b2-s02-sessions-security.md) |
 | PF-B3-S01 | [Organisation authority](active/pf-b3-s01-organisation-authority.md) |
 | PF-B3-S02 | [Organisation administration seams](active/pf-b3-s02-organisation-administration.md) |

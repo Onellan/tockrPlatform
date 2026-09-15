@@ -1,6 +1,6 @@
 # PF-B2-S01 — User and authentication authority
 
-Status: Planned
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -67,3 +67,19 @@ storage/logs, or if a product role is needed to authenticate.
 
 Disable the new routes/configuration and restore the previous Platform schema
 prefix; do not delete user history or modify CTRL/IMS auth.
+
+## Terminal evidence
+
+Accepted implementation candidate: `3d283961b8b6f88bd301712555587c2c556a857f`.
+
+- Independent engineering review: **PASS** with no R1 findings.
+- Independent tester acceptance: **PASS** for user identity, active/inactive
+  lifecycle, secure authentication, CSRF/cookies, rate limiting, audit and
+  Platform-only boundary acceptance.
+- Exact-candidate local validation: `full/local` **PASS**; unit, SQLite/HTTP
+  integration, migration, race, security and architecture profiles **PASS**.
+- Container build profiles are **NOT_APPLICABLE** because no Dockerfile is in
+  this Slice's authorised scope.
+- Migration evidence covers fresh creation, close/reopen and renamed-ledger
+  divergence rejection. SQLite is explicitly limited to one connection.
+- No CTRL/IMS code, data, migration or authority was changed.

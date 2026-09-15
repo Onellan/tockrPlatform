@@ -1,7 +1,6 @@
 # Implemented delivery ledger
 
-No Platform runtime Slice is terminally Implemented. The following
-repository-control-plane Slice is terminally recorded:
+The following Platform Foundation Slices are terminally recorded:
 
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 
@@ -42,6 +41,17 @@ repository-control-plane Slice is terminally recorded:
   Dockerfile is introduced by this planning Slice.
 - No CTRL/IMS code, data, migration or authority was changed.
 
+## PF-B2-S01 — User and authentication authority
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b2-s01-user-authentication.md`](../../plan/completed/pf-b2-s01-user-authentication.md)
+- Accepted implementation candidate: `3d283961b8b6f88bd301712555587c2c556a857f`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, migration-ledger checks, secure
+  cookie/CSRF/rate-limit tests, and one-connection SQLite evidence all passed.
+- The Slice owns Platform identity/authentication only; no CTRL/IMS code, data,
+  migration or authority cutover was changed.
+
 ## PF-B1 — Repository, standards and architecture foundation
 
 - Status: **Implemented / terminal Batch certification**
@@ -50,5 +60,4 @@ repository-control-plane Slice is terminally recorded:
 - Accepted Batch candidate: `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`
 - Independent Batch review and independent Batch tester acceptance: **PASS**.
 - Batch-local validation and all 63 Slice route signatures: **PASS**.
-- No Platform runtime implementation, CTRL/IMS migration or authority cutover
-  is claimed.
+- No CTRL/IMS migration or authority cutover is claimed.

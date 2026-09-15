@@ -9,6 +9,6 @@ new repair or materially changed contract, create or supersede an active plan,
 preserve the historical plan, and record the relationship in the tracker and
 implementation reconciliation.
 
-The directory is intentionally empty until the first PF Slice is terminally
-implemented. Planning, repository setup and validation scaffolding do not by
-themselves make a Slice Implemented.
+PF-B1 foundation Slices and PF-B2-S01 are terminally implemented here.
+Planning, repository setup and validation scaffolding do not by themselves
+make a Slice Implemented.

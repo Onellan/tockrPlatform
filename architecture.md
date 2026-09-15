@@ -72,9 +72,11 @@ service/manager/repository layer and no shared database with CTRL or IMS.
 - No billing/payment authority, product operational screen or product-domain
   Project is implemented by PF.
 
-## Foundation state
+## Current foundation state
 
-Only documentation, agent/skill configuration, validation scaffolding and
-implementation plans are in scope for the current foundation change. Application
-code, database schema, migrations, runtime containers and migrations of CTRL/IMS
-data remain future Slice work.
+PF-B2-S01 implements the Platform-owned user and authentication boundary with
+server-rendered sign-in/account/logout seams, a versioned SQLite identity
+schema, hashed opaque session material and focused security/audit evidence.
+SQLite remains intentionally limited to one connection. Session hardening,
+MFA, recovery and revocation maintenance are the next PF-B2-S02 scope;
+containers, CTRL/IMS data migration and authority cutover remain future work.
