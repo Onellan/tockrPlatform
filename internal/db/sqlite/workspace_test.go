@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
@@ -223,5 +224,60 @@ func TestWorkspaceFreshUpgradeReopenAndDivergenceMigration(t *testing.T) {
 	if reopened, err := Open(ctx, legacyPath); err == nil {
 		_ = reopened.Close()
 		t.Fatal("divergent workspace migration ledger was accepted")
+	}
+}
+
+func TestWorkspaceConcurrentMembershipAssignmentPreservesOneActiveRow(t *testing.T) {
+	ctx := context.Background()
+	store, users := newOrganisationStore(t, 3)
+	now := time.Now().UTC().Truncate(time.Second)
+	organisationID, err := domain.NewOrganisationID()
+	if err != nil {
+		t.Fatal(err)
+	}
+	organisation, _, err := store.CreateOrganisation(ctx, users[0].ID, domain.Organisation{ID: organisationID, Name: "Concurrent Workspace Organisation", Status: domain.OrganisationActive}, "create concurrent organisation", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.AddOrganisationMember(ctx, users[0].ID, organisation.ID, users[1].ID, domain.OrganisationMember, "add concurrent target", now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	workspace, _, err := store.CreateWorkspace(ctx, users[0].ID, organisation.ID, domain.Workspace{Name: "Concurrent Workspace"}, "create concurrent workspace", now.Add(2*time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	results := make(chan error, 2)
+	var group sync.WaitGroup
+	group.Add(2)
+	for _, role := range []domain.WorkspaceRole{domain.WorkspaceMember, domain.WorkspaceViewer} {
+		go func(role domain.WorkspaceRole) {
+			defer group.Done()
+			_, callErr := store.AddWorkspaceMember(ctx, users[0].ID, workspace.ID, users[1].ID, role, "concurrent assignment", now.Add(3*time.Minute))
+			results <- callErr
+		}(role)
+	}
+	group.Wait()
+	close(results)
+	var successes, duplicates int
+	for callErr := range results {
+		switch {
+		case callErr == nil:
+			successes++
+		case errors.Is(callErr, ErrDuplicateWorkspaceMember):
+			duplicates++
+		default:
+			t.Fatalf("concurrent workspace assignment error = %v", callErr)
+		}
+	}
+	if successes != 1 || duplicates != 1 {
+		t.Fatalf("concurrent assignment outcomes = successes:%d duplicates:%d, want one each", successes, duplicates)
+	}
+	var active int
+	if err := store.DB().QueryRowContext(ctx, `SELECT COUNT(*) FROM workspace_memberships WHERE workspace_id=(SELECT id FROM workspaces WHERE public_id=?) AND user_id=(SELECT id FROM users WHERE public_id=?) AND active=1`, workspace.ID, users[1].ID).Scan(&active); err != nil {
+		t.Fatal(err)
+	}
+	if active != 1 {
+		t.Fatalf("active concurrent workspace memberships = %d, want 1", active)
 	}
 }
