@@ -15,3 +15,14 @@ repository-control-plane Slice is terminally recorded:
   `NOT_APPLICABLE` because their prerequisites are not introduced by this
   Slice.
 - No CTRL/IMS code, data, migration or authority was changed.
+
+## PF-B1-S02 — Platform ownership and shared contracts
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b1-s02-ownership-contracts.md`](../../plan/completed/pf-b1-s02-ownership-contracts.md)
+- Accepted implementation candidate: `b8d8174ebb1ff659c3c3c7db5c420314b6f00b7c`
+- Evidence: independent engineering review, independent tester acceptance,
+  architecture/security/quality validation and contract assertions all passed.
+- Runtime and data migration profiles were `NOT_APPLICABLE` because this Slice
+  changes contracts and documentation only.
+- No CTRL/IMS code, data, migration or authority was changed.

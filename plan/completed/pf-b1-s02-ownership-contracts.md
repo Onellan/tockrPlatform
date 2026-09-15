@@ -1,6 +1,6 @@
 # PF-B1-S02 — Platform ownership and shared contracts
 
-Status: **Ready**
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -75,3 +75,17 @@ that cannot be resolved by the brief and current source evidence.
 
 Revert only the contract/document commit. No external system or product data is
 changed.
+
+## Terminal evidence
+
+- Accepted implementation candidate: `b8d8174ebb1ff659c3c3c7db5c420314b6f00b7c`.
+- Independent engineering review: **PASS**; ownership, roles, access
+  predicate, contract terms and source-conflict boundaries were reviewed
+  read-only.
+- Independent tester acceptance: **PASS** for all six acceptance criteria.
+- Exact-candidate evidence: `python scripts/validate.py run full/local`,
+  `python scripts/validate_plan_routing.py plan/active/pf-b1-s02-ownership-contracts.md`,
+  semantic contract assertions and `git diff --check`.
+- Runtime and data migration profiles were `NOT_APPLICABLE` because this Slice
+  changes contracts and documentation only.
+- No CTRL/IMS code, data, migration or authority was changed.

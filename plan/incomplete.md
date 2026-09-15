@@ -7,7 +7,7 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **20 open execution plans** across **10 Batches**. The
+Current inventory: **19 open execution plans** across **10 Batches**. The
 repository-control-plane foundation Slice is terminal, while Platform runtime
 implementation has not started; this tracker must not be read as runtime
 implementation evidence.
@@ -50,13 +50,13 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B1-S02 | **Ready** | PF-B1-S01 terminal | [ownership and shared contracts](active/pf-b1-s02-ownership-contracts.md) |
+| 1 | PF-B1-S03 | **Ready** | PF-B1-S01 and PF-B1-S02 terminal | [runtime, persistence and presentation foundation](active/pf-b1-s03-runtime-foundation.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
 | Batch | Slices | State | Depends on |
 | --- | --- | --- | --- |
-| PF-B1 | S01, S02, S03 | S01 Terminal; S02 Ready; S03 Planned | S02 follows S01; S03 follows S02 |
+| PF-B1 | S01, S02, S03 | S01/S02 Terminal; S03 Ready | S02 follows S01; S03 follows S02 |
 | PF-B2 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B3 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B4 | S01, S02 | Planned | PF-B1-S03 |
@@ -104,15 +104,15 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver **PF-B1-S02 — Platform ownership and shared contracts** from
-> [`plan/active/pf-b1-s02-ownership-contracts.md`](active/pf-b1-s02-ownership-contracts.md).
+> Deliver **PF-B1-S03 — Runtime, persistence and presentation foundation** from
+> [`plan/active/pf-b1-s03-runtime-foundation.md`](active/pf-b1-s03-runtime-foundation.md).
 > Re-read the plan, verify the current candidate and repository state, implement
 > only its authorised scope, then obtain independent review and independent
 > acceptance. Repair findings sequentially, rerun the required local validation
 > against the exact final candidate, and update the PF tracker/index and
 > implementation reconciliation only if every required gate passes. Do not
-> implement PF-B1-S03, identity behaviour or runtime functionality in this
-> Slice.
+> implement PF-B2 or identity behaviour beyond the authorised foundation
+> scope in this Slice.
 
 ## Closeout update
 
