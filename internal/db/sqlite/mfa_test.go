@@ -120,8 +120,8 @@ func TestMFAFreshUpgradeAndReopenMigrationEvidence(t *testing.T) {
 	if err := store.DB().QueryRowContext(ctx, `SELECT MAX(version) FROM schema_migrations`).Scan(&freshVersion); err != nil {
 		t.Fatal(err)
 	}
-	if freshVersion != 3 {
-		t.Fatalf("fresh migration version = %d, want 3", freshVersion)
+	if freshVersion != 4 {
+		t.Fatalf("fresh migration version = %d, want 4", freshVersion)
 	}
 	if err := store.Close(); err != nil {
 		t.Fatal(err)
@@ -162,7 +162,7 @@ func TestMFAFreshUpgradeAndReopenMigrationEvidence(t *testing.T) {
 	if err := upgraded.DB().QueryRowContext(ctx, `SELECT MAX(version) FROM schema_migrations`).Scan(&upgradedVersion); err != nil {
 		t.Fatal(err)
 	}
-	if upgradedVersion != 3 {
-		t.Fatalf("upgraded migration version = %d, want 3", upgradedVersion)
+	if upgradedVersion != 4 {
+		t.Fatalf("upgraded migration version = %d, want 4", upgradedVersion)
 	}
 }

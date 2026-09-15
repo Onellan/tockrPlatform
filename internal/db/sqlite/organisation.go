@@ -10,15 +10,16 @@ import (
 	"time"
 
 	"github.com/Onellan/tockrplatform/internal/domain"
+	"github.com/Onellan/tockrplatform/internal/store"
 )
 
 var (
-	ErrOrganisationNotFound           = errors.New("organisation not found")
-	ErrOrganisationArchived           = errors.New("organisation is archived")
-	ErrMembershipNotFound             = errors.New("organisation membership not found")
-	ErrUnauthorisedOrganisationAction = errors.New("organisation action is not authorised")
-	ErrOwnerMutationNotAuthorised     = errors.New("organisation owner mutation is not authorised")
-	ErrDuplicateOrganisationMember    = errors.New("active organisation membership already exists")
+	ErrOrganisationNotFound           = store.ErrOrganisationNotFound
+	ErrOrganisationArchived           = store.ErrOrganisationArchived
+	ErrMembershipNotFound             = store.ErrMembershipNotFound
+	ErrUnauthorisedOrganisationAction = store.ErrUnauthorisedOrganisationAction
+	ErrOwnerMutationNotAuthorised     = store.ErrOwnerMutationNotAuthorised
+	ErrDuplicateOrganisationMember    = store.ErrDuplicateOrganisationMember
 )
 
 const (
@@ -29,6 +30,7 @@ const (
 	eventMembershipRoleChanged = "membership_role_changed"
 	eventMembershipDeactivated = "membership_deactivated"
 	eventOrganisationArchived  = "organisation_archived"
+	eventOrganisationRenamed   = "organisation_renamed"
 )
 
 type organisationMutationDetails struct {
@@ -100,9 +102,11 @@ func (s *Store) GetOrganisation(ctx context.Context, requesterUserID, organisati
 	var status, created string
 	var archived sql.NullString
 	err := s.db.QueryRowContext(ctx, `SELECT o.public_id,o.name,o.status,o.created_at,o.archived_at
-		FROM organisations o JOIN organisation_memberships m ON m.organisation_id=o.id AND m.active=1
-		JOIN users u ON u.id=m.user_id AND u.active=1
-		WHERE o.public_id=? AND o.status='active' AND u.public_id=?`, organisationID, requesterUserID).
+		FROM organisations o
+		WHERE o.public_id=? AND o.status='active' AND (
+			EXISTS (SELECT 1 FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=o.id AND m.active=1 AND u.public_id=?)
+			OR EXISTS (SELECT 1 FROM users u JOIN system_role_assignments sra ON sra.user_id=u.id AND sra.role='system_admin' AND sra.active=1 WHERE u.public_id=? AND u.active=1)
+		)`, organisationID, requesterUserID, requesterUserID).
 		Scan(&organisation.ID, &organisation.Name, &status, &created, &archived)
 	if errors.Is(err, sql.ErrNoRows) {
 		var exists int
@@ -133,11 +137,15 @@ func (s *Store) GetOrganisationMembership(ctx context.Context, requesterUserID, 
 		JOIN organisations o ON o.id=m.organisation_id AND o.status='active'
 		JOIN users u ON u.id=m.user_id AND u.active=1
 		JOIN users assigned ON assigned.id=m.assigned_by
-		WHERE o.public_id=? AND u.public_id=? AND m.active=1 AND EXISTS (
+		WHERE o.public_id=? AND u.public_id=? AND m.active=1 AND (EXISTS (
 			SELECT 1 FROM organisation_memberships requester
 			JOIN users requester_user ON requester_user.id=requester.user_id AND requester_user.active=1
 			WHERE requester.organisation_id=o.id AND requester.active=1 AND requester_user.public_id=?
-		)`, organisationID, targetUserID, requesterUserID).
+		) OR EXISTS (
+			SELECT 1 FROM users requester_user
+			JOIN system_role_assignments requester_role ON requester_role.user_id=requester_user.id AND requester_role.role='system_admin' AND requester_role.active=1
+			WHERE requester_user.public_id=? AND requester_user.active=1
+		))`, organisationID, targetUserID, requesterUserID, requesterUserID).
 		Scan(&membership.ID, &membership.OrganisationID, &membership.UserID, &role, &membership.Active, &membership.AssignedBy, &assignedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrMembershipNotFound
@@ -169,11 +177,11 @@ func (s *Store) AddOrganisationMember(ctx context.Context, actorUserID, organisa
 		return domain.OrganisationMembership{}, fmt.Errorf("begin membership addition: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	actorInternalID, actorRole, organisationInternalID, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
+	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
 	if err != nil {
 		return domain.OrganisationMembership{}, err
 	}
-	if actorRole == domain.OrganisationAdmin && role == domain.OrganisationAdmin {
+	if !systemAdmin && actorRole == domain.OrganisationAdmin && role == domain.OrganisationAdmin {
 		return domain.OrganisationMembership{}, ErrUnauthorisedOrganisationAction
 	}
 	targetInternalID, err := activeUserIDTx(ctx, tx, targetUserID)
@@ -218,7 +226,7 @@ func (s *Store) ChangeOrganisationMemberRole(ctx context.Context, actorUserID, o
 		return domain.OrganisationMembership{}, fmt.Errorf("begin membership role change: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	actorInternalID, actorRole, organisationInternalID, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
+	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
 	if err != nil {
 		return domain.OrganisationMembership{}, err
 	}
@@ -232,7 +240,7 @@ func (s *Store) ChangeOrganisationMemberRole(ctx context.Context, actorUserID, o
 	if currentRole == string(domain.OrganisationOwner) {
 		return domain.OrganisationMembership{}, ErrOwnerMutationNotAuthorised
 	}
-	if actorRole == domain.OrganisationAdmin && currentRole != string(domain.OrganisationMember) {
+	if !systemAdmin && actorRole == domain.OrganisationAdmin && currentRole != string(domain.OrganisationMember) {
 		return domain.OrganisationMembership{}, ErrUnauthorisedOrganisationAction
 	}
 	if currentRole == string(role) {
@@ -269,7 +277,7 @@ func (s *Store) DeactivateOrganisationMember(ctx context.Context, actorUserID, o
 		return fmt.Errorf("begin membership deactivation: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	actorInternalID, actorRole, organisationInternalID, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
+	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
 	if err != nil {
 		return err
 	}
@@ -283,7 +291,7 @@ func (s *Store) DeactivateOrganisationMember(ctx context.Context, actorUserID, o
 	if targetRole == string(domain.OrganisationOwner) {
 		return ErrOwnerMutationNotAuthorised
 	}
-	if actorRole == domain.OrganisationAdmin && targetRole != string(domain.OrganisationMember) {
+	if !systemAdmin && actorRole == domain.OrganisationAdmin && targetRole != string(domain.OrganisationMember) {
 		return ErrUnauthorisedOrganisationAction
 	}
 	result, err := tx.ExecContext(ctx, `UPDATE organisation_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(at.UTC()), strings.TrimSpace(reason), membershipID)
@@ -316,11 +324,11 @@ func (s *Store) ArchiveOrganisation(ctx context.Context, actorUserID, organisati
 		return fmt.Errorf("begin organisation archive: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	actorInternalID, actorRole, organisationInternalID, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
+	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
 	if err != nil {
 		return err
 	}
-	if actorRole != domain.OrganisationOwner {
+	if !systemAdmin && actorRole != domain.OrganisationOwner {
 		return ErrUnauthorisedOrganisationAction
 	}
 	result, err := tx.ExecContext(ctx, `UPDATE organisations SET status='archived',archived_at=? WHERE id=? AND status='active'`, formatTime(at.UTC()), organisationInternalID)
@@ -374,33 +382,178 @@ func (s *Store) ArchiveOrganisation(ctx context.Context, actorUserID, organisati
 	return nil
 }
 
-func authorisedOrganisationMutationTx(ctx context.Context, tx *sql.Tx, actorUserID, organisationID string) (int64, domain.OrganisationRole, int64, error) {
-	var actorInternalID, organisationInternalID int64
-	var role, status string
-	query := `SELECT u.id,m.role,o.id,o.status FROM users u
-		JOIN organisation_memberships m ON m.user_id=u.id AND m.active=1
-		JOIN organisations o ON o.id=m.organisation_id
-		WHERE u.public_id=? AND u.active=1 AND o.public_id=?`
-	if err := tx.QueryRowContext(ctx, query, actorUserID, organisationID).Scan(&actorInternalID, &role, &organisationInternalID, &status); errors.Is(err, sql.ErrNoRows) {
-		var exists int
-		if checkErr := tx.QueryRowContext(ctx, `SELECT COUNT(*) FROM organisations WHERE public_id=?`, organisationID).Scan(&exists); checkErr != nil {
-			return 0, "", 0, fmt.Errorf("check organisation existence: %w", checkErr)
+func (s *Store) RenameOrganisation(ctx context.Context, actorUserID, organisationID, name, reason string, at time.Time) (domain.Organisation, error) {
+	name = strings.TrimSpace(name)
+	if name == "" || len(name) > 200 {
+		return domain.Organisation{}, domain.ErrInvalidOrganisationName
+	}
+	if err := validateMutationReason(reason); err != nil {
+		return domain.Organisation{}, err
+	}
+	if at.IsZero() {
+		return domain.Organisation{}, errors.New("organisation rename time is required")
+	}
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return domain.Organisation{}, fmt.Errorf("begin organisation rename: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	actorInternalID, _, organisationInternalID, _, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
+	if err != nil {
+		return domain.Organisation{}, err
+	}
+	result, err := tx.ExecContext(ctx, `UPDATE organisations SET name=? WHERE id=? AND status='active'`, name, organisationInternalID)
+	if err != nil {
+		return domain.Organisation{}, fmt.Errorf("rename organisation: %w", err)
+	}
+	if rows, err := result.RowsAffected(); err != nil {
+		return domain.Organisation{}, fmt.Errorf("check organisation rename: %w", err)
+	} else if rows != 1 {
+		return domain.Organisation{}, ErrOrganisationArchived
+	}
+	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventOrganisationRenamed, organisationMutationDetails{OrganisationID: organisationID, Reason: strings.TrimSpace(reason)}, at); err != nil {
+		return domain.Organisation{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return domain.Organisation{}, fmt.Errorf("commit organisation rename: %w", err)
+	}
+	return domain.Organisation{ID: organisationID, Name: name, Status: domain.OrganisationActive}, nil
+}
+
+func (s *Store) ListOrganisationMembers(ctx context.Context, requesterUserID, organisationID string) ([]store.OrganisationMemberRecord, error) {
+	organisationInternalID, err := s.authorisedOrganisationRead(ctx, requesterUserID, organisationID, true)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := s.db.QueryContext(ctx, `SELECT m.public_id,o.public_id,u.public_id,u.email,u.display_name,m.role,m.assigned_at
+		FROM organisation_memberships m
+		JOIN organisations o ON o.id=m.organisation_id AND o.status='active'
+		JOIN users u ON u.id=m.user_id AND u.active=1
+		WHERE m.organisation_id=? AND m.active=1 ORDER BY u.display_name,u.public_id`, organisationInternalID)
+	if err != nil {
+		return nil, fmt.Errorf("list organisation members: %w", err)
+	}
+	defer rows.Close()
+	var members []store.OrganisationMemberRecord
+	for rows.Next() {
+		var member store.OrganisationMemberRecord
+		var role, assignedAt string
+		if err := rows.Scan(&member.MembershipID, &member.OrganisationID, &member.UserID, &member.Email, &member.DisplayName, &role, &assignedAt); err != nil {
+			return nil, fmt.Errorf("read organisation member: %w", err)
 		}
-		if exists == 0 {
-			return 0, "", 0, ErrOrganisationNotFound
+		member.Role = domain.OrganisationRole(role)
+		member.AssignedAt = parseTime(assignedAt)
+		members = append(members, member)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate organisation members: %w", err)
+	}
+	return members, nil
+}
+
+func (s *Store) ListOrganisationAudit(ctx context.Context, requesterUserID, organisationID string, limit int) ([]store.OrganisationAuditRecord, error) {
+	organisationInternalID, err := s.authorisedOrganisationRead(ctx, requesterUserID, organisationID, true)
+	if err != nil {
+		return nil, err
+	}
+	if limit <= 0 || limit > 100 {
+		return nil, errors.New("organisation audit limit must be between 1 and 100")
+	}
+	rows, err := s.db.QueryContext(ctx, `SELECT a.id,o.public_id,actor.public_id,a.event,a.details,a.occurred_at
+		FROM audit_events a
+		JOIN organisations o ON o.public_id=a.aggregate_id AND o.id=?
+		JOIN users actor ON actor.id=a.actor_user_id
+		WHERE a.aggregate_type=? AND a.aggregate_id=?
+		ORDER BY a.occurred_at DESC,a.id DESC LIMIT ?`, organisationInternalID, auditOrganisation, organisationID, limit)
+	if err != nil {
+		return nil, fmt.Errorf("list organisation audit: %w", err)
+	}
+	defer rows.Close()
+	var events []store.OrganisationAuditRecord
+	for rows.Next() {
+		var event store.OrganisationAuditRecord
+		var occurredAt string
+		if err := rows.Scan(&event.ID, &event.OrganisationID, &event.ActorUserID, &event.Event, &event.Details, &occurredAt); err != nil {
+			return nil, fmt.Errorf("read organisation audit: %w", err)
 		}
-		return 0, "", 0, ErrUnauthorisedOrganisationAction
+		event.OccurredAt = parseTime(occurredAt)
+		events = append(events, event)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate organisation audit: %w", err)
+	}
+	return events, nil
+}
+
+func (s *Store) authorisedOrganisationRead(ctx context.Context, requesterUserID, organisationID string, adminOnly bool) (int64, error) {
+	var organisationInternalID int64
+	var status string
+	if err := s.db.QueryRowContext(ctx, `SELECT id,status FROM organisations WHERE public_id=?`, organisationID).Scan(&organisationInternalID, &status); errors.Is(err, sql.ErrNoRows) {
+		return 0, ErrOrganisationNotFound
 	} else if err != nil {
-		return 0, "", 0, fmt.Errorf("resolve organisation authority: %w", err)
+		return 0, fmt.Errorf("resolve organisation read: %w", err)
 	}
 	if status != string(domain.OrganisationActive) {
-		return 0, "", 0, ErrOrganisationArchived
+		return 0, ErrOrganisationArchived
+	}
+	var userInternalID int64
+	if err := s.db.QueryRowContext(ctx, `SELECT id FROM users WHERE public_id=? AND active=1`, requesterUserID).Scan(&userInternalID); errors.Is(err, sql.ErrNoRows) {
+		return 0, ErrUnauthorisedOrganisationAction
+	} else if err != nil {
+		return 0, fmt.Errorf("resolve organisation reader: %w", err)
+	}
+	var systemAdmin int
+	if err := s.db.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM system_role_assignments WHERE user_id=? AND role='system_admin' AND active=1)`, userInternalID).Scan(&systemAdmin); err != nil {
+		return 0, fmt.Errorf("resolve organisation reader system role: %w", err)
+	}
+	if systemAdmin == 1 {
+		return organisationInternalID, nil
+	}
+	var role string
+	if err := s.db.QueryRowContext(ctx, `SELECT role FROM organisation_memberships WHERE organisation_id=? AND user_id=? AND active=1`, organisationInternalID, userInternalID).Scan(&role); errors.Is(err, sql.ErrNoRows) {
+		return 0, ErrUnauthorisedOrganisationAction
+	} else if err != nil {
+		return 0, fmt.Errorf("resolve organisation reader membership: %w", err)
+	}
+	if adminOnly && !domain.OrganisationRole(role).CanAdminister() {
+		return 0, ErrUnauthorisedOrganisationAction
+	}
+	return organisationInternalID, nil
+}
+
+func authorisedOrganisationMutationTx(ctx context.Context, tx *sql.Tx, actorUserID, organisationID string) (int64, domain.OrganisationRole, int64, bool, error) {
+	var actorInternalID, organisationInternalID int64
+	var role, status string
+	if err := tx.QueryRowContext(ctx, `SELECT id FROM users WHERE public_id=? AND active=1`, actorUserID).Scan(&actorInternalID); errors.Is(err, sql.ErrNoRows) {
+		return 0, "", 0, false, ErrUnauthorisedOrganisationAction
+	} else if err != nil {
+		return 0, "", 0, false, fmt.Errorf("resolve mutation actor: %w", err)
+	}
+	if err := tx.QueryRowContext(ctx, `SELECT id,status FROM organisations WHERE public_id=?`, organisationID).Scan(&organisationInternalID, &status); errors.Is(err, sql.ErrNoRows) {
+		return 0, "", 0, false, ErrOrganisationNotFound
+	} else if err != nil {
+		return 0, "", 0, false, fmt.Errorf("resolve mutation organisation: %w", err)
+	}
+	if status != string(domain.OrganisationActive) {
+		return 0, "", 0, false, ErrOrganisationArchived
+	}
+	var systemAdmin int
+	if err := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM system_role_assignments WHERE user_id=? AND role='system_admin' AND active=1)`, actorInternalID).Scan(&systemAdmin); err != nil {
+		return 0, "", 0, false, fmt.Errorf("resolve system authority: %w", err)
+	}
+	if systemAdmin == 1 {
+		return actorInternalID, "", organisationInternalID, true, nil
+	}
+	if err := tx.QueryRowContext(ctx, `SELECT role FROM organisation_memberships WHERE organisation_id=? AND user_id=? AND active=1`, organisationInternalID, actorInternalID).Scan(&role); errors.Is(err, sql.ErrNoRows) {
+		return 0, "", 0, false, ErrUnauthorisedOrganisationAction
+	} else if err != nil {
+		return 0, "", 0, false, fmt.Errorf("resolve organisation authority: %w", err)
 	}
 	parsedRole := domain.OrganisationRole(role)
 	if !parsedRole.CanAdminister() {
-		return 0, "", 0, ErrUnauthorisedOrganisationAction
+		return 0, "", 0, false, ErrUnauthorisedOrganisationAction
 	}
-	return actorInternalID, parsedRole, organisationInternalID, nil
+	return actorInternalID, parsedRole, organisationInternalID, false, nil
 }
 
 func activeUserIDTx(ctx context.Context, tx *sql.Tx, publicID string) (int64, error) {

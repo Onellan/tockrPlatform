@@ -142,8 +142,8 @@ func TestOrganisationFreshUpgradeReopenAndDivergenceMigration(t *testing.T) {
 	if err := store.DB().QueryRowContext(ctx, `SELECT MAX(version) FROM schema_migrations`).Scan(&version); err != nil {
 		t.Fatal(err)
 	}
-	if version != 3 {
-		t.Fatalf("fresh schema version = %d, want 3", version)
+	if version != 4 {
+		t.Fatalf("fresh schema version = %d, want 4", version)
 	}
 	if err := store.Close(); err != nil {
 		t.Fatal(err)
@@ -183,8 +183,8 @@ func TestOrganisationFreshUpgradeReopenAndDivergenceMigration(t *testing.T) {
 	if err := upgraded.DB().QueryRowContext(ctx, `SELECT MAX(version) FROM schema_migrations`).Scan(&version); err != nil {
 		t.Fatal(err)
 	}
-	if version != 3 {
-		t.Fatalf("upgraded schema version = %d, want 3", version)
+	if version != 4 {
+		t.Fatalf("upgraded schema version = %d, want 4", version)
 	}
 	if _, err := upgraded.DB().ExecContext(ctx, `UPDATE schema_migrations SET name='changed' WHERE version=3`); err != nil {
 		t.Fatal(err)
@@ -196,6 +196,80 @@ func TestOrganisationFreshUpgradeReopenAndDivergenceMigration(t *testing.T) {
 		_ = reopened.Close()
 		t.Fatal("divergent organisation migration ledger was accepted")
 	}
+}
+
+func TestOrganisationAdministrationReadModelsEnforceScopeAndSystemAuthority(t *testing.T) {
+	ctx := context.Background()
+	store, users := newOrganisationStore(t, 5)
+	now := time.Now().UTC().Truncate(time.Second)
+	organisationID, err := domain.NewOrganisationID()
+	if err != nil {
+		t.Fatal(err)
+	}
+	organisation, _, err := store.CreateOrganisation(ctx, users[0].ID, domain.Organisation{ID: organisationID, Name: "Administration", Status: domain.OrganisationActive}, "create administration organisation", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.AddOrganisationMember(ctx, users[0].ID, organisation.ID, users[1].ID, domain.OrganisationAdmin, "appoint admin", now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.AddOrganisationMember(ctx, users[0].ID, organisation.ID, users[2].ID, domain.OrganisationMember, "add member", now.Add(2*time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	otherID, err := domain.NewOrganisationID()
+	if err != nil {
+		t.Fatal(err)
+	}
+	other, _, err := store.CreateOrganisation(ctx, users[3].ID, domain.Organisation{ID: otherID, Name: "Other", Status: domain.OrganisationActive}, "create other organisation", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := seedSystemAdministrator(ctx, store, users[4].ID); err != nil {
+		t.Fatal(err)
+	}
+
+	members, err := store.ListOrganisationMembers(ctx, users[1].ID, organisation.ID)
+	if err != nil || len(members) != 3 {
+		t.Fatalf("admin member read = %#v, err=%v", members, err)
+	}
+	if members[0].Email == "" || members[0].DisplayName == "" || members[0].Role == "" {
+		t.Fatalf("member read model omitted Platform identity facts: %#v", members[0])
+	}
+	if _, err := store.ListOrganisationMembers(ctx, users[2].ID, organisation.ID); !errors.Is(err, ErrUnauthorisedOrganisationAction) {
+		t.Fatalf("member enumeration = %v, want unauthorised", err)
+	}
+	if _, err := store.ListOrganisationMembers(ctx, users[3].ID, organisation.ID); !errors.Is(err, ErrUnauthorisedOrganisationAction) {
+		t.Fatalf("cross-organisation member enumeration = %v, want unauthorised", err)
+	}
+	allMembers, err := store.ListOrganisationMembers(ctx, users[4].ID, organisation.ID)
+	if err != nil || len(allMembers) != 3 {
+		t.Fatalf("system administrator member read = %#v, err=%v", allMembers, err)
+	}
+	audit, err := store.ListOrganisationAudit(ctx, users[0].ID, organisation.ID, 10)
+	if err != nil || len(audit) < 3 {
+		t.Fatalf("owner audit read = %#v, err=%v", audit, err)
+	}
+	if _, err := store.ListOrganisationAudit(ctx, users[2].ID, organisation.ID, 10); !errors.Is(err, ErrUnauthorisedOrganisationAction) {
+		t.Fatalf("member audit read = %v, want unauthorised", err)
+	}
+	if _, err := store.ListOrganisationAudit(ctx, users[4].ID, other.ID, 10); err != nil {
+		t.Fatalf("system administrator cross-organisation audit read = %v", err)
+	}
+	if renamed, err := store.RenameOrganisation(ctx, users[1].ID, organisation.ID, "Administered", "correct general settings", now.Add(3*time.Minute)); err != nil || renamed.Name != "Administered" {
+		t.Fatalf("admin rename = %#v, err=%v", renamed, err)
+	}
+	if _, err := store.RenameOrganisation(ctx, users[2].ID, organisation.ID, "Leaked", "member mutation", now.Add(4*time.Minute)); !errors.Is(err, ErrUnauthorisedOrganisationAction) {
+		t.Fatalf("member rename = %v, want unauthorised", err)
+	}
+}
+
+func seedSystemAdministrator(ctx context.Context, store *Store, userID string) error {
+	var internalID int64
+	if err := store.DB().QueryRowContext(ctx, `SELECT id FROM users WHERE public_id=? AND active=1`, userID).Scan(&internalID); err != nil {
+		return err
+	}
+	_, err := store.DB().ExecContext(ctx, `INSERT INTO system_role_assignments(user_id,role,active,assigned_by,assigned_at) VALUES(?,?,1,?,?)`, internalID, "system_admin", internalID, formatTime(time.Now().UTC()))
+	return err
 }
 
 func newOrganisationStore(t *testing.T, count int) (*Store, []domain.User) {

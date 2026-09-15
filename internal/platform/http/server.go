@@ -3,13 +3,17 @@ package httpserver
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Onellan/tockrplatform/internal/auth"
+	"github.com/Onellan/tockrplatform/internal/domain"
 	"github.com/Onellan/tockrplatform/internal/store"
 	"github.com/Onellan/tockrplatform/web/templates"
 	"github.com/a-h/templ"
@@ -66,6 +70,15 @@ func (s *Server) Handler() http.Handler {
 		protected.Post("/account/mfa/setup", s.mfaSetup)
 		protected.Post("/account/mfa/confirm", s.mfaConfirm)
 		protected.Post("/logout", s.logout)
+		protected.Post("/api/organisations", s.createOrganisation)
+		protected.Get("/api/organisations/{organisationID}", s.getOrganisation)
+		protected.Get("/api/organisations/{organisationID}/members", s.listOrganisationMembers)
+		protected.Get("/api/organisations/{organisationID}/audit", s.listOrganisationAudit)
+		protected.Patch("/api/organisations/{organisationID}", s.renameOrganisation)
+		protected.Post("/api/organisations/{organisationID}/members", s.addOrganisationMember)
+		protected.Patch("/api/organisations/{organisationID}/members/{userID}", s.changeOrganisationMemberRole)
+		protected.Delete("/api/organisations/{organisationID}/members/{userID}", s.deactivateOrganisationMember)
+		protected.Post("/api/organisations/{organisationID}/archive", s.archiveOrganisation)
 	})
 	return r
 }
@@ -220,6 +233,302 @@ func (s *Server) accountPage(w http.ResponseWriter, r *http.Request) {
 	if err := render(w, r, templates.Account(session.User, csrfCookie.Value)); err != nil {
 		http.Error(w, "service unavailable", http.StatusInternalServerError)
 	}
+}
+
+type organisationCreateRequest struct {
+	Name   string `json:"name"`
+	Reason string `json:"reason"`
+}
+
+type organisationRenameRequest struct {
+	Name   string `json:"name"`
+	Reason string `json:"reason"`
+}
+
+type organisationMemberMutationRequest struct {
+	UserID string `json:"user_id"`
+	Role   string `json:"role"`
+	Reason string `json:"reason"`
+}
+
+type organisationReasonRequest struct {
+	Reason string `json:"reason"`
+}
+
+type organisationResponse struct {
+	ID         string                    `json:"id"`
+	Name       string                    `json:"name"`
+	Status     domain.OrganisationStatus `json:"status"`
+	CreatedAt  time.Time                 `json:"created_at"`
+	ArchivedAt *time.Time                `json:"archived_at,omitempty"`
+}
+
+type organisationMemberResponse struct {
+	MembershipID   string                  `json:"membership_id"`
+	OrganisationID string                  `json:"organisation_id"`
+	UserID         string                  `json:"user_id"`
+	Email          string                  `json:"email"`
+	DisplayName    string                  `json:"display_name"`
+	Role           domain.OrganisationRole `json:"role"`
+	AssignedAt     time.Time               `json:"assigned_at"`
+}
+
+type organisationAuditResponse struct {
+	ID             int64     `json:"id"`
+	OrganisationID string    `json:"organisation_id"`
+	ActorUserID    string    `json:"actor_user_id"`
+	Event          string    `json:"event"`
+	Details        string    `json:"details"`
+	OccurredAt     time.Time `json:"occurred_at"`
+}
+
+func (s *Server) createOrganisation(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationCreateRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	organisation, _, err := s.store.CreateOrganisation(r.Context(), session.User.ID, domain.Organisation{Name: request.Name}, request.Reason, time.Now().UTC())
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, organisationResponseFromDomain(organisation))
+}
+
+func (s *Server) getOrganisation(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	organisation, err := s.store.GetOrganisation(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"))
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, organisationResponseFromDomain(*organisation))
+}
+
+func (s *Server) listOrganisationMembers(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	members, err := s.store.ListOrganisationMembers(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"))
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	response := make([]organisationMemberResponse, 0, len(members))
+	for _, member := range members {
+		response = append(response, organisationMemberResponse{MembershipID: member.MembershipID, OrganisationID: member.OrganisationID, UserID: member.UserID, Email: member.Email, DisplayName: member.DisplayName, Role: member.Role, AssignedAt: member.AssignedAt})
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) listOrganisationAudit(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	limit := 50
+	if value := strings.TrimSpace(r.URL.Query().Get("limit")); value != "" {
+		parsed, err := strconv.Atoi(value)
+		if err != nil {
+			http.Error(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+		limit = parsed
+	}
+	events, err := s.store.ListOrganisationAudit(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), limit)
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	response := make([]organisationAuditResponse, 0, len(events))
+	for _, event := range events {
+		response = append(response, organisationAuditResponse{ID: event.ID, OrganisationID: event.OrganisationID, ActorUserID: event.ActorUserID, Event: event.Event, Details: event.Details, OccurredAt: event.OccurredAt})
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) renameOrganisation(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationRenameRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	organisation, err := s.store.RenameOrganisation(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), request.Name, request.Reason, time.Now().UTC())
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, organisationResponseFromDomain(organisation))
+}
+
+func (s *Server) addOrganisationMember(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationMemberMutationRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	role := domain.OrganisationRole(strings.TrimSpace(request.Role))
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	membership, err := s.store.AddOrganisationMember(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), strings.TrimSpace(request.UserID), role, request.Reason, time.Now().UTC())
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, organisationMemberResponse{MembershipID: membership.ID, OrganisationID: membership.OrganisationID, UserID: membership.UserID, Role: membership.Role, AssignedAt: membership.AssignedAt})
+}
+
+func (s *Server) changeOrganisationMemberRole(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationMemberMutationRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	role := domain.OrganisationRole(strings.TrimSpace(request.Role))
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	membership, err := s.store.ChangeOrganisationMemberRole(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), chi.URLParam(r, "userID"), role, request.Reason, time.Now().UTC())
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, organisationMemberResponse{MembershipID: membership.ID, OrganisationID: membership.OrganisationID, UserID: membership.UserID, Role: membership.Role, AssignedAt: membership.AssignedAt})
+}
+
+func (s *Server) deactivateOrganisationMember(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationReasonRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := s.store.DeactivateOrganisationMember(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), chi.URLParam(r, "userID"), request.Reason, time.Now().UTC()); err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) archiveOrganisation(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationReasonRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := s.store.ArchiveOrganisation(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), request.Reason, time.Now().UTC()); err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) verifyMutationCSRF(w http.ResponseWriter, r *http.Request) bool {
+	cookie, err := r.Cookie(sessionCookieName)
+	if err != nil {
+		http.Error(w, "request could not be validated", http.StatusForbidden)
+		return false
+	}
+	token := r.Header.Get("X-CSRF-Token")
+	if token == "" && !strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "application/json") {
+		token = r.FormValue("csrf")
+	}
+	valid, err := s.store.VerifySessionCSRF(r.Context(), cookie.Value, token)
+	if err != nil || !valid {
+		http.Error(w, "request could not be validated", http.StatusForbidden)
+		return false
+	}
+	return true
+}
+
+func decodeJSON(w http.ResponseWriter, r *http.Request, target any) bool {
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(target); err != nil {
+		http.Error(w, "invalid request", http.StatusBadRequest)
+		return false
+	}
+	var extra any
+	if err := decoder.Decode(&extra); !errors.Is(err, io.EOF) {
+		http.Error(w, "invalid request", http.StatusBadRequest)
+		return false
+	}
+	return true
+}
+
+func writeJSON(w http.ResponseWriter, status int, value any) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(value)
+}
+
+func writeOrganisationError(w http.ResponseWriter, err error) {
+	status := http.StatusInternalServerError
+	switch {
+	case errors.Is(err, store.ErrOrganisationNotFound), errors.Is(err, store.ErrOrganisationArchived), errors.Is(err, store.ErrMembershipNotFound), errors.Is(err, store.ErrUnauthorisedOrganisationAction):
+		status = http.StatusNotFound
+	case errors.Is(err, store.ErrOwnerMutationNotAuthorised):
+		status = http.StatusForbidden
+	case errors.Is(err, store.ErrDuplicateOrganisationMember):
+		status = http.StatusConflict
+	case errors.Is(err, domain.ErrInvalidOrganisation), errors.Is(err, domain.ErrInvalidOrganisationName), errors.Is(err, domain.ErrInvalidOrganisationRole), errors.Is(err, domain.ErrInvalidReason):
+		status = http.StatusBadRequest
+	}
+	if status == http.StatusInternalServerError {
+		http.Error(w, "service unavailable", status)
+		return
+	}
+	http.Error(w, http.StatusText(status), status)
+}
+
+func organisationResponseFromDomain(organisation domain.Organisation) organisationResponse {
+	return organisationResponse{ID: organisation.ID, Name: organisation.Name, Status: organisation.Status, CreatedAt: organisation.CreatedAt, ArchivedAt: organisation.ArchivedAt}
 }
 
 func (s *Server) mfaSetup(w http.ResponseWriter, r *http.Request) {

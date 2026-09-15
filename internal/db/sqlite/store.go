@@ -222,6 +222,25 @@ func supportedMigrations() []migration {
 				`CREATE INDEX audit_events_aggregate_time_idx ON audit_events(aggregate_type,aggregate_id,occurred_at,id)`,
 			},
 		},
+		{
+			version: 4,
+			name:    "organisation-administration-authority",
+			statements: []string{
+				`CREATE TABLE system_role_assignments (
+					id INTEGER PRIMARY KEY,
+					user_id INTEGER NOT NULL REFERENCES users(id),
+					role TEXT NOT NULL CHECK(role='system_admin'),
+					active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)),
+					assigned_by INTEGER NOT NULL REFERENCES users(id),
+					assigned_at TEXT NOT NULL,
+					revoked_by INTEGER REFERENCES users(id),
+					revoked_at TEXT,
+					revocation_reason TEXT NOT NULL DEFAULT ''
+				)`,
+				`CREATE UNIQUE INDEX system_role_assignments_current_idx ON system_role_assignments(user_id,role) WHERE active=1`,
+				`CREATE INDEX system_role_assignments_active_idx ON system_role_assignments(user_id,active,role)`,
+			},
+		},
 	}
 }
 
