@@ -2,7 +2,7 @@
 
 This is the execution index for every Tockr Platform Foundation (PF) plan that
 is not terminally implemented. It is derived from the authoritative
-[PF programme index](active/priority-pf.md) and its linked Slice plans.
+[PF programme index](pf-platform-foundation.md) and its linked Slice plans.
 Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
@@ -74,30 +74,33 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 ## Supporting programme index
 
 The full PF dependency spine, authority boundary and stop conditions are in
-[`active/priority-pf.md`](active/priority-pf.md). Slice-level acceptance and
+[`pf-platform-foundation.md`](pf-platform-foundation.md). Slice-level acceptance and
 routing remain in the linked active plan files.
 
 ## Copy-ready next Batch prompt
 
+This prompt follows the canonical [Standard PF Batch execution
+prompt](pf-platform-foundation.md#standard-pf-batch-execution-prompt) in the PF
+programme plan.
+
 > Deliver the next active **Tockr Platform Foundation Batch** from
 > [`plan/incomplete.md`](incomplete.md). Identify the first Batch whose
-> dependencies are terminal and whose queue contains a Ready Slice; at the
-> current tracker state this is **PF-B1 — Repository, standards and
-> architecture foundation**, comprising PF-B1-S01, PF-B1-S02 and PF-B1-S03.
-> Read [`plan/active/priority-pf.md`](active/priority-pf.md) and all three
-> linked Slice plans before changing anything. Execute the Batch strictly in
-> dependency order: complete PF-B1-S01, pass its independent review,
-> independent tester acceptance and exact-candidate local validation, close it
-> out and promote PF-B1-S02; then repeat for PF-B1-S03. Do not implement the
-> Slices in parallel, skip a gate, or begin the next Slice before the previous
-> Slice is terminally closed. Implement only each Slice's authorised scope and
-> preserve the Platform/CTRL/IMS boundary. Stop and record a truthful
-> BLOCKED / NOT RUN or unresolved-authority state if a dependency, source
-> conflict or acceptance condition cannot be proved. After all three Slices
-> pass, perform the Batch certification, update `plan/incomplete.md`, the PF
-> index, `docs/implementation/IMPLEMENTED.md`, reconciliation evidence and
-> `plan/completed/`, then publish `main` only if the required gates pass. Do
-> not implement PF-B2 or any work outside PF-B1.
+> dependencies are terminal and whose queue contains a Ready Slice. Read
+> [`plan/pf-platform-foundation.md`](pf-platform-foundation.md) and every linked Slice
+> plan belonging to that Batch before changing anything. Execute the Batch's
+> Slices strictly in dependency order: complete one Slice, pass its
+> independent review, independent tester acceptance and exact-candidate local
+> validation, close it out, and only then promote the next Slice. Do not
+> implement Slices in parallel, skip a gate, or begin the next Slice before the
+> previous Slice is terminally closed. Implement only each Slice's authorised
+> scope and preserve the Platform/CTRL/IMS boundary. Stop and record a
+> truthful BLOCKED / NOT RUN or unresolved-authority state if a dependency,
+> source conflict or acceptance condition cannot be proved. After every Slice
+> in the Batch passes, perform Batch certification, update
+> `plan/incomplete.md`, the PF index, `docs/implementation/IMPLEMENTED.md`,
+> reconciliation evidence and `plan/completed/`, then publish `main` only if
+> the required gates pass. Do not implement work from a later Batch or any
+> scope outside the selected Batch.
 
 ## Copy-ready first Slice prompt
 

@@ -21,7 +21,7 @@ REQUIRED_FOUNDATION_DOCS = (
     "docs/technical/coding-standards.md",
     "docs/technical/testing-execution-contract.md",
     "docs/technical/engineering-workflow.md",
-    "plan/active/priority-pf.md",
+    "plan/pf-platform-foundation.md",
 )
 SECRET_PATTERNS = (
     re.compile(r"(?i)(password|secret|private[_ -]?key)\s*[:=]\s*['\"][^'\"]+['\"]"),

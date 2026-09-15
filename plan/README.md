@@ -6,8 +6,8 @@ Slice plans. [`completed/`](completed/) contains immutable terminal plans after
 the delivery gates pass. Do not edit a terminal plan to absorb later work;
 create or supersede an active plan instead.
 
-The active programme index is
-[`active/priority-pf.md`](active/priority-pf.md). The Platform tracker keeps
+The programme index is
+[`pf-platform-foundation.md`](pf-platform-foundation.md). The Platform tracker keeps
 the same queue, closeout and evidence conventions as TockrIMS and TockrCTRL
 while retaining Platform's `Priority → Batch → Slice` structure.
 

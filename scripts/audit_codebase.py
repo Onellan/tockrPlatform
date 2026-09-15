@@ -14,7 +14,7 @@ REQUIRED = (
     "docs/contracts/platform-contract-v1.md",
     "docs/technical/coding-standards.md",
     "docs/technical/testing-execution-contract.md",
-    "plan/active/priority-pf.md",
+    "plan/pf-platform-foundation.md",
 )
 
 
