@@ -16,7 +16,7 @@ evidence.
 
 1. Start with the first unblocked Slice in the queue.
 2. Read its linked plan and existing evidence before changing anything.
-3. Copy the Slice prompt into a fresh delivery run.
+3. Copy the batch prompt or the first-Slice prompt into a fresh delivery run.
 4. When the Slice closes, move its plan to [`completed/`](completed/), remove
    or update its entry here, and promote the next unblocked Slice.
 
@@ -77,7 +77,29 @@ The full PF dependency spine, authority boundary and stop conditions are in
 [`active/priority-pf.md`](active/priority-pf.md). Slice-level acceptance and
 routing remain in the linked active plan files.
 
-## Copy-ready next prompt
+## Copy-ready next Batch prompt
+
+> Deliver the next active **Tockr Platform Foundation Batch** from
+> [`plan/incomplete.md`](incomplete.md). Identify the first Batch whose
+> dependencies are terminal and whose queue contains a Ready Slice; at the
+> current tracker state this is **PF-B1 — Repository, standards and
+> architecture foundation**, comprising PF-B1-S01, PF-B1-S02 and PF-B1-S03.
+> Read [`plan/active/priority-pf.md`](active/priority-pf.md) and all three
+> linked Slice plans before changing anything. Execute the Batch strictly in
+> dependency order: complete PF-B1-S01, pass its independent review,
+> independent tester acceptance and exact-candidate local validation, close it
+> out and promote PF-B1-S02; then repeat for PF-B1-S03. Do not implement the
+> Slices in parallel, skip a gate, or begin the next Slice before the previous
+> Slice is terminally closed. Implement only each Slice's authorised scope and
+> preserve the Platform/CTRL/IMS boundary. Stop and record a truthful
+> BLOCKED / NOT RUN or unresolved-authority state if a dependency, source
+> conflict or acceptance condition cannot be proved. After all three Slices
+> pass, perform the Batch certification, update `plan/incomplete.md`, the PF
+> index, `docs/implementation/IMPLEMENTED.md`, reconciliation evidence and
+> `plan/completed/`, then publish `main` only if the required gates pass. Do
+> not implement PF-B2 or any work outside PF-B1.
+
+## Copy-ready first Slice prompt
 
 > Deliver **PF-B1-S01 — Repository, standards, agents and validation
 > foundation** from
