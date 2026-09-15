@@ -99,3 +99,30 @@ The following Platform Foundation Slices are terminally recorded:
   membership history. Owner transfer semantics remain explicitly unresolved;
   direct owner mutation is denied rather than inferred.
 - No CTRL/IMS code, data, migration or authority cutover was changed.
+
+## PF-B3-S02 — Organisation administration seams
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b3-s02-organisation-administration.md`](../../plan/completed/pf-b3-s02-organisation-administration.md)
+- Accepted implementation candidate: `5181e76de4b3feeb22b9bcc18b3929014915b286`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, v4 fresh/upgrade/reopen/divergence
+  migration checks, HTTP authorization/CSRF/redaction/safe-error tests, audit
+  continuity and Workspace entry-seam tests all passed.
+- The Platform exposes narrow Organisation command/read seams only; system-role
+  recognition is explicit, Workspace data remains PF-B4-owned and product roles
+  remain absent.
+- No CTRL/IMS route, code, data, migration or authority cutover was changed.
+
+## PF-B3 — Organisation authority
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B3-S01 and PF-B3-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `5181e76de4b3feeb22b9bcc18b3929014915b286`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local `full/local` validation, audit/reconciliation, migration and
+  Platform boundary checks: **PASS**; container builds **NOT_APPLICABLE** without
+  an authorised Dockerfile.
+- PF-B4-S01 is the next dependency-ready Slice. No CTRL/IMS authority cutover,
+  product role or production-data import is claimed.

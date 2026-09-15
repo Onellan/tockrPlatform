@@ -1,6 +1,6 @@
 # PF-B3-S02 — Organisation administration seams
 
-Status: Planned
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -67,3 +67,26 @@ read model requires a shared product database.
 
 Disable the affected command/read route and retain committed audit/history; no
 destructive rollback of membership data.
+
+## Terminal evidence
+
+Accepted implementation candidate: `5181e76de4b3feeb22b9bcc18b3929014915b286`.
+
+- Independent engineering review: **PASS** with no R1 findings after the
+  Workspace entry and invalid-limit boundary repair.
+- Independent tester acceptance: **PASS** for the HTTP owner/admin/member and
+  explicit system-admin matrix, CSRF-protected mutations, safe unknown and
+  cross-Organisation errors, redacted Platform-only read models, audit reads,
+  audit continuity and product-role absence.
+- Exact-candidate local validation: `full/local` **PASS**; format, architecture,
+  security, migration, frontend, quality, unit, SQLite/HTTP integration and
+  race profiles **PASS**.
+- Schema v4 fresh, upgrade, close/reopen and divergent-ledger evidence: **PASS**.
+- The system-admin record is explicit and never bootstrapped or inferred by an
+  HTTP route. The Workspace entry is an authenticated Platform seam with
+  `available=false` until PF-B4 owns Workspace records; no Workspace data was
+  fabricated.
+- Container build profiles are **NOT_APPLICABLE** because no Dockerfile is in
+  this Slice's authorised scope.
+- No CTRL/IMS route, code, data, migration, product role or authority cutover
+  was changed.
