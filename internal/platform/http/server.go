@@ -88,6 +88,10 @@ func (s *Server) Handler() http.Handler {
 		protected.Get("/api/organisations/{organisationID}/product-entitlements", s.listOrganisationProductEntitlements)
 		protected.Post("/api/organisations/{organisationID}/product-entitlements", s.entitleOrganisation)
 		protected.Delete("/api/organisations/{organisationID}/product-entitlements/{entitlementID}", s.revokeOrganisationEntitlement)
+		protected.Get("/api/organisations/{organisationID}/product-assignments", s.listUserProductAssignments)
+		protected.Post("/api/organisations/{organisationID}/product-assignments", s.assignUserProduct)
+		protected.Delete("/api/organisations/{organisationID}/product-assignments/{assignmentID}", s.revokeUserProduct)
+		protected.Get("/api/organisations/{organisationID}/product-access/{productKey}/workspaces/{workspaceID}", s.proveProductAccess)
 		workspaceRead := protected.With(s.requireWorkspaceScope(false))
 		workspaceRead.Get("/api/workspaces/{workspaceID}", s.getWorkspace)
 		workspaceAdmin := protected.With(s.requireWorkspaceScope(true))
@@ -283,6 +287,12 @@ type productEntitlementRequest struct {
 	Reason     string `json:"reason"`
 }
 
+type productAssignmentRequest struct {
+	UserID     string `json:"user_id"`
+	ProductKey string `json:"product_key"`
+	Reason     string `json:"reason"`
+}
+
 type organisationResponse struct {
 	ID         string                    `json:"id"`
 	Name       string                    `json:"name"`
@@ -329,6 +339,31 @@ type organisationProductEntitlementResponse struct {
 	RevokedBy        string                                      `json:"revoked_by,omitempty"`
 	RevokedAt        *time.Time                                  `json:"revoked_at,omitempty"`
 	RevocationReason string                                      `json:"revocation_reason,omitempty"`
+}
+
+type userProductAssignmentResponse struct {
+	ID               string                             `json:"id"`
+	UserID           string                             `json:"user_id"`
+	OrganisationID   string                             `json:"organisation_id"`
+	ProductKey       string                             `json:"product_key"`
+	Status           domain.UserProductAssignmentStatus `json:"status"`
+	Active           bool                               `json:"active"`
+	EffectiveActive  bool                               `json:"effective_active"`
+	AssignedBy       string                             `json:"assigned_by"`
+	AssignedAt       time.Time                          `json:"assigned_at"`
+	RevokedBy        string                             `json:"revoked_by,omitempty"`
+	RevokedAt        *time.Time                         `json:"revoked_at,omitempty"`
+	RevocationReason string                             `json:"revocation_reason,omitempty"`
+}
+
+type productAccessResponse struct {
+	Allowed          bool                    `json:"allowed"`
+	UserID           string                  `json:"user_id"`
+	OrganisationID   string                  `json:"organisation_id"`
+	ProductKey       string                  `json:"product_key"`
+	WorkspaceID      string                  `json:"workspace_id"`
+	OrganisationRole domain.OrganisationRole `json:"organisation_role"`
+	WorkspaceRole    domain.WorkspaceRole    `json:"workspace_role"`
 }
 
 type organisationWorkspaceEntryResponse struct {
@@ -855,6 +890,79 @@ func (s *Server) revokeOrganisationEntitlement(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Server) listUserProductAssignments(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	assignments, err := s.store.ListUserProductAssignments(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"))
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	response := make([]userProductAssignmentResponse, 0, len(assignments))
+	for _, assignment := range assignments {
+		response = append(response, userProductAssignmentResponseFromDomain(assignment))
+	}
+	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) assignUserProduct(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request productAssignmentRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	assignment, err := s.store.AssignUserProduct(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), request.UserID, request.ProductKey, request.Reason, time.Now().UTC())
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, userProductAssignmentResponseFromDomain(assignment))
+}
+
+func (s *Server) revokeUserProduct(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request organisationReasonRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if err := s.store.RevokeUserProduct(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), chi.URLParam(r, "assignmentID"), request.Reason, time.Now().UTC()); err != nil {
+		writeProductError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) proveProductAccess(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	access, err := s.store.ProveProductAccess(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), chi.URLParam(r, "productKey"), chi.URLParam(r, "workspaceID"))
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, productAccessResponse{Allowed: true, UserID: access.UserID, OrganisationID: access.OrganisationID, ProductKey: access.ProductKey, WorkspaceID: access.WorkspaceID, OrganisationRole: access.OrganisationRole, WorkspaceRole: access.WorkspaceRole})
+}
+
 func (s *Server) verifyMutationCSRF(w http.ResponseWriter, r *http.Request) bool {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
@@ -935,11 +1043,11 @@ func writeWorkspaceError(w http.ResponseWriter, err error) {
 func writeProductError(w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
 	switch {
-	case errors.Is(err, store.ErrProductNotFound), errors.Is(err, store.ErrEntitlementNotFound), errors.Is(err, store.ErrUnauthorisedProductAction), errors.Is(err, store.ErrOrganisationNotFound), errors.Is(err, store.ErrOrganisationArchived), errors.Is(err, store.ErrUnauthorisedOrganisationAction):
+	case errors.Is(err, store.ErrProductNotFound), errors.Is(err, store.ErrEntitlementNotFound), errors.Is(err, store.ErrUnauthorisedProductAction), errors.Is(err, store.ErrOrganisationNotFound), errors.Is(err, store.ErrOrganisationArchived), errors.Is(err, store.ErrUnauthorisedOrganisationAction), errors.Is(err, store.ErrProductAssignmentNotFound), errors.Is(err, store.ErrProductAccessDenied):
 		status = http.StatusNotFound
-	case errors.Is(err, store.ErrProductRetired), errors.Is(err, store.ErrEntitlementInactive), errors.Is(err, store.ErrDuplicateOrganisationEntitlement):
+	case errors.Is(err, store.ErrProductRetired), errors.Is(err, store.ErrEntitlementInactive), errors.Is(err, store.ErrDuplicateOrganisationEntitlement), errors.Is(err, store.ErrProductAssignmentInactive), errors.Is(err, store.ErrDuplicateUserProductAssignment):
 		status = http.StatusConflict
-	case errors.Is(err, domain.ErrInvalidProduct), errors.Is(err, domain.ErrInvalidProductKey), errors.Is(err, domain.ErrInvalidProductStatus), errors.Is(err, domain.ErrInvalidEntitlement), errors.Is(err, domain.ErrInvalidEntitlementID), errors.Is(err, domain.ErrInvalidEntitlementStatus), errors.Is(err, domain.ErrInvalidReason):
+	case errors.Is(err, domain.ErrInvalidProduct), errors.Is(err, domain.ErrInvalidProductKey), errors.Is(err, domain.ErrInvalidProductStatus), errors.Is(err, domain.ErrInvalidEntitlement), errors.Is(err, domain.ErrInvalidEntitlementID), errors.Is(err, domain.ErrInvalidEntitlementStatus), errors.Is(err, domain.ErrInvalidProductAssignment), errors.Is(err, domain.ErrInvalidProductAssignmentID), errors.Is(err, domain.ErrInvalidProductAssignmentStatus), errors.Is(err, domain.ErrInvalidReason):
 		status = http.StatusBadRequest
 	}
 	if status == http.StatusInternalServerError {
@@ -963,6 +1071,10 @@ func productResponseFromDomain(product domain.Product) productResponse {
 
 func organisationProductEntitlementResponseFromDomain(entitlement domain.OrganisationProductEntitlement) organisationProductEntitlementResponse {
 	return organisationProductEntitlementResponse{ID: entitlement.ID, OrganisationID: entitlement.OrganisationID, ProductKey: entitlement.ProductKey, Status: entitlement.Status, Active: entitlement.Active, GrantedBy: entitlement.GrantedBy, GrantedAt: entitlement.GrantedAt, RevokedBy: entitlement.RevokedBy, RevokedAt: entitlement.RevokedAt, RevocationReason: entitlement.RevocationReason}
+}
+
+func userProductAssignmentResponseFromDomain(assignment domain.UserProductAssignment) userProductAssignmentResponse {
+	return userProductAssignmentResponse{ID: assignment.ID, UserID: assignment.UserID, OrganisationID: assignment.OrganisationID, ProductKey: assignment.ProductKey, Status: assignment.Status, Active: assignment.Active, EffectiveActive: assignment.EffectiveActive, AssignedBy: assignment.AssignedBy, AssignedAt: assignment.AssignedAt, RevokedBy: assignment.RevokedBy, RevokedAt: assignment.RevokedAt, RevocationReason: assignment.RevocationReason}
 }
 
 func (s *Server) mfaSetup(w http.ResponseWriter, r *http.Request) {

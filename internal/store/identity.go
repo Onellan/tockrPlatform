@@ -60,5 +60,6 @@ type PlatformStore interface {
 	OrganisationStore
 	WorkspaceStore
 	ProductStore
+	ProductAccessStore
 	AccessScopeStore
 }

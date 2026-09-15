@@ -65,12 +65,12 @@ func TestProductCatalogueAndOrganisationEntitlementAreIndependentAndAudited(t *t
 	if membershipsAfter != membershipsBefore {
 		t.Fatalf("entitlement changed membership count from %d to %d", membershipsBefore, membershipsAfter)
 	}
-	var assignmentTables int
-	if err := store.DB().QueryRowContext(ctx, `SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='user_product_assignments'`).Scan(&assignmentTables); err != nil {
+	var assignmentRows int
+	if err := store.DB().QueryRowContext(ctx, `SELECT COUNT(*) FROM user_product_assignments`).Scan(&assignmentRows); err != nil {
 		t.Fatal(err)
 	}
-	if assignmentTables != 0 {
-		t.Fatal("PF-B5-S01 introduced the PF-B5-S02 assignment table")
+	if assignmentRows != 0 {
+		t.Fatalf("entitlement auto-created %d user product assignments", assignmentRows)
 	}
 
 	entitlements, err := store.ListOrganisationProductEntitlements(ctx, users[1].ID, organisation.ID)
@@ -180,5 +180,12 @@ func assertProductCatalogue(t *testing.T, store *Store) {
 	}
 	if ctrlStatus != "active" || imsStatus != "active" {
 		t.Fatalf("initial product statuses = %q/%q", ctrlStatus, imsStatus)
+	}
+	var assignmentTable int
+	if err := store.DB().QueryRowContext(context.Background(), `SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='user_product_assignments'`).Scan(&assignmentTable); err != nil {
+		t.Fatal(err)
+	}
+	if assignmentTable != 1 {
+		t.Fatalf("assignment table count = %d, want 1 after PF-B5-S02 migration", assignmentTable)
 	}
 }

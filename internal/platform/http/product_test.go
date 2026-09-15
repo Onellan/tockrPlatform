@@ -1,10 +1,12 @@
 package httpserver
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/Onellan/tockrplatform/internal/domain"
 )
@@ -73,5 +75,56 @@ func TestProductHTTPAuthorisationCSRFAndRedaction(t *testing.T) {
 	response = organisationHTTPRequest(t, f, http.MethodPost, "/api/platform/products/product.tockrctrl/retire", ownerSession, ownerCSRF, `{"reason":"owner attempt"}`, "csrf-header")
 	if response.Code != http.StatusNotFound {
 		t.Fatalf("owner product retirement = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+}
+
+func TestProductAccessHTTPUsesCentralEvaluatorAndFailsClosed(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	adminSession, adminCSRF := loginHTTPUser(t, f, f.users[1])
+	memberSession, memberCSRF := loginHTTPUser(t, f, f.users[2])
+	now := time.Now().UTC().Truncate(time.Second)
+	workspace, _, err := f.store.CreateWorkspace(context.Background(), f.users[0].ID, f.organisation.ID, domain.Workspace{Name: "HTTP Access Workspace"}, "create HTTP access workspace", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.store.AddWorkspaceMember(context.Background(), f.users[0].ID, workspace.ID, f.users[2].ID, domain.WorkspaceMember, "grant HTTP access workspace", now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.store.EntitleOrganisation(context.Background(), f.users[0].ID, f.organisation.ID, "product.tockrctrl", "enable HTTP CTRL", now.Add(2*time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	organisationPath := "/api/organisations/" + f.organisation.ID
+	accessPath := organisationPath + "/product-access/product.tockrctrl/workspaces/" + workspace.ID
+	response := organisationHTTPRequest(t, f, http.MethodGet, accessPath, memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("unassigned product access = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodPost, organisationPath+"/product-assignments", adminSession, adminCSRF, `{"user_id":"`+f.users[2].ID+`","product_key":"product.tockrctrl","reason":"assign HTTP CTRL"}`, "csrf-header")
+	if response.Code != http.StatusCreated || strings.Contains(response.Body.String(), "billing") || strings.Contains(response.Body.String(), "payment") || strings.Contains(response.Body.String(), "product_role") {
+		t.Fatalf("HTTP assignment = %d/%s", response.Code, response.Body.String())
+	}
+	var assignment userProductAssignmentResponse
+	if err := json.Unmarshal(response.Body.Bytes(), &assignment); err != nil || !assignment.Active || !assignment.EffectiveActive || assignment.UserID != f.users[2].ID {
+		t.Fatalf("assignment response = %#v, err=%v", response.Body.String(), err)
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, accessPath, memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `"allowed":true`) || !strings.Contains(response.Body.String(), workspace.ID) {
+		t.Fatalf("effective HTTP access = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, organisationPath+"/product-assignments", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("member assignment enumeration = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodDelete, organisationPath+"/product-assignments/"+assignment.ID, adminSession, adminCSRF, `{"reason":"revoke HTTP CTRL"}`, "csrf-header")
+	if response.Code != http.StatusNoContent {
+		t.Fatalf("HTTP assignment revoke = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, accessPath, memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("revoked HTTP access = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodPost, organisationPath+"/product-assignments", adminSession, nil, `{"user_id":"`+f.users[2].ID+`","product_key":"product.tockrctrl","reason":"missing CSRF"}`, "")
+	if response.Code != http.StatusForbidden {
+		t.Fatalf("missing assignment CSRF = %d/%s, want forbidden", response.Code, response.Body.String())
 	}
 }
