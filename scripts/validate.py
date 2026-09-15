@@ -89,7 +89,8 @@ def run_one(profile: str) -> dict[str, object]:
             "migration": ["go", "test", "./internal/db/sqlite"],
             "race": ["go", "test", "-race", "./..."],
         }
-        result = run_command(commands[profile])
+        timeout = 300 if profile == "race" else 180
+        result = run_command(commands[profile], timeout=timeout)
         return {"profile": profile, **result}
 
     if profile == "format":
