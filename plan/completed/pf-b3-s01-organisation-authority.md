@@ -1,6 +1,6 @@
 # PF-B3-S01 — Organisation authority
 
-Status: Planned
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -67,3 +67,25 @@ historical membership facts without provenance.
 
 Use forward membership correction/revocation; never rewrite committed history or
 delete the Organisation database to undo a failed transition.
+
+## Terminal evidence
+
+Accepted implementation candidate: `b82155c4606102750a537f6a5bc39be05939ed9e`.
+
+- Independent engineering review: **PASS** with no R1 findings after the
+  unscoped test-helper locality repair.
+- Independent tester acceptance: **PASS** for Organisation lifecycle and audit,
+  canonical owner/admin/member roles, inactive and cross-Organisation denial,
+  transaction-bound authority checks and history-preserving transitions.
+- Exact-candidate local validation: `full/local` **PASS**; format, architecture,
+  security, migration, frontend, quality, unit, SQLite/HTTP integration and
+  race profiles **PASS**.
+- Fresh, upgrade, close/reopen and divergent-ledger migration evidence: **PASS**.
+- Container build profiles are **NOT_APPLICABLE** because no Dockerfile is in
+  this Slice's authorised scope.
+- Owner transfer is deliberately not inferred: direct owner role mutation and
+  owner membership deactivation are denied until a future authorised policy
+  defines transfer semantics. Organisation archival is an explicit owner action
+  that retires active memberships with audit history.
+- No CTRL/IMS code, data, migration, product role or authority cutover was
+  changed.

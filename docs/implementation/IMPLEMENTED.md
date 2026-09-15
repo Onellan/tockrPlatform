@@ -85,3 +85,17 @@ The following Platform Foundation Slices are terminally recorded:
 - Independent Batch review and independent Batch tester acceptance: **PASS**.
 - Batch-local validation and all 63 Slice route signatures: **PASS**.
 - No CTRL/IMS migration or authority cutover is claimed.
+
+## PF-B3-S01 — Organisation authority
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b3-s01-organisation-authority.md`](../../plan/completed/pf-b3-s01-organisation-authority.md)
+- Accepted implementation candidate: `b82155c4606102750a537f6a5bc39be05939ed9e`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, fresh/upgrade/reopen/divergence
+  migration checks, transactional membership/audit tests and cross-Organisation
+  denial tests all passed.
+- Platform now owns Organisation lifecycle and canonical owner/admin/member
+  membership history. Owner transfer semantics remain explicitly unresolved;
+  direct owner mutation is denied rather than inferred.
+- No CTRL/IMS code, data, migration or authority cutover was changed.

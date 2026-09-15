@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1 and PF-B2 are terminal, and PF-B3-S01 is Ready.
+**Status:** Planned / active owner-authorised programme; PF-B1, PF-B2 and PF-B3-S01 are terminal, and PF-B3-S02 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -46,9 +46,10 @@ The baseline records the source evidence used to create PF; it is not an
 acceptance candidate. At the current foundation state Platform contains the
 terminal repository-control-plane foundation plus the PF-B2-S01 Platform-owned
 identity and authentication runtime, SQLite migration ledger, secure sessions,
-MFA/recovery controls and focused acceptance evidence. PF-B3-S01 is the next
-sequential Slice; containers, production-data import and CTRL/IMS authority
-cutover remain out of scope.
+MFA/recovery controls, Organisation lifecycle and canonical membership authority
+with focused acceptance evidence. PF-B3-S02 is the next sequential Slice;
+containers, production-data import and CTRL/IMS authority cutover remain out of
+scope.
 
 ## Plan contract
 
@@ -116,7 +117,7 @@ independent tester acceptance remain separate gates.
 | --- | --- | --- | --- |
 | PF-B1 | Repository, standards and architecture foundation | S01–S03 | **Terminal** |
 | PF-B2 | Identity and authentication | S01–S02 | **Terminal** |
-| PF-B3 | Organisation authority | S01–S02 | S01 Ready; S02 Planned |
+| PF-B3 | Organisation authority | S01–S02 | S01 Terminal; S02 Ready |
 | PF-B4 | Workspace authority | S01–S02 | Planned |
 | PF-B5 | Product catalogue and product access | S01–S02 | Planned |
 | PF-B6 | Product assertion and consumer contract | S01–S02 | Planned |
@@ -158,7 +159,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B1-S03 | [runtime, persistence and presentation foundation — terminal](completed/pf-b1-s03-runtime-foundation.md) |
 | PF-B2-S01 | [User and authentication — terminal](completed/pf-b2-s01-user-authentication.md) |
 | PF-B2-S02 | [sessions, MFA, recovery and revocation — terminal](completed/pf-b2-s02-sessions-security.md) |
-| PF-B3-S01 | [Organisation authority](active/pf-b3-s01-organisation-authority.md) |
+| PF-B3-S01 | [Organisation authority — terminal](completed/pf-b3-s01-organisation-authority.md) |
 | PF-B3-S02 | [Organisation administration seams](active/pf-b3-s02-organisation-administration.md) |
 | PF-B4-S01 | [Workspace authority](active/pf-b4-s01-workspace-authority.md) |
 | PF-B4-S02 | [Workspace access and scope guard](active/pf-b4-s02-workspace-access.md) |

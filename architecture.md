@@ -77,7 +77,8 @@ service/manager/repository layer and no shared database with CTRL or IMS.
 PF-B2 implements the Platform-owned user and authentication boundary with
 server-rendered sign-in/account/logout and MFA seams, a versioned SQLite
 identity/session schema, hashed opaque session material, encrypted MFA secrets,
-recovery controls and focused security/audit evidence. SQLite remains
-intentionally limited to one connection. Organisation authority begins with
-PF-B3-S01; containers, CTRL/IMS data migration and authority cutover remain
-future work.
+recovery controls and focused security/audit evidence. PF-B3-S01 adds
+Organisation lifecycle and canonical membership authority with history and
+scope-negative evidence. SQLite remains intentionally limited to one
+connection. PF-B3-S02 administration seams, containers, CTRL/IMS data
+migration and authority cutover remain future work.

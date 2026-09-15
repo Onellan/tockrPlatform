@@ -11,9 +11,9 @@ The programme index is
 the same queue, closeout and evidence conventions as TockrIMS and TockrCTRL
 while retaining Platform's `Priority → Batch → Slice` structure.
 
-The completed ledger currently contains the terminal PF-B1 foundation Slices
-and PF-B2 identity/authentication Batch; the next active queue item is
-PF-B3-S01.
+The completed ledger currently contains the terminal PF-B1 foundation Slices,
+the PF-B2 identity/authentication Batch and PF-B3-S01 Organisation authority;
+the next active queue item is PF-B3-S02.
 
 Plans use the repository delivery model:
 

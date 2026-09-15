@@ -4,8 +4,9 @@ Tockr Platform is the future shared authority for Tockr identity, tenancy and
 product access. This repository currently contains the architectural foundation,
 versioned contracts, delivery workflow and Priority PF implementation programme.
 
-The PF-B2 identity/authentication Batch is terminally implemented;
-`PF-B3-S01` is the next sequential active Slice.
+The PF-B2 identity/authentication Batch and PF-B3-S01 Organisation authority
+Slice are terminally implemented; `PF-B3-S02` is the next sequential active
+Slice.
 
 ## Authority and scope
 
