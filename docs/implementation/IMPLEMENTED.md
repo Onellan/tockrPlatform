@@ -52,6 +52,30 @@ The following Platform Foundation Slices are terminally recorded:
 - The Slice owns Platform identity/authentication only; no CTRL/IMS code, data,
   migration or authority cutover was changed.
 
+## PF-B2-S02 — Sessions, MFA, recovery and revocation
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b2-s02-sessions-security.md`](../../plan/completed/pf-b2-s02-sessions-security.md)
+- Accepted implementation candidate: `7a05b179419ebbe77dee18aaf1bace40d3f5fced`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, fresh/upgrade/reopen migration
+  checks, race validation, protected-boundary tests, TOTP/recovery replay
+  checks and bounded session cleanup all passed.
+- No CTRL/IMS sessions, credentials, data, migration or authority was copied
+  or cut over.
+
+## PF-B2 — Identity and authentication
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B2-S01 and PF-B2-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `7a05b179419ebbe77dee18aaf1bace40d3f5fced`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local full/local validation, migration/audit reconciliation and all 63
+  Slice route signatures: **PASS**.
+- Platform owns identity, authentication, sessions, MFA, recovery and
+  revocation; CTRL/IMS authority and data remain outside this Batch.
+
 ## PF-B1 — Repository, standards and architecture foundation
 
 - Status: **Implemented / terminal Batch certification**

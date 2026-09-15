@@ -7,8 +7,8 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **17 open execution plans** across **10 Batches**. PF-B1 and
-PF-B2-S01 are terminal; PF-B2-S02 is the next active Slice. This tracker records
+Current inventory: **16 open execution plans** across **10 Batches**. PF-B1 and
+PF-B2 are terminal; PF-B3-S01 is the next active Slice. This tracker records
 runtime implementation evidence only through the linked terminal plan and
 candidate-bound closeout evidence.
 
@@ -50,15 +50,15 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B2-S02 | **Ready** | PF-B2-S01 terminal | [Sessions, MFA, recovery and revocation](active/pf-b2-s02-sessions-security.md) |
+| 1 | PF-B3-S01 | **Ready** | PF-B1-S03 terminal | [Organisation authority](active/pf-b3-s01-organisation-authority.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
 | Batch | Slices | State | Depends on |
 | --- | --- | --- | --- |
 | PF-B1 | S01, S02, S03 | **Terminal** | S01 → S02 → S03 |
-| PF-B2 | S01, S02 | S01 Terminal; S02 Ready | PF-B1-S03; S01 → S02 |
-| PF-B3 | S01, S02 | Planned | PF-B1-S03 |
+| PF-B2 | S01, S02 | **Terminal** | PF-B1-S03; S01 → S02 |
+| PF-B3 | S01, S02 | S01 Ready; S02 Planned | PF-B1-S03; S01 → S02 |
 | PF-B4 | S01, S02 | Planned | PF-B1-S03 |
 | PF-B5 | S01, S02 | Planned | PF-B2-S02 + PF-B3-S02 + PF-B4-S02 |
 | PF-B6 | S01, S02 | Planned | PF-B5-S02 |
@@ -104,13 +104,13 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver **PF-B2-S02 — Sessions, MFA, recovery and revocation** from
-> [`plan/active/pf-b2-s02-sessions-security.md`](active/pf-b2-s02-sessions-security.md).
+> Deliver **PF-B3-S01 — Organisation authority** from
+> [`plan/active/pf-b3-s01-organisation-authority.md`](active/pf-b3-s01-organisation-authority.md).
 > Re-read the plan, verify the current candidate and repository state, implement
 > only its authorised scope, then obtain independent review and independent
 > acceptance. Repair findings sequentially, rerun exact-candidate local
 > validation, and update the tracker/index and implementation reconciliation only
-> if every required gate passes. Do not implement any later Batch.
+> if every required gate passes. Do not implement PF-B3-S02 or any later Batch.
 
 ## Closeout update
 

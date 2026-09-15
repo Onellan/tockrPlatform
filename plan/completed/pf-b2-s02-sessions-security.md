@@ -1,6 +1,6 @@
 # PF-B2-S02 — Sessions, MFA, recovery and revocation
 
-Status: Planned
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -68,3 +68,23 @@ activation, or if Platform scope is mixed with product roles.
 
 Revoke/disable the new session issuance path while preserving existing audit and
 session records; no cross-repository session cutover is permitted.
+
+## Terminal evidence
+
+Accepted implementation candidate: `7a05b179419ebbe77dee18aaf1bace40d3f5fced`.
+
+- Independent engineering review: **PASS** with no R1 findings after the
+  bounded race-validation repair.
+- Independent tester acceptance: **PASS** for hashed sessions, expiry,
+  revocation, inactive-user denial, credential-free projections, TOTP MFA,
+  encrypted MFA secrets, one-time recovery codes, CSRF and audit behavior.
+- Exact-candidate local validation: `full/local` **PASS**; unit, SQLite/HTTP
+  integration, migration, race, security, architecture, frontend and quality
+  profiles **PASS**.
+- The initial race run was truthfully classified `TIMEOUT` at the old 180-second
+  validator bound; package diagnosis passed and the repository race route was
+  repaired to a 300-second bounded context before the final PASS.
+- Container build profiles are **NOT_APPLICABLE** because no Dockerfile is in
+  this Slice's authorised scope.
+- No CTRL/IMS sessions, credentials, data, migration or authority were copied
+  or cut over.

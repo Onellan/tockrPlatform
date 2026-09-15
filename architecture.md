@@ -74,9 +74,10 @@ service/manager/repository layer and no shared database with CTRL or IMS.
 
 ## Current foundation state
 
-PF-B2-S01 implements the Platform-owned user and authentication boundary with
-server-rendered sign-in/account/logout seams, a versioned SQLite identity
-schema, hashed opaque session material and focused security/audit evidence.
-SQLite remains intentionally limited to one connection. Session hardening,
-MFA, recovery and revocation maintenance are the next PF-B2-S02 scope;
-containers, CTRL/IMS data migration and authority cutover remain future work.
+PF-B2 implements the Platform-owned user and authentication boundary with
+server-rendered sign-in/account/logout and MFA seams, a versioned SQLite
+identity/session schema, hashed opaque session material, encrypted MFA secrets,
+recovery controls and focused security/audit evidence. SQLite remains
+intentionally limited to one connection. Organisation authority begins with
+PF-B3-S01; containers, CTRL/IMS data migration and authority cutover remain
+future work.
