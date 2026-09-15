@@ -105,11 +105,11 @@ func (s *Store) GetOrganisation(ctx context.Context, requesterUserID, organisati
 		WHERE o.public_id=? AND o.status='active' AND u.public_id=?`, organisationID, requesterUserID).
 		Scan(&organisation.ID, &organisation.Name, &status, &created, &archived)
 	if errors.Is(err, sql.ErrNoRows) {
-		var archivedStatus string
-		if archiveErr := s.db.QueryRowContext(ctx, `SELECT status FROM organisations WHERE public_id=?`, organisationID).Scan(&archivedStatus); errors.Is(archiveErr, sql.ErrNoRows) {
-			return nil, ErrOrganisationNotFound
-		} else if archiveErr != nil {
+		var exists int
+		if archiveErr := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM organisations WHERE public_id=?`, organisationID).Scan(&exists); archiveErr != nil {
 			return nil, fmt.Errorf("check organisation scope: %w", archiveErr)
+		} else if exists == 0 {
+			return nil, ErrOrganisationNotFound
 		}
 		return nil, ErrUnauthorisedOrganisationAction
 	}
@@ -432,7 +432,7 @@ func recordOrganisationAuditTx(ctx context.Context, tx *sql.Tx, actorInternalID 
 	return nil
 }
 
-func (s *Store) OrganisationAuditCount(ctx context.Context, organisationID, event string) (int, error) {
+func (s *Store) organisationAuditCount(ctx context.Context, organisationID, event string) (int, error) {
 	var count int
 	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM audit_events WHERE aggregate_type=? AND aggregate_id=? AND event=?`, auditOrganisation, organisationID, event).Scan(&count); err != nil {
 		return 0, fmt.Errorf("count organisation audit: %w", err)

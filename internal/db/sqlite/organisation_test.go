@@ -90,7 +90,7 @@ func TestOrganisationLifecycleIsTransactionalAuditableAndHistoryPreserving(t *te
 		t.Fatalf("archived organisation read = %v, want unauthorised", err)
 	}
 	for _, event := range []string{"organisation_created", "membership_added", "membership_role_changed", "membership_deactivated", "organisation_archived"} {
-		count, err := store.OrganisationAuditCount(ctx, organisation.ID, event)
+		count, err := store.organisationAuditCount(ctx, organisation.ID, event)
 		if err != nil || count == 0 {
 			t.Fatalf("audit event %q count = %d, err=%v", event, count, err)
 		}
