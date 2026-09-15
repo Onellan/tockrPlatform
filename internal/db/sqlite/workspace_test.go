@@ -79,6 +79,16 @@ func TestWorkspaceLifecycleIsOrganisationOwnedHistoricalAndFailClosed(t *testing
 	if _, err := store.GetWorkspaceMembership(ctx, users[2].ID, workspace.ID, users[1].ID); !errors.Is(err, ErrUnauthorisedWorkspaceAction) {
 		t.Fatalf("workspace non-admin membership read = %v, want unauthorised", err)
 	}
+	visible, err := store.ListOrganisationWorkspaces(ctx, users[1].ID, organisation.ID)
+	if err != nil || len(visible) != 1 || visible[0].ID != workspace.ID {
+		t.Fatalf("member workspace list = %#v, err=%v", visible, err)
+	}
+	if err := store.DeactivateOrganisationMember(ctx, users[0].ID, organisation.ID, users[1].ID, "revoke parent organisation access", now.Add(6*time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.GetWorkspace(ctx, users[1].ID, workspace.ID); !errors.Is(err, ErrUnauthorisedWorkspaceAction) {
+		t.Fatalf("stale workspace membership after organisation removal = %v, want unauthorised", err)
+	}
 
 	otherID, err := domain.NewOrganisationID()
 	if err != nil {
@@ -105,9 +115,8 @@ func TestWorkspaceLifecycleIsOrganisationOwnedHistoricalAndFailClosed(t *testing
 		t.Fatalf("inactive workspace target = %v, want unauthorised", err)
 	}
 
-	visible, err := store.ListOrganisationWorkspaces(ctx, users[1].ID, organisation.ID)
-	if err != nil || len(visible) != 1 || visible[0].ID != workspace.ID {
-		t.Fatalf("member workspace list = %#v, err=%v", visible, err)
+	if _, err := store.ListOrganisationWorkspaces(ctx, users[1].ID, organisation.ID); !errors.Is(err, ErrUnauthorisedOrganisationAction) {
+		t.Fatalf("workspace list after organisation removal = %v, want unauthorised", err)
 	}
 	if err := store.ArchiveWorkspace(ctx, users[1].ID, workspace.ID, "member cannot archive", now.Add(7*time.Minute)); !errors.Is(err, ErrUnauthorisedWorkspaceAction) {
 		t.Fatalf("member archive = %v, want unauthorised", err)

@@ -511,7 +511,10 @@ func (s *Store) authorisedWorkspaceRead(ctx context.Context, requesterUserID, wo
 	}
 	orgAdmin := domain.OrganisationRole(organisationRole).CanAdminister()
 	workspaceAdmin := domain.WorkspaceRole(workspaceRole).CanAdminister()
-	if organisationRole == "" && workspaceRole == "" {
+	// A Workspace membership never survives the parent Organisation authority
+	// check. This is deliberately separate from the Workspace-role check so a
+	// stale row cannot become a scope-escalation path after org removal.
+	if organisationRole == "" {
 		return 0, ErrUnauthorisedWorkspaceAction
 	}
 	if adminOnly {
