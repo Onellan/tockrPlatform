@@ -1,6 +1,6 @@
 # PF-B4-S02 — Workspace access and scope guard
 
-Status: Planned
+Status: **Implemented / terminal.**
 
 ## Objective
 
@@ -67,3 +67,24 @@ to prove generic Workspace access.
 
 Disable affected scope-switch/mutation paths while retaining the guard and
 audit records; do not fall back to permissive authorization.
+
+## Terminal evidence
+
+Accepted implementation candidate: `9105b7debbb3aa857a1472373bb410676976900e`.
+
+- Independent engineering review: **PASS** with no R1 findings.
+- Independent tester acceptance: **PASS** for the active User,
+  Organisation-membership, Workspace ownership/access and admin truth table;
+  tampered IDs, inactive users, revoked parent membership and archived
+  Workspaces fail closed before protected reads or mutations.
+- Exact-candidate local validation: `full/local` **PASS**; format,
+  architecture, security, migration, frontend, quality, unit, SQLite/HTTP
+  integration and race profiles **PASS**.
+- The reusable scope proof is exposed through the narrow Platform store seam and
+  applied by read/admin HTTP middleware to every Workspace route. SQLite writer
+  transactions re-prove the same active scope before mutation.
+- No migration was required beyond the terminal PF-B4-S01 schema; no product
+  request was rewritten and no shared database was introduced.
+- Container build profiles are **NOT_APPLICABLE** because no authorised
+  Dockerfile exists. No CTRL/IMS code, data, product role or authority cutover
+  was changed.

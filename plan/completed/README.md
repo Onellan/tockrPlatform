@@ -10,7 +10,8 @@ preserve the historical plan, and record the relationship in the tracker and
 implementation reconciliation.
 
 PF-B1 foundation Slices, the complete PF-B2 identity/authentication Batch, the
-complete PF-B3 Organisation authority Batch and PF-B4-S01 are terminally
-implemented here. PF-B4-S02 remains the next active Slice.
+complete PF-B3 Organisation authority Batch and the complete PF-B4 Workspace
+authority Batch are terminally implemented here. PF-B5-S01 remains the next
+active Slice.
 Planning, repository setup and validation scaffolding do not by themselves
 make a Slice Implemented.

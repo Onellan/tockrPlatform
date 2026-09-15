@@ -81,6 +81,8 @@ recovery controls and focused security/audit evidence. PF-B3 adds Organisation
 lifecycle, canonical membership authority and narrow administration seams with
 history, scope-negative and HTTP authorization evidence. PF-B4-S01 adds
 Organisation-owned Workspace lifecycle, generic membership authority, audit,
-history and HTTP entry seams. SQLite remains intentionally limited to one
-connection. PF-B4-S02 scope guarding, containers, CTRL/IMS data migration and
+history and HTTP entry seams. PF-B4-S02 adds a reusable active User,
+Organisation and Workspace scope proof with protected route middleware and
+transaction-time writer rechecks. SQLite remains intentionally limited to one
+connection. PF-B5 product authority, containers, CTRL/IMS data migration and
 authority cutover remain future work.

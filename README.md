@@ -5,8 +5,8 @@ product access. This repository currently contains the architectural foundation,
 versioned contracts, delivery workflow and Priority PF implementation programme.
 
 The PF-B2 identity/authentication Batch, complete PF-B3 Organisation authority
-Batch and PF-B4-S01 are terminally implemented; `PF-B4-S02` is the next
-sequential active Slice.
+Batch and complete PF-B4 Workspace authority Batch are terminally implemented;
+`PF-B5-S01` is the next sequential active Slice.
 
 ## Authority and scope
 

@@ -144,4 +144,32 @@ The following Platform Foundation Slices are terminally recorded:
   authorised, measured upgrade. Container builds are **NOT_APPLICABLE** without
   an authorised Dockerfile.
 - No CTRL/IMS code, data, migration, product role or authority cutover was
-  changed. PF-B4-S02 is the next dependency-ready Slice.
+  changed. PF-B4 is now terminally certified below.
+
+## PF-B4-S02 — Workspace access and scope guard
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b4-s02-workspace-access.md`](../../plan/completed/pf-b4-s02-workspace-access.md)
+- Accepted implementation candidate: `9105b7debbb3aa857a1472373bb410676976900e`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, active-scope truth-table tests,
+  tampered/revoked/archived fail-closed tests, concurrent revocation proof,
+  HTTP middleware coverage and race validation all passed.
+- Platform now exposes one reusable User + Organisation + Workspace scope
+  proof; protected Workspace reads and mutations use route middleware plus
+  transaction-time writer rechecks. Product roles remain outside the proof.
+- No CTRL/IMS code, data, product role or authority cutover was changed.
+
+## PF-B4 — Workspace authority
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B4-S01 and PF-B4-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `9105b7debbb3aa857a1472373bb410676976900e`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local `full/local` validation, Workspace migration/history/audit,
+  scope-guard, HTTP and race evidence: **PASS**; container builds
+  **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform retains one SQLite connection. PF-B5-S01 is the next
+  dependency-ready Slice; no CTRL/IMS migration or authority cutover is
+  claimed.
