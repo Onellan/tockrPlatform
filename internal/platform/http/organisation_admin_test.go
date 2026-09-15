@@ -217,6 +217,58 @@ func TestWorkspaceHTTPAuthorizationLifecycleAndDefaultEntry(t *testing.T) {
 	}
 }
 
+func TestWorkspaceScopeMiddlewareBlocksTamperedRevokedAndArchivedAccess(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	ownerSession, ownerCSRF := loginHTTPUser(t, f, f.users[0])
+	memberSession, memberCSRF := loginHTTPUser(t, f, f.users[2])
+	now := time.Now().UTC().Truncate(time.Second)
+	workspace, _, err := f.store.CreateWorkspace(context.Background(), f.users[0].ID, f.organisation.ID, domain.Workspace{Name: "Guarded HTTP Workspace"}, "create guarded HTTP workspace", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.store.AddWorkspaceMember(context.Background(), f.users[0].ID, workspace.ID, f.users[2].ID, domain.WorkspaceMember, "grant guarded HTTP access", now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	workspacePath := "/api/workspaces/" + workspace.ID
+
+	response := organisationHTTPRequest(t, f, http.MethodGet, "/api/workspaces/wsp_tampered", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound || strings.Contains(response.Body.String(), workspace.ID) {
+		t.Fatalf("tampered workspace response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, workspacePath+"/members", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("member admin-scope response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, workspacePath, memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusOK {
+		t.Fatalf("member workspace response = %d/%s", response.Code, response.Body.String())
+	}
+
+	if err := f.store.DeactivateOrganisationMember(context.Background(), f.users[0].ID, f.organisation.ID, f.users[2].ID, "revoke guarded HTTP access", now.Add(2*time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, workspacePath, memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("revoked workspace response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodPost, workspacePath+"/archive", memberSession, memberCSRF, `{"reason":"revoked member archive attempt"}`, "csrf-header")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("revoked workspace mutation response = %d/%s", response.Code, response.Body.String())
+	}
+	if _, err := f.store.GetWorkspace(context.Background(), f.users[0].ID, workspace.ID); err != nil {
+		t.Fatalf("revoked member changed workspace state: %v", err)
+	}
+
+	response = organisationHTTPRequest(t, f, http.MethodPost, workspacePath+"/archive", ownerSession, ownerCSRF, `{"reason":"archive guarded workspace"}`, "csrf-header")
+	if response.Code != http.StatusNoContent {
+		t.Fatalf("owner archive response = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, workspacePath, ownerSession, ownerCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("archived workspace response = %d/%s", response.Code, response.Body.String())
+	}
+}
+
 func loginHTTPUser(t *testing.T, f organisationHTTPFixture, user domain.User) (*http.Cookie, *http.Cookie) {
 	t.Helper()
 	page := httptest.NewRecorder()

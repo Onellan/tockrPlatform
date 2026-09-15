@@ -41,6 +41,7 @@ type Server struct {
 }
 
 type sessionContextKey struct{}
+type workspaceScopeContextKey struct{}
 
 func NewServer(persistence store.PlatformStore, cfg Config) *Server {
 	if cfg.SessionTTL <= 0 {
@@ -82,13 +83,15 @@ func (s *Server) Handler() http.Handler {
 		protected.Patch("/api/organisations/{organisationID}/members/{userID}", s.changeOrganisationMemberRole)
 		protected.Delete("/api/organisations/{organisationID}/members/{userID}", s.deactivateOrganisationMember)
 		protected.Post("/api/organisations/{organisationID}/archive", s.archiveOrganisation)
-		protected.Get("/api/workspaces/{workspaceID}", s.getWorkspace)
-		protected.Get("/api/workspaces/{workspaceID}/members", s.listWorkspaceMembers)
-		protected.Get("/api/workspaces/{workspaceID}/audit", s.listWorkspaceAudit)
-		protected.Post("/api/workspaces/{workspaceID}/members", s.addWorkspaceMember)
-		protected.Patch("/api/workspaces/{workspaceID}/members/{userID}", s.changeWorkspaceMemberRole)
-		protected.Delete("/api/workspaces/{workspaceID}/members/{userID}", s.deactivateWorkspaceMember)
-		protected.Post("/api/workspaces/{workspaceID}/archive", s.archiveWorkspace)
+		workspaceRead := protected.With(s.requireWorkspaceScope(false))
+		workspaceRead.Get("/api/workspaces/{workspaceID}", s.getWorkspace)
+		workspaceAdmin := protected.With(s.requireWorkspaceScope(true))
+		workspaceAdmin.Get("/api/workspaces/{workspaceID}/members", s.listWorkspaceMembers)
+		workspaceAdmin.Get("/api/workspaces/{workspaceID}/audit", s.listWorkspaceAudit)
+		workspaceAdmin.Post("/api/workspaces/{workspaceID}/members", s.addWorkspaceMember)
+		workspaceAdmin.Patch("/api/workspaces/{workspaceID}/members/{userID}", s.changeWorkspaceMemberRole)
+		workspaceAdmin.Delete("/api/workspaces/{workspaceID}/members/{userID}", s.deactivateWorkspaceMember)
+		workspaceAdmin.Post("/api/workspaces/{workspaceID}/archive", s.archiveWorkspace)
 	})
 	return r
 }
@@ -787,7 +790,7 @@ func writeOrganisationError(w http.ResponseWriter, err error) {
 func writeWorkspaceError(w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
 	switch {
-	case errors.Is(err, store.ErrWorkspaceNotFound), errors.Is(err, store.ErrWorkspaceArchived), errors.Is(err, store.ErrWorkspaceMembershipNotFound), errors.Is(err, store.ErrUnauthorisedWorkspaceAction):
+	case errors.Is(err, store.ErrAccessScopeDenied), errors.Is(err, store.ErrWorkspaceNotFound), errors.Is(err, store.ErrWorkspaceArchived), errors.Is(err, store.ErrWorkspaceMembershipNotFound), errors.Is(err, store.ErrUnauthorisedWorkspaceAction):
 		status = http.StatusNotFound
 	case errors.Is(err, store.ErrDuplicateWorkspaceMember):
 		status = http.StatusConflict
@@ -926,6 +929,31 @@ func (s *Server) sessionCSRF(r *http.Request) (*http.Cookie, bool, error) {
 	}
 	valid, err := s.store.VerifySessionCSRF(r.Context(), cookie.Value, r.FormValue("csrf"))
 	return csrfCookie, valid, err
+}
+
+func (s *Server) requireWorkspaceScope(adminOnly bool) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			session, ok := s.session(r)
+			if !ok {
+				http.Error(w, "authentication required", http.StatusUnauthorized)
+				return
+			}
+			scope, err := s.store.ProveWorkspaceScope(r.Context(), session.User.ID, chi.URLParam(r, "workspaceID"), adminOnly)
+			if errors.Is(err, store.ErrAccessScopeDenied) {
+				// Cross-tenant, stale, archived and tampered identifiers share the
+				// same least-knowledge response at the HTTP boundary.
+				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+				return
+			}
+			if err != nil {
+				s.serverError(w, err)
+				return
+			}
+			ctx := context.WithValue(r.Context(), workspaceScopeContextKey{}, scope)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 func (s *Server) requireSession(next http.Handler) http.Handler {

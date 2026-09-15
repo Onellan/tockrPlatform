@@ -478,87 +478,54 @@ func (s *Store) ListWorkspaceAudit(ctx context.Context, requesterUserID, workspa
 }
 
 func (s *Store) authorisedWorkspaceRead(ctx context.Context, requesterUserID, workspaceID string, adminOnly bool) (int64, error) {
-	var workspaceInternalID, organisationInternalID int64
-	var status, organisationStatus string
-	if err := s.db.QueryRowContext(ctx, `SELECT w.id,w.organisation_id,w.status,o.status FROM workspaces w JOIN organisations o ON o.id=w.organisation_id WHERE w.public_id=?`, workspaceID).Scan(&workspaceInternalID, &organisationInternalID, &status, &organisationStatus); errors.Is(err, sql.ErrNoRows) {
-		return 0, ErrWorkspaceNotFound
-	} else if err != nil {
-		return 0, fmt.Errorf("resolve workspace read: %w", err)
+	proof, err := proveWorkspaceScopeQuery(ctx, s.db, requesterUserID, workspaceID, adminOnly)
+	if err != nil {
+		return 0, s.classifyWorkspaceScopeError(ctx, workspaceID, err)
 	}
-	if status != string(domain.WorkspaceActive) || organisationStatus != string(domain.OrganisationActive) {
-		return 0, ErrWorkspaceArchived
-	}
-	var userInternalID int64
-	if err := s.db.QueryRowContext(ctx, `SELECT id FROM users WHERE public_id=? AND active=1`, requesterUserID).Scan(&userInternalID); errors.Is(err, sql.ErrNoRows) {
-		return 0, ErrUnauthorisedWorkspaceAction
-	} else if err != nil {
-		return 0, fmt.Errorf("resolve workspace reader: %w", err)
-	}
-	var systemAdmin int
-	if err := s.db.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM system_role_assignments WHERE user_id=? AND role='system_admin' AND active=1)`, userInternalID).Scan(&systemAdmin); err != nil {
-		return 0, fmt.Errorf("resolve workspace reader system role: %w", err)
-	}
-	if systemAdmin == 1 {
-		return workspaceInternalID, nil
-	}
-	var organisationRole string
-	if err := s.db.QueryRowContext(ctx, `SELECT role FROM organisation_memberships WHERE organisation_id=? AND user_id=? AND active=1`, organisationInternalID, userInternalID).Scan(&organisationRole); err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return 0, fmt.Errorf("resolve workspace reader organisation membership: %w", err)
-	}
-	var workspaceRole string
-	if err := s.db.QueryRowContext(ctx, `SELECT role FROM workspace_memberships WHERE workspace_id=? AND user_id=? AND active=1`, workspaceInternalID, userInternalID).Scan(&workspaceRole); err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return 0, fmt.Errorf("resolve workspace reader membership: %w", err)
-	}
-	orgAdmin := domain.OrganisationRole(organisationRole).CanAdminister()
-	workspaceAdmin := domain.WorkspaceRole(workspaceRole).CanAdminister()
-	// A Workspace membership never survives the parent Organisation authority
-	// check. This is deliberately separate from the Workspace-role check so a
-	// stale row cannot become a scope-escalation path after org removal.
-	if organisationRole == "" {
-		return 0, ErrUnauthorisedWorkspaceAction
-	}
-	if adminOnly {
-		if !orgAdmin && !workspaceAdmin {
-			return 0, ErrUnauthorisedWorkspaceAction
-		}
-	} else if !orgAdmin && workspaceRole == "" {
-		return 0, ErrUnauthorisedWorkspaceAction
-	}
-	return workspaceInternalID, nil
+	return proof.workspaceInternalID, nil
 }
 
 func authorisedWorkspaceMutationTx(ctx context.Context, tx *sql.Tx, actorUserID, workspaceID string, allowWorkspaceAdmin bool) (int64, int64, int64, bool, error) {
-	var actorInternalID, workspaceInternalID, organisationInternalID int64
-	var workspaceStatus, organisationStatus string
-	if err := tx.QueryRowContext(ctx, `SELECT u.id,w.id,w.organisation_id,w.status,o.status FROM users u CROSS JOIN workspaces w JOIN organisations o ON o.id=w.organisation_id WHERE u.public_id=? AND u.active=1 AND w.public_id=?`, actorUserID, workspaceID).Scan(&actorInternalID, &workspaceInternalID, &organisationInternalID, &workspaceStatus, &organisationStatus); errors.Is(err, sql.ErrNoRows) {
-		return 0, 0, 0, false, ErrWorkspaceNotFound
-	} else if err != nil {
-		return 0, 0, 0, false, fmt.Errorf("resolve workspace mutation: %w", err)
+	proof, err := proveWorkspaceScopeQuery(ctx, tx, actorUserID, workspaceID, true)
+	if err != nil {
+		return 0, 0, 0, false, classifyWorkspaceScopeErrorTx(ctx, tx, workspaceID, err)
 	}
-	if workspaceStatus != string(domain.WorkspaceActive) || organisationStatus != string(domain.OrganisationActive) {
-		return 0, 0, 0, false, ErrWorkspaceArchived
-	}
-	var systemAdmin int
-	if err := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM system_role_assignments WHERE user_id=? AND role='system_admin' AND active=1)`, actorInternalID).Scan(&systemAdmin); err != nil {
-		return 0, 0, 0, false, fmt.Errorf("resolve workspace mutation system role: %w", err)
-	}
-	if systemAdmin == 1 {
-		return actorInternalID, organisationInternalID, workspaceInternalID, true, nil
-	}
-	var organisationRole string
-	if err := tx.QueryRowContext(ctx, `SELECT role FROM organisation_memberships WHERE organisation_id=? AND user_id=? AND active=1`, organisationInternalID, actorInternalID).Scan(&organisationRole); err != nil {
+	if !allowWorkspaceAdmin && !proof.scope.SystemAdmin && !proof.scope.OrganisationRole.CanAdminister() {
 		return 0, 0, 0, false, ErrUnauthorisedWorkspaceAction
 	}
-	if domain.OrganisationRole(organisationRole).CanAdminister() {
-		return actorInternalID, organisationInternalID, workspaceInternalID, false, nil
+	return proof.userInternalID, proof.organisationInternalID, proof.workspaceInternalID, proof.scope.SystemAdmin, nil
+}
+
+func (s *Store) classifyWorkspaceScopeError(ctx context.Context, workspaceID string, err error) error {
+	if !errors.Is(err, store.ErrAccessScopeDenied) {
+		return err
 	}
-	if allowWorkspaceAdmin {
-		var workspaceRole string
-		if err := tx.QueryRowContext(ctx, `SELECT role FROM workspace_memberships WHERE workspace_id=? AND user_id=? AND active=1`, workspaceInternalID, actorInternalID).Scan(&workspaceRole); err == nil && domain.WorkspaceRole(workspaceRole).CanAdminister() {
-			return actorInternalID, organisationInternalID, workspaceInternalID, false, nil
-		}
+	var status, organisationStatus string
+	if lookupErr := s.db.QueryRowContext(ctx, `SELECT w.status,o.status FROM workspaces w JOIN organisations o ON o.id=w.organisation_id WHERE w.public_id=?`, workspaceID).Scan(&status, &organisationStatus); errors.Is(lookupErr, sql.ErrNoRows) {
+		return ErrWorkspaceNotFound
+	} else if lookupErr != nil {
+		return fmt.Errorf("classify workspace scope: %w", lookupErr)
 	}
-	return 0, 0, 0, false, ErrUnauthorisedWorkspaceAction
+	if status != string(domain.WorkspaceActive) || organisationStatus != string(domain.OrganisationActive) {
+		return ErrWorkspaceArchived
+	}
+	return ErrUnauthorisedWorkspaceAction
+}
+
+func classifyWorkspaceScopeErrorTx(ctx context.Context, tx *sql.Tx, workspaceID string, err error) error {
+	if !errors.Is(err, store.ErrAccessScopeDenied) {
+		return err
+	}
+	var status, organisationStatus string
+	if lookupErr := tx.QueryRowContext(ctx, `SELECT w.status,o.status FROM workspaces w JOIN organisations o ON o.id=w.organisation_id WHERE w.public_id=?`, workspaceID).Scan(&status, &organisationStatus); errors.Is(lookupErr, sql.ErrNoRows) {
+		return ErrWorkspaceNotFound
+	} else if lookupErr != nil {
+		return fmt.Errorf("classify workspace scope in transaction: %w", lookupErr)
+	}
+	if status != string(domain.WorkspaceActive) || organisationStatus != string(domain.OrganisationActive) {
+		return ErrWorkspaceArchived
+	}
+	return ErrUnauthorisedWorkspaceAction
 }
 
 func activeWorkspaceTargetUserTx(ctx context.Context, tx *sql.Tx, workspaceInternalID int64, targetUserID string) error {
