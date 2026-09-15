@@ -6,4 +6,6 @@ ordered delivery work. Plans do not replace `docs/architecture/` or
 
 The active programme is [Priority PF](../../plan/active/priority-pf.md). A
 terminal Slice is recorded only in `IMPLEMENTED.md` after independent review,
-independent acceptance and exact-candidate local validation have passed.
+independent acceptance and exact-candidate local validation have passed. The
+execution queue is maintained in [the incomplete-plan tracker](../../plan/incomplete.md);
+terminal plans are retained immutably in [plan/completed](../../plan/completed/).
