@@ -80,6 +80,10 @@ func TestOrganisationHTTPAuthorizationCSRFRedactionAndSafeScopeErrors(t *testing
 	if response.Code != http.StatusOK || strings.Contains(response.Body.String(), "password_hash") || strings.Contains(response.Body.String(), "product_role") {
 		t.Fatalf("member organisation response = %d/%s", response.Code, response.Body.String())
 	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, path+"/workspace-entry", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `"available":false`) || strings.Contains(response.Body.String(), "product_role") {
+		t.Fatalf("workspace entry response = %d/%s", response.Code, response.Body.String())
+	}
 
 	response = organisationHTTPRequest(t, f, http.MethodGet, path+"/members", memberSession, memberCSRF, "", "")
 	if response.Code != http.StatusNotFound {

@@ -36,6 +36,12 @@ type OrganisationAuditRecord struct {
 	OccurredAt     time.Time
 }
 
+type OrganisationWorkspaceEntry struct {
+	OrganisationID string
+	Resource       string
+	Available      bool
+}
+
 // OrganisationStore is the narrow Platform caller contract for shared
 // Organisation authority. Product roles and product records do not appear in
 // this contract.
@@ -50,4 +56,5 @@ type OrganisationStore interface {
 	RenameOrganisation(context.Context, string, string, string, string, time.Time) (domain.Organisation, error)
 	ListOrganisationMembers(context.Context, string, string) ([]OrganisationMemberRecord, error)
 	ListOrganisationAudit(context.Context, string, string, int) ([]OrganisationAuditRecord, error)
+	GetOrganisationWorkspaceEntry(context.Context, string, string) (OrganisationWorkspaceEntry, error)
 }

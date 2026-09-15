@@ -485,6 +485,13 @@ func (s *Store) ListOrganisationAudit(ctx context.Context, requesterUserID, orga
 	return events, nil
 }
 
+func (s *Store) GetOrganisationWorkspaceEntry(ctx context.Context, requesterUserID, organisationID string) (store.OrganisationWorkspaceEntry, error) {
+	if _, err := s.GetOrganisation(ctx, requesterUserID, organisationID); err != nil {
+		return store.OrganisationWorkspaceEntry{}, err
+	}
+	return store.OrganisationWorkspaceEntry{OrganisationID: organisationID, Resource: "workspaces", Available: false}, nil
+}
+
 func (s *Store) authorisedOrganisationRead(ctx context.Context, requesterUserID, organisationID string, adminOnly bool) (int64, error) {
 	var organisationInternalID int64
 	var status string

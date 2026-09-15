@@ -72,6 +72,7 @@ func (s *Server) Handler() http.Handler {
 		protected.Post("/logout", s.logout)
 		protected.Post("/api/organisations", s.createOrganisation)
 		protected.Get("/api/organisations/{organisationID}", s.getOrganisation)
+		protected.Get("/api/organisations/{organisationID}/workspace-entry", s.getOrganisationWorkspaceEntry)
 		protected.Get("/api/organisations/{organisationID}/members", s.listOrganisationMembers)
 		protected.Get("/api/organisations/{organisationID}/audit", s.listOrganisationAudit)
 		protected.Patch("/api/organisations/{organisationID}", s.renameOrganisation)
@@ -282,6 +283,12 @@ type organisationAuditResponse struct {
 	OccurredAt     time.Time `json:"occurred_at"`
 }
 
+type organisationWorkspaceEntryResponse struct {
+	OrganisationID string `json:"organisation_id"`
+	Resource       string `json:"resource"`
+	Available      bool   `json:"available"`
+}
+
 func (s *Server) createOrganisation(w http.ResponseWriter, r *http.Request) {
 	if !s.verifyMutationCSRF(w, r) {
 		return
@@ -350,6 +357,10 @@ func (s *Server) listOrganisationAudit(w http.ResponseWriter, r *http.Request) {
 		}
 		limit = parsed
 	}
+	if limit < 1 || limit > 100 {
+		http.Error(w, "invalid limit", http.StatusBadRequest)
+		return
+	}
 	events, err := s.store.ListOrganisationAudit(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), limit)
 	if err != nil {
 		writeOrganisationError(w, err)
@@ -360,6 +371,20 @@ func (s *Server) listOrganisationAudit(w http.ResponseWriter, r *http.Request) {
 		response = append(response, organisationAuditResponse{ID: event.ID, OrganisationID: event.OrganisationID, ActorUserID: event.ActorUserID, Event: event.Event, Details: event.Details, OccurredAt: event.OccurredAt})
 	}
 	writeJSON(w, http.StatusOK, response)
+}
+
+func (s *Server) getOrganisationWorkspaceEntry(w http.ResponseWriter, r *http.Request) {
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	entry, err := s.store.GetOrganisationWorkspaceEntry(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"))
+	if err != nil {
+		writeOrganisationError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, organisationWorkspaceEntryResponse{OrganisationID: entry.OrganisationID, Resource: entry.Resource, Available: entry.Available})
 }
 
 func (s *Server) renameOrganisation(w http.ResponseWriter, r *http.Request) {
