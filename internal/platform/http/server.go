@@ -70,7 +70,10 @@ func (s *Server) Handler() http.Handler {
 	r.Post("/login", s.login)
 	r.Group(func(protected chi.Router) {
 		protected.Use(s.requireSession)
-		protected.Get("/", s.accountPage)
+		protected.Get("/", s.platformLauncher)
+		protected.Get("/organisations", s.platformLauncher)
+		protected.Get("/organisations/{organisationID}/workspaces", s.workspaceSelector)
+		protected.Get("/launch/{productKey}", s.productAccessPage)
 		protected.Get("/account", s.accountPage)
 		protected.Post("/account/mfa/setup", s.mfaSetup)
 		protected.Post("/account/mfa/confirm", s.mfaConfirm)

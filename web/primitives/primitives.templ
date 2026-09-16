@@ -1,0 +1,16 @@
+package primitives
+
+templ Button(label, href, className string) {
+	if href != "" {
+		<a class={ "pf-button " + className } href={ templ.SafeURL(href) }>{ label }</a>
+	} else {
+		<button class={ "pf-button " + className } type="submit">{ label }</button>
+	}
+}
+
+templ EmptyState(title, description string) {
+	<section class="pf-empty" aria-labelledby={ "empty-" + title }>
+		<h2 id={ "empty-" + title }>{ title }</h2>
+		<p>{ description }</p>
+	</section>
+}

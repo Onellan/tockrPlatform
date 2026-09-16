@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@source "../layouts";
+@source "../pages";
+@source "../components";
+@source "../primitives";
+
+@theme {
+	--font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+	--color-platform-ink: #17324d;
+	--color-platform-muted: #5c7185;
+	--color-platform-surface: #ffffff;
+	--color-platform-canvas: #f4f8fb;
+	--color-platform-line: #d6e2eb;
+	--color-platform-primary: #1769aa;
+	--color-platform-primary-dark: #0f4f83;
+	--color-platform-teal: #0b8f83;
+	--color-platform-focus: #f0a51a;
+}
+
+@layer base {
+	:root {
+		font-family: var(--font-sans);
+		color: var(--color-platform-ink);
+		background: var(--color-platform-canvas);
+	}
+
+	*, *::before, *::after {
+		box-sizing: border-box;
+	}
+
+	body {
+		margin: 0;
+		min-block-size: 100vh;
+	}
+
+	button, input, select {
+		font: inherit;
+	}
+
+	button, a, input, select {
+		-webkit-tap-highlight-color: transparent;
+	}
+}

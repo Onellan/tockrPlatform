@@ -32,6 +32,12 @@ RUNTIME_REQUIRED = (
     "internal/db/sqlite/store.go",
     "internal/platform/http/server.go",
     "web/templates/auth_templ.go",
+    "web/layouts/layouts_templ.go",
+    "web/pages/platform_templ.go",
+    "web/components/shell_templ.go",
+    "web/primitives/primitives_templ.go",
+    "web/static/presentation.css",
+    "web/static/platform.css",
 )
 SECRET_PATTERNS = (
     re.compile(r"(?i)(password|secret|private[_ -]?key)\s*[:=]\s*['\"][^'\"]+['\"]"),
@@ -120,9 +126,13 @@ def run_one(profile: str) -> dict[str, object]:
     if profile == "frontend":
         path = ROOT / "docs/architecture/presentation-architecture-contract.md"
         text = path.read_text(encoding="utf-8") if path.exists() else ""
-        required = ("templ", "Tailwind", "server-rendered", "React", "runtime Node.js")
+        required = ("templ", "Tailwind", "server-rendered", "React", "runtime Node.js", "PF-B8-S01")
         missing = [term for term in required if term.lower() not in text.lower()]
-        return {"profile": profile, "status": "PASS" if not missing else "FAIL", "missing": missing}
+        runtime_assets = [
+            relative for relative in ("web/layouts/layouts_templ.go", "web/pages/platform_templ.go", "web/components/shell_templ.go", "web/primitives/primitives_templ.go", "web/static/presentation.css", "web/static/platform.css")
+            if not (ROOT / relative).exists()
+        ]
+        return {"profile": profile, "status": "PASS" if not missing and not runtime_assets else "FAIL", "missing": missing, "missing_runtime_assets": runtime_assets}
     if profile == "quality":
         active_plans = sorted((ROOT / "plan/active").glob("pf-b*-s*-*.md"))
         completed_plans = sorted((ROOT / "plan/completed").glob("pf-b*-s*-*.md"))

@@ -166,6 +166,46 @@ func (s *Store) ListUserProductAssignments(ctx context.Context, requesterUserID,
 	return assignments, nil
 }
 
+func (s *Store) ListLaunchableProducts(ctx context.Context, userID, organisationID, workspaceID string) ([]domain.Product, error) {
+	if strings.TrimSpace(userID) == "" || strings.TrimSpace(organisationID) == "" || strings.TrimSpace(workspaceID) == "" {
+		return nil, store.ErrProductAccessDenied
+	}
+	rows, err := s.db.QueryContext(ctx, `SELECT DISTINCT p.product_key,p.display_name,p.status,p.created_at,p.retired_at
+		FROM products p
+		JOIN organisation_product_entitlements e ON e.product_key=p.product_key AND e.status='active'
+		JOIN organisations o ON o.id=e.organisation_id AND o.public_id=? AND o.status='active'
+		JOIN organisation_memberships om ON om.organisation_id=o.id AND om.user_id=(SELECT id FROM users WHERE public_id=? AND active=1) AND om.active=1
+		JOIN user_product_assignments a ON a.user_id=om.user_id AND a.organisation_id=o.id AND a.product_key=p.product_key AND a.status='active'
+		JOIN workspaces w ON w.public_id=? AND w.organisation_id=o.id AND w.status='active'
+		LEFT JOIN workspace_memberships wm ON wm.workspace_id=w.id AND wm.user_id=om.user_id AND wm.active=1
+		WHERE p.status='active' AND (om.role IN ('owner','admin') OR wm.id IS NOT NULL)
+		ORDER BY p.product_key`, strings.TrimSpace(organisationID), strings.TrimSpace(userID), strings.TrimSpace(workspaceID))
+	if err != nil {
+		return nil, fmt.Errorf("list launchable products: %w", err)
+	}
+	defer rows.Close()
+	products := make([]domain.Product, 0)
+	for rows.Next() {
+		var product domain.Product
+		var status, created string
+		var retired sql.NullString
+		if err := rows.Scan(&product.Key, &product.DisplayName, &status, &created, &retired); err != nil {
+			return nil, fmt.Errorf("read launchable product: %w", err)
+		}
+		product.Status = domain.ProductStatus(status)
+		product.CreatedAt = parseTime(created)
+		if retired.Valid {
+			value := parseTime(retired.String)
+			product.RetiredAt = &value
+		}
+		products = append(products, product)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate launchable products: %w", err)
+	}
+	return products, nil
+}
+
 func (s *Store) ProveProductAccess(ctx context.Context, userID, organisationID, productKey, workspaceID string) (store.ProductAccess, error) {
 	if !validProductKey(strings.TrimSpace(productKey)) {
 		return store.ProductAccess{}, store.ErrProductAccessDenied

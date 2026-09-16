@@ -1,0 +1,51 @@
+package layouts
+
+import (
+	"github.com/Onellan/tockrplatform/internal/domain"
+	"github.com/Onellan/tockrplatform/web/components"
+)
+
+templ Auth(title string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<meta name="color-scheme" content="light" />
+			<title>{ title }</title>
+			<link rel="stylesheet" href="/static/auth.css" />
+			<link rel="stylesheet" href="/static/presentation.css" />
+			<link rel="stylesheet" href="/static/platform.css" />
+		</head>
+		<body class="pf-auth-body">
+			<main class="pf-auth-main">{ children... }</main>
+		</body>
+	</html>
+}
+
+templ App(title string, user domain.User, csrfToken, activePath string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<meta name="color-scheme" content="light" />
+			<title>{ title }</title>
+			<link rel="stylesheet" href="/static/presentation.css" />
+			<link rel="stylesheet" href="/static/platform.css" />
+		</head>
+		<body class="pf-app-body">
+			<a class="pf-skip-link" href="#main-content">Skip to content</a>
+			<div class="pf-app-shell">
+				@components.Sidebar(user, csrfToken, activePath)
+				<div class="pf-app-main">
+					<header class="pf-app-header">
+						@components.Brand()
+						@components.AccountMenu(user, csrfToken)
+					</header>
+					<main id="main-content" class="pf-content" tabindex="-1">{ children... }</main>
+				</div>
+			</div>
+		</body>
+	</html>
+}

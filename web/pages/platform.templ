@@ -1,0 +1,96 @@
+package pages
+
+import (
+	"github.com/Onellan/tockrplatform/web/components"
+	"github.com/Onellan/tockrplatform/web/layouts"
+	"github.com/Onellan/tockrplatform/web/primitives"
+)
+
+templ Launcher(props LauncherProps) {
+	@layouts.App("Platform launcher", props.User, props.CSRF, props.CurrentPath) {
+		@components.ContextHeader("Launcher", props.OrganisationName, props.WorkspaceName)
+		<section class="pf-intro" aria-labelledby="launcher-title">
+			<div>
+				<p class="pf-kicker">Shared access</p>
+				<h2 id="launcher-title">Choose where to work</h2>
+				<p>Platform confirms the shared identity, Organisation and Workspace context before a product can be opened.</p>
+			</div>
+			<a class="pf-text-link" href="/account">Review account security</a>
+		</section>
+		<section class="pf-context-grid" aria-labelledby="context-heading">
+			<div class="pf-section-heading">
+				<div><p class="pf-kicker">Context</p><h2 id="context-heading">Organisation and Workspace</h2></div>
+				<p>Selectors use normal forms and remain available without JavaScript.</p>
+			</div>
+			<form class="pf-context-form" method="get" action="/">
+				<label for="organisation-select">Organisation</label>
+				<select id="organisation-select" name="organisation_id" required>
+					<option value="">Select an Organisation</option>
+					for _, organisation := range props.Organisations {
+						<option value={ organisation.ID } selected?={ organisation.Selected }>{ organisation.Name }</option>
+					}
+				</select>
+				<label for="workspace-select">Workspace</label>
+				<select id="workspace-select" name="workspace_id" required?={ props.OrganisationID != "" }>
+					<option value="">Select a Workspace</option>
+					for _, workspace := range props.Workspaces {
+						<option value={ workspace.ID } selected?={ workspace.Selected }>{ workspace.Name }</option>
+					}
+				</select>
+				if props.OrganisationID == "" {
+					<p class="pf-field-note">Select an Organisation to load its active Workspaces.</p>
+				}
+				<button class="pf-button" type="submit">Update context</button>
+			</form>
+		</section>
+		<section class="pf-section" aria-labelledby="products-heading">
+			<div class="pf-section-heading"><div><p class="pf-kicker">Product access</p><h2 id="products-heading">Available products</h2></div><p>Only the complete Platform access predicate can produce a product card.</p></div>
+			if props.OrganisationID == "" || props.WorkspaceID == "" {
+				@primitives.EmptyState("Choose a Workspace", "Select an Organisation and active Workspace to see products assigned to this user.")
+			} else if len(props.Products) == 0 {
+				@primitives.EmptyState("No products available", "This Workspace has no active product access for the current user. An Organisation administrator can review Platform access.")
+			} else {
+				<div class="pf-product-grid">
+					for _, product := range props.Products {
+						<article class="pf-product-card">
+							<div><p class="pf-kicker">Platform verified</p><h3>{ product.DisplayName }</h3><p class="pf-product-key">{ product.Key }</p></div>
+							<p>Shared identity and Workspace access are ready. The product remains authoritative for its own roles and records.</p>
+							<a class="pf-button" href={ templ.SafeURL(product.AccessURL) }>Open product access</a>
+						</article>
+					}
+				</div>
+			}
+		</section>
+	}
+}
+
+templ WorkspaceSelector(props WorkspaceSelectorProps) {
+	@layouts.App("Workspace selector", props.User, props.CSRF, props.CurrentPath) {
+		@components.ContextHeader("Select a Workspace", props.OrganisationName, "")
+		<section class="pf-section pf-selector-page" aria-labelledby="workspace-heading">
+			<div class="pf-section-heading"><div><p class="pf-kicker">Organisation context</p><h2 id="workspace-heading">{ props.OrganisationName } Workspaces</h2></div><a class="pf-text-link" href={ templ.SafeURL("/?organisation_id=" + props.OrganisationID) }>Back to launcher</a></div>
+			if len(props.Workspaces) == 0 {
+				@primitives.EmptyState("No active Workspaces", "This Organisation has no active Workspaces available to this user.")
+			} else {
+				<div class="pf-choice-list">
+					for _, workspace := range props.Workspaces {
+						<a class="pf-choice" href={ templ.SafeURL("/?organisation_id=" + props.OrganisationID + "&workspace_id=" + workspace.ID) }><span><strong>{ workspace.Name }</strong><small>Open Platform launcher in this Workspace</small></span><span aria-hidden="true">→</span></a>
+					}
+				</div>
+			}
+		</section>
+	}
+}
+
+templ ProductAccess(props ProductAccessProps) {
+	@layouts.App("Product access", props.User, props.CSRF, props.CurrentPath) {
+		@components.ContextHeader("Product access verified", props.OrganisationName, props.WorkspaceName)
+		<section class="pf-section pf-selector-page" aria-labelledby="product-access-heading">
+			<p class="pf-kicker">{ props.Product.Key }</p>
+			<h2 id="product-access-heading">{ props.Product.DisplayName }</h2>
+			<p>Platform has verified the active User, Organisation membership, product entitlement, user assignment and Workspace access.</p>
+			<p class="pf-boundary-note">Product roles, project records and operational authority remain inside the product. This Platform surface does not copy or decide them.</p>
+			<div class="pf-action-row"><a class="pf-button" href={ templ.SafeURL("/?organisation_id=" + props.OrganisationID + "&workspace_id=" + props.WorkspaceID) }>Return to launcher</a><a class="pf-text-link" href={ templ.SafeURL("/organisations/" + props.OrganisationID + "/workspaces") }>Choose another Workspace</a></div>
+		</section>
+	}
+}

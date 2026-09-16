@@ -1,19 +1,11 @@
 package templates
 
 import "github.com/Onellan/tockrplatform/internal/domain"
+import "github.com/Onellan/tockrplatform/web/layouts"
 
 templ Login(csrfToken string, message string) {
-	<!doctype html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1" />
-			<meta name="color-scheme" content="light" />
-			<title>Sign in · Tockr Platform</title>
-			<link rel="stylesheet" href="/static/auth.css" />
-		</head>
-		<body>
-			<main class="auth-shell">
+	@layouts.Auth("Sign in · Tockr Platform") {
+			<section class="auth-shell">
 				<section class="auth-intro" aria-labelledby="page-title">
 					<p class="eyebrow">Shared identity authority</p>
 					<h1 id="page-title">Tockr Platform</h1>
@@ -35,22 +27,13 @@ templ Login(csrfToken string, message string) {
 					<input id="recovery_code" name="recovery_code" autocomplete="off" />
 					<button type="submit">Sign in</button>
 				</form>
-			</main>
-		</body>
-	</html>
+			</section>
+	}
 }
 
 templ Account(user domain.User, csrfToken string) {
-	<!doctype html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1" />
-			<title>Account · Tockr Platform</title>
-			<link rel="stylesheet" href="/static/auth.css" />
-		</head>
-		<body>
-			<main class="account-shell">
+	@layouts.App("Account · Tockr Platform", user, csrfToken, "/account") {
+			<section class="account-shell">
 				<p class="eyebrow">Platform identity</p>
 				<h1>Account</h1>
 				<dl class="account-facts">
@@ -74,22 +57,13 @@ templ Account(user domain.User, csrfToken string) {
 						</form>
 					}
 				</section>
-			</main>
-		</body>
-	</html>
+			</section>
+	}
 }
 
 templ MFASetup(user domain.User, csrfToken, enrollmentToken, secret, message string) {
-	<!doctype html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1" />
-			<title>Set up MFA · Tockr Platform</title>
-			<link rel="stylesheet" href="/static/auth.css" />
-		</head>
-		<body>
-			<main class="account-shell">
+	@layouts.App("Set up MFA · Tockr Platform", user, csrfToken, "/account") {
+			<section class="account-shell">
 				<p class="eyebrow">Account security</p>
 				<h1>Set up MFA</h1>
 				if message != "" {
@@ -107,22 +81,13 @@ templ MFASetup(user domain.User, csrfToken, enrollmentToken, secret, message str
 					<button type="submit">Confirm MFA</button>
 				</form>
 				<p><a href="/account">Back to account</a></p>
-			</main>
-		</body>
-	</html>
+			</section>
+	}
 }
 
 templ MFARecovery(user domain.User, csrfToken string, codes []string) {
-	<!doctype html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1" />
-			<title>Save recovery codes · Tockr Platform</title>
-			<link rel="stylesheet" href="/static/auth.css" />
-		</head>
-		<body>
-			<main class="account-shell">
+	@layouts.App("Save recovery codes · Tockr Platform", user, csrfToken, "/account") {
+			<section class="account-shell">
 				<p class="eyebrow">Account security</p>
 				<h1>Save your recovery codes</h1>
 				<p>Each code can be used once if your authenticator is unavailable. They will not be shown again.</p>
@@ -135,9 +100,8 @@ templ MFARecovery(user domain.User, csrfToken string, codes []string) {
 					<input type="hidden" name="csrf" value={ csrfToken } />
 					<button class="secondary" type="submit">Finish and sign out</button>
 				</form>
-			</main>
-		</body>
-	</html>
+			</section>
+	}
 }
 
 func accountStatus(active bool) string {

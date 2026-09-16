@@ -24,6 +24,10 @@ type ProductAccess struct {
 	WorkspaceRole    domain.WorkspaceRole
 }
 
+// ListLaunchableProducts returns only active products for which the caller
+// satisfies the complete shared access predicate in the supplied Workspace.
+// Product-specific roles and consumer authorization are deliberately absent.
+
 // ProductAccessStore owns the assignment lifecycle and the single shared
 // effective-access predicate. Product-specific roles remain outside this
 // contract and are evaluated by the product after Platform access succeeds.
@@ -31,5 +35,6 @@ type ProductAccessStore interface {
 	AssignUserProduct(context.Context, string, string, string, string, string, time.Time) (domain.UserProductAssignment, error)
 	RevokeUserProduct(context.Context, string, string, string, string, time.Time) error
 	ListUserProductAssignments(context.Context, string, string) ([]domain.UserProductAssignment, error)
+	ListLaunchableProducts(context.Context, string, string, string) ([]domain.Product, error)
 	ProveProductAccess(context.Context, string, string, string, string) (ProductAccess, error)
 }

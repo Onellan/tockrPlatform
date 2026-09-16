@@ -98,6 +98,46 @@ func (s *Store) CreateOrganisation(ctx context.Context, actorUserID string, orga
 	return organisation, domain.OrganisationMembership{ID: membershipID, OrganisationID: organisation.ID, UserID: actorUserID, Role: domain.OrganisationOwner, Active: true, AssignedBy: actorUserID, AssignedAt: organisation.CreatedAt}, nil
 }
 
+func (s *Store) ListUserOrganisations(ctx context.Context, requesterUserID string) ([]store.UserOrganisation, error) {
+	rows, err := s.db.QueryContext(ctx, `SELECT o.public_id,o.name,o.status,o.created_at,o.archived_at,COALESCE(m.role,'')
+		FROM organisations o
+		LEFT JOIN organisation_memberships m ON m.organisation_id=o.id AND m.active=1
+			AND m.user_id=(SELECT id FROM users WHERE public_id=? AND active=1)
+		WHERE o.status='active' AND (
+			m.id IS NOT NULL OR EXISTS (
+				SELECT 1 FROM users u
+				JOIN system_role_assignments sra ON sra.user_id=u.id AND sra.role='system_admin' AND sra.active=1
+				WHERE u.public_id=? AND u.active=1
+			)
+		)
+		ORDER BY o.name,o.public_id`, strings.TrimSpace(requesterUserID), strings.TrimSpace(requesterUserID))
+	if err != nil {
+		return nil, fmt.Errorf("list user organisations: %w", err)
+	}
+	defer rows.Close()
+	organisations := make([]store.UserOrganisation, 0)
+	for rows.Next() {
+		var item store.UserOrganisation
+		var status, created, role string
+		var archived sql.NullString
+		if err := rows.Scan(&item.Organisation.ID, &item.Organisation.Name, &status, &created, &archived, &role); err != nil {
+			return nil, fmt.Errorf("read user organisation: %w", err)
+		}
+		item.Organisation.Status = domain.OrganisationStatus(status)
+		item.Organisation.CreatedAt = parseTime(created)
+		if archived.Valid {
+			value := parseTime(archived.String)
+			item.Organisation.ArchivedAt = &value
+		}
+		item.Role = domain.OrganisationRole(role)
+		organisations = append(organisations, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate user organisations: %w", err)
+	}
+	return organisations, nil
+}
+
 func (s *Store) GetOrganisation(ctx context.Context, requesterUserID, organisationID string) (*domain.Organisation, error) {
 	var organisation domain.Organisation
 	var status, created string

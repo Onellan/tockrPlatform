@@ -44,11 +44,20 @@ type OrganisationWorkspaceEntry struct {
 	Workspaces         []domain.Workspace
 }
 
+// UserOrganisation is the minimum Organisation context needed by the
+// Platform shell. It contains only Platform-owned identity and membership
+// facts; product roles and product records remain outside this read model.
+type UserOrganisation struct {
+	Organisation domain.Organisation
+	Role         domain.OrganisationRole
+}
+
 // OrganisationStore is the narrow Platform caller contract for shared
 // Organisation authority. Product roles and product records do not appear in
 // this contract.
 type OrganisationStore interface {
 	CreateOrganisation(context.Context, string, domain.Organisation, string, time.Time) (domain.Organisation, domain.OrganisationMembership, error)
+	ListUserOrganisations(context.Context, string) ([]UserOrganisation, error)
 	GetOrganisation(context.Context, string, string) (*domain.Organisation, error)
 	GetOrganisationMembership(context.Context, string, string, string) (*domain.OrganisationMembership, error)
 	AddOrganisationMember(context.Context, string, string, string, domain.OrganisationRole, string, time.Time) (domain.OrganisationMembership, error)

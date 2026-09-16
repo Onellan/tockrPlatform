@@ -1,6 +1,7 @@
 # Platform presentation architecture contract
 
-Status: foundation planning authority; no Platform UI runtime has been built.
+Status: foundation runtime authority; PF-B8-S01 establishes the Platform shell,
+selectors and access-gated launcher. Administration surfaces remain in PF-B8-S02.
 
 ```text
 Browser
@@ -32,5 +33,6 @@ Rules:
 
 Initial UI surfaces are sign-in/account security, organisation/workspace
 selectors, product launcher, organisation administration, workspace
-administration and system product catalogue. CTRL/IMS operational screens are
-not Platform UI.
+administration and system product catalogue. PF-B8-S01 delivers the shell,
+selectors and access-gated launcher; PF-B8-S02 remains responsible for
+administration screens. CTRL/IMS operational screens are not Platform UI.
