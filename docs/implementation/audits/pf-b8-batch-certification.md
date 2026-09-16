@@ -4,6 +4,8 @@ Batch: PF-B8 — Platform administration UI
 
 Accepted Batch candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`
 
+Terminal Batch closeout candidate: `855805add54f8c905191bb0bd3947328fc37d22b`.
+
 ## Terminal Slice order
 
 | Slice | Terminal plan | Accepted implementation candidate | Result |

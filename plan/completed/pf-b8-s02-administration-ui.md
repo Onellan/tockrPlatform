@@ -70,6 +70,8 @@ facts; do not roll back by deleting membership history.
 
 Accepted implementation candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`.
 
+Terminal closeout candidate: `855805add54f8c905191bb0bd3947328fc37d22b`.
+
 - Independent engineering review: **PASS**; no R1 or R2 finding remains.
 - Independent tester acceptance: **PASS** for Organisation General/Members/
   Workspaces/Products, Workspace administration, System Admin catalogue,
