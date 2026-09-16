@@ -462,4 +462,19 @@ The following Platform Foundation Slices are terminally recorded:
   Platform data volume.
 - The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
   production code, data, connector, product role, production record or
-  authority cutover was changed. PF-B10-S02 is the next dependency-ready Slice.
+  authority cutover was changed. PF-B10-S01-R1 is terminally recorded below;
+  PF-B10-S02 is the next planned certification Slice.
+
+## PF-B10-S01-R1 — Runtime asset packaging repair
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b10-s01-r1-runtime-assets.md`](../../plan/completed/pf-b10-s01-r1-runtime-assets.md)
+- Accepted repair candidate: `2dbac87909b296e66da33f1e9f26d049bbbd1bd7`
+- Independent engineering review, independent tester acceptance, exact
+  `full/local` validation, AMD64/ARM64 builds and real-browser `/login`,
+  `/healthz`, `/readyz`, CSS MIME and favicon checks all passed.
+- The repair packages the existing source-owned static assets in the hardened
+  image and adds a safe `204` favicon response. It introduces no new product
+  authority, schema, migration, SQLite pool change or CTRL/IMS code/data.
+- PF-B10-S02 is the next planned certification Slice; it was not started in
+  parallel with this repair.

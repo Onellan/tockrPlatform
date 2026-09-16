@@ -16,7 +16,8 @@ the PF-B2 identity/authentication Batch, the complete PF-B3 Organisation
 authority Batch, the complete PF-B4 Workspace authority Batch, the complete
 PF-B5 product-access Batch, the complete PF-B6 product assertion/consumer
 Batch, PF-B7-S01/S02, PF-B8-S01/S02, PF-B9-S01/S02 and PF-B10-S01; PF-B7,
-PF-B8 and PF-B9 are certified and the next active queue item is PF-B10-S02.
+PF-B8 and PF-B9 are certified; PF-B10-S01-R1 is terminal and PF-B10-S02 is
+the next planned queue item.
 PF-B7 Batch certification is recorded in
 [`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
 PF-B6 Batch certification is recorded in
