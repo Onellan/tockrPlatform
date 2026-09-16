@@ -2,7 +2,7 @@
 
 Batch: PF-B6 — Product assertion and consumer contract
 
-Batch certification candidate: pending the certification validation commit.
+Accepted Batch candidate: `eabcdf22c00d939fc07d5b1ea8eb69d903ab687a`.
 
 ## Terminal Slice order
 
