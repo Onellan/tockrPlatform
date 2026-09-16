@@ -50,7 +50,7 @@ func Launcher(props LauncherProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <section class=\"pf-intro\" aria-labelledby=\"launcher-title\"><div><p class=\"pf-kicker\">Shared access</p><h2 id=\"launcher-title\">Choose where to work</h2><p>Platform confirms the shared identity, Organisation and Workspace context before a product can be opened.</p></div><a class=\"pf-text-link\" href=\"/account\">Review account security</a></section><section class=\"pf-context-grid\" aria-labelledby=\"context-heading\"><div class=\"pf-section-heading\"><div><p class=\"pf-kicker\">Context</p><h2 id=\"context-heading\">Organisation and Workspace</h2></div><p>Selectors use normal forms and remain available without JavaScript.</p></div><form class=\"pf-context-form\" method=\"get\" action=\"/\"><label for=\"organisation-select\">Organisation</label> <select id=\"organisation-select\" name=\"organisation_id\" required><option value=\"\">Select an Organisation</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <section class=\"pf-intro\" aria-labelledby=\"launcher-title\"><div><p class=\"pf-kicker\">Shared access</p><h2 id=\"launcher-title\">Choose where to work</h2><p>Platform confirms the shared identity, Organisation and Workspace context before a product can be opened.</p></div><a class=\"pf-text-link\" href=\"/account\">Review account security</a></section><section class=\"pf-context-grid\" aria-labelledby=\"context-heading\"><div class=\"pf-section-heading\"><div><p class=\"pf-kicker\">Context</p><h2 id=\"context-heading\">Organisation and Workspace</h2></div><p>Selectors use normal forms and remain available without JavaScript.</p></div><form class=\"pf-context-form\" method=\"get\" action=\"/\"><div class=\"pf-field\"><label for=\"organisation-select\">Organisation</label> <select id=\"organisation-select\" name=\"organisation_id\" required><option value=\"\">Select an Organisation</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -62,7 +62,7 @@ func Launcher(props LauncherProps) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(organisation.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 30, Col: 37}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 31, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -85,7 +85,7 @@ func Launcher(props LauncherProps) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(organisation.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 30, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 31, Col: 96}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func Launcher(props LauncherProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select> <label for=\"workspace-select\">Workspace</label> <select id=\"workspace-select\" name=\"workspace_id\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></div><div class=\"pf-field\"><label for=\"workspace-select\">Workspace</label> <select id=\"workspace-select\" name=\"workspace_id\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -118,7 +118,7 @@ func Launcher(props LauncherProps) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(workspace.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 37, Col: 34}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 40, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
@@ -141,7 +141,7 @@ func Launcher(props LauncherProps) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(workspace.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 37, Col: 86}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 40, Col: 87}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -152,7 +152,7 @@ func Launcher(props LauncherProps) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -189,7 +189,7 @@ func Launcher(props LauncherProps) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(product.DisplayName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 56, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 60, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func Launcher(props LauncherProps) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(product.Key)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 56, Col: 125}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 60, Col: 125}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -215,7 +215,7 @@ func Launcher(props LauncherProps) templ.Component {
 					var templ_7745c5c3_Var9 templ.SafeURL
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(product.AccessURL))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 58, Col: 67}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 62, Col: 67}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -289,7 +289,7 @@ func WorkspaceSelector(props WorkspaceSelectorProps) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(props.OrganisationName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 71, Col: 136}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 75, Col: 136}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -302,7 +302,7 @@ func WorkspaceSelector(props WorkspaceSelectorProps) templ.Component {
 			var templ_7745c5c3_Var13 templ.SafeURL
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/?organisation_id=" + props.OrganisationID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 71, Col: 249}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 75, Col: 249}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -330,7 +330,7 @@ func WorkspaceSelector(props WorkspaceSelectorProps) templ.Component {
 					var templ_7745c5c3_Var14 templ.SafeURL
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/?organisation_id=" + props.OrganisationID + "&workspace_id=" + workspace.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 77, Col: 126}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 81, Col: 126}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -343,7 +343,7 @@ func WorkspaceSelector(props WorkspaceSelectorProps) templ.Component {
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(workspace.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 77, Col: 159}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 81, Col: 159}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -417,7 +417,7 @@ func ProductAccess(props ProductAccessProps) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(props.Product.Key)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 89, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 93, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -430,7 +430,7 @@ func ProductAccess(props ProductAccessProps) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(props.Product.DisplayName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 90, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 94, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -443,7 +443,7 @@ func ProductAccess(props ProductAccessProps) templ.Component {
 			var templ_7745c5c3_Var20 templ.SafeURL
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/?organisation_id=" + props.OrganisationID + "&workspace_id=" + props.WorkspaceID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 93, Col: 155}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 97, Col: 155}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -456,7 +456,7 @@ func ProductAccess(props ProductAccessProps) templ.Component {
 			var templ_7745c5c3_Var21 templ.SafeURL
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/organisations/" + props.OrganisationID + "/workspaces"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 93, Col: 282}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/platform.templ`, Line: 97, Col: 282}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {

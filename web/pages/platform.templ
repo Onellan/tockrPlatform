@@ -23,20 +23,24 @@ templ Launcher(props LauncherProps) {
 				<p>Selectors use normal forms and remain available without JavaScript.</p>
 			</div>
 			<form class="pf-context-form" method="get" action="/">
-				<label for="organisation-select">Organisation</label>
-				<select id="organisation-select" name="organisation_id" required>
-					<option value="">Select an Organisation</option>
-					for _, organisation := range props.Organisations {
-						<option value={ organisation.ID } selected?={ organisation.Selected }>{ organisation.Name }</option>
-					}
-				</select>
-				<label for="workspace-select">Workspace</label>
-				<select id="workspace-select" name="workspace_id" required?={ props.OrganisationID != "" }>
-					<option value="">Select a Workspace</option>
-					for _, workspace := range props.Workspaces {
-						<option value={ workspace.ID } selected?={ workspace.Selected }>{ workspace.Name }</option>
-					}
-				</select>
+				<div class="pf-field">
+					<label for="organisation-select">Organisation</label>
+					<select id="organisation-select" name="organisation_id" required>
+						<option value="">Select an Organisation</option>
+						for _, organisation := range props.Organisations {
+							<option value={ organisation.ID } selected?={ organisation.Selected }>{ organisation.Name }</option>
+						}
+					</select>
+				</div>
+				<div class="pf-field">
+					<label for="workspace-select">Workspace</label>
+					<select id="workspace-select" name="workspace_id" required?={ props.OrganisationID != "" }>
+						<option value="">Select a Workspace</option>
+						for _, workspace := range props.Workspaces {
+							<option value={ workspace.ID } selected?={ workspace.Selected }>{ workspace.Name }</option>
+						}
+					</select>
+				</div>
 				if props.OrganisationID == "" {
 					<p class="pf-field-note">Select an Organisation to load its active Workspaces.</p>
 				}
