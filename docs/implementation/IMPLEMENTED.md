@@ -78,7 +78,7 @@ The following Platform Foundation Slices are terminally recorded:
 - Status: **Implemented / terminal**
 - Historical plan: [`plan/completed/pf-b6-s02-consumer-contract.md`](../../plan/completed/pf-b6-s02-consumer-contract.md)
 - Accepted implementation candidate: `e9de6b100eafd19ad75a4b4c3046e0107cb93f62`
-- Terminal closeout candidate: `681a4c82170e3ae0b9abb558a138875235177489`
+- Terminal closeout candidate: `9d87b50a1495776e49134249e6be009bc9dd55ca`
   (`full/local` PASS; container profiles **NOT_APPLICABLE**).
 - Evidence: independent engineering review, independent tester acceptance,
   exact-candidate format/architecture/security/quality/unit/integration and

@@ -2,7 +2,7 @@
 
 Accepted implementation candidate: `e9de6b100eafd19ad75a4b4c3046e0107cb93f62`
 
-Terminal closeout candidate: `681a4c82170e3ae0b9abb558a138875235177489`.
+Terminal closeout candidate: `9d87b50a1495776e49134249e6be009bc9dd55ca`.
 
 Plan: [`plan/completed/pf-b6-s02-consumer-contract.md`](../../../plan/completed/pf-b6-s02-consumer-contract.md)
 
@@ -15,7 +15,7 @@ Plan: [`plan/completed/pf-b6-s02-consumer-contract.md`](../../../plan/completed/
 | Claim and authority boundary | No product roles, billing, passwords, sessions, full entitlements, CTRL/IMS code or cutover | PASS |
 | Independent engineering review | Read-only review of exact candidate `e9de6b1` | PASS; no R1 findings |
 | Independent tester acceptance | Separate uncached acceptance run on exact candidate `e9de6b1` | PASS |
-| Exact-candidate local validation | `full/local` on `681a4c82170e3ae0b9abb558a138875235177489`, including format, architecture, security, migration, frontend, quality, unit, integration, race and container applicability | PASS / NOT_APPLICABLE where declared |
+| Exact-candidate local validation | `full/local` on `9d87b50a1495776e49134249e6be009bc9dd55ca`, including format, architecture, security, migration, frontend, quality, unit, integration, race and container applicability | PASS / NOT_APPLICABLE where declared |
 | Container profiles | AMD64 and ARM64 container builds | NOT_APPLICABLE; no authorised Dockerfile exists |
 
 The initial one-connection SQLite policy remains unchanged. No CTRL/IMS route,
