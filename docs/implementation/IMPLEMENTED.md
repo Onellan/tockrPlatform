@@ -50,8 +50,27 @@ The following Platform Foundation Slices are terminally recorded:
 - Platform owns the catalogue, Organisation entitlement, UserProductAssignment
   and shared effective-access predicate. Product-specific roles, billing and
   CTRL/IMS authority remain outside PF-B5.
-- The initial one-connection SQLite policy remains unchanged. PF-B6-S01 is the
+- The initial one-connection SQLite policy remains unchanged. PF-B6-S02 is the
   next dependency-ready Slice; no later Batch is implemented here.
+
+## PF-B6-S01 — Signed assertion issuance and verification
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b6-s01-assertions.md`](../../plan/completed/pf-b6-s01-assertions.md)
+- Accepted implementation candidate: `bf3b134e62155481cc98aad7b3613ccdc94129bd`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/quality/unit, SQLite/HTTP
+  integration and repository-wide race validation all passed.
+- Platform now issues a short-lived, versioned Ed25519 assertion only after
+  the central effective-access proof succeeds. The strict shared claim set is
+  limited to issuer, audience, `usr_`, `org_`, `wsp_`, issued/expiry times,
+  assertion ID and version. Public-key-only consumer verification and key
+  overlap are supported.
+- Startup key configuration and the rotation runbook are explicit. The
+  initial one-connection SQLite policy is unchanged.
+- Container build profiles are **NOT_APPLICABLE** because no authorised
+  Dockerfile exists. No CTRL/IMS production code, role, data, migration or
+  authority cutover was changed.
 
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 

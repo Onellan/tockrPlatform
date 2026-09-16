@@ -7,9 +7,9 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **10 open execution plans** across **10 Batches**. PF-B1,
-PF-B2, PF-B3, PF-B4 and PF-B5 are terminal; PF-B6-S01 is the next active
-Slice. This tracker records
+Current inventory: **9 open execution plans** across **10 Batches**. PF-B1,
+PF-B2, PF-B3, PF-B4 and PF-B5 are terminal; PF-B6-S01 is terminal and PF-B6-S02
+is the next active Slice. This tracker records
 runtime implementation evidence only through the linked terminal plan and
 candidate-bound closeout evidence.
 
@@ -51,7 +51,7 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B6-S01 | **Ready** | PF-B5-S02 terminal | [Assertion signing and verification contract](active/pf-b6-s01-assertions.md) |
+| 1 | PF-B6-S02 | **Ready** | PF-B6-S01 terminal | [Consumer handoff and compatibility](active/pf-b6-s02-consumer-contract.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -62,7 +62,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B3 | S01, S02 | **Terminal** | PF-B1-S03; S01 → S02 |
 | PF-B4 | S01, S02 | **Terminal** | PF-B1-S03; S01 → S02 |
 | PF-B5 | S01, S02 | **Terminal** | PF-B2-S02 + PF-B3-S02 + PF-B4-S02; S01 → S02 |
-| PF-B6 | S01, S02 | S01 **Ready**; S02 Planned | PF-B5-S02; S01 → S02 |
+| PF-B6 | S01, S02 | S01 **Terminal**; S02 **Ready** | PF-B5-S02; S01 → S02 |
 | PF-B7 | S01, S02 | Planned | PF-B5-S02 |
 | PF-B8 | S01, S02 | Planned | PF-B6-S02 + PF-B7-S02 |
 | PF-B9 | S01, S02 | Planned | PF-B6-S02 + PF-B7-S02 |
@@ -105,8 +105,8 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver **PF-B6-S01 — Assertion signing and verification contract** from
-> [`plan/active/pf-b6-s01-assertions.md`](active/pf-b6-s01-assertions.md).
+> Deliver **PF-B6-S02 — Consumer handoff and compatibility** from
+> [`plan/active/pf-b6-s02-consumer-contract.md`](active/pf-b6-s02-consumer-contract.md).
 > Re-read the plan, verify the current candidate and repository state, implement
 > only its authorised scope, then obtain independent review and independent
 > acceptance. Repair findings sequentially, rerun exact-candidate local
@@ -115,7 +115,7 @@ programme plan.
 
 ## Closeout update
 
-PF-B5-S02 is terminal and PF-B6-S01 is promoted as the next dependency-ready
+PF-B6-S01 is terminal and PF-B6-S02 is promoted as the next dependency-ready
 Slice. For every terminal Slice:
 
 1. update `docs/implementation/IMPLEMENTED.md`;

@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1, PF-B2, PF-B3, PF-B4 and PF-B5 are terminal, PF-B6-S01 is Ready.
+**Status:** Planned / active owner-authorised programme; PF-B1, PF-B2, PF-B3, PF-B4 and PF-B5 are terminal, PF-B6-S01 is terminal and PF-B6-S02 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -50,7 +50,7 @@ MFA/recovery controls, Organisation lifecycle, canonical membership authority
 and narrow administration seams with focused acceptance evidence. PF-B4-S01
 adds Organisation-owned Workspace lifecycle, generic membership history and
 entry seams and PF-B4-S02 adds the reusable active Workspace scope guard.
-PF-B5 is terminally implemented and PF-B6-S01 is the next sequential Slice. Containers, production-data import
+PF-B5 is terminally implemented and PF-B6-S01 is terminally implemented; PF-B6-S02 is the next sequential Slice. Containers, production-data import
 and CTRL/IMS authority cutover remain out of scope.
 
 ## Plan contract
@@ -122,7 +122,7 @@ independent tester acceptance remain separate gates.
 | PF-B3 | Organisation authority | S01–S02 | **Terminal** |
 | PF-B4 | Workspace authority | S01–S02 | **Terminal** |
 | PF-B5 | Product catalogue and product access | S01–S02 | **Terminal** |
-| PF-B6 | Product assertion and consumer contract | S01–S02 | S01 **Ready**; S02 Planned |
+| PF-B6 | Product assertion and consumer contract | S01–S02 | S01 **Terminal**; S02 **Ready** |
 | PF-B7 | Events and local projection support | S01–S02 | Planned |
 | PF-B8 | Platform administration UI | S01–S02 | Planned |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | Planned |
@@ -167,7 +167,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B4-S02 | [Workspace access and scope guard — terminal](completed/pf-b4-s02-workspace-access.md) |
 | PF-B5-S01 | [Product catalogue and entitlements — terminal](completed/pf-b5-s01-product-catalogue.md) |
 | PF-B5-S02 | [User assignment and effective access — terminal](completed/pf-b5-s02-product-access.md) |
-| PF-B6-S01 | [Assertion signing and verification contract](active/pf-b6-s01-assertions.md) |
+| PF-B6-S01 | [Assertion signing and verification contract — terminal](completed/pf-b6-s01-assertions.md) |
 | PF-B6-S02 | [Consumer handoff and compatibility](active/pf-b6-s02-consumer-contract.md) |
 | PF-B7-S01 | [Platform events and outbox](active/pf-b7-s01-events.md) |
 | PF-B7-S02 | [Projection inbox and reconciliation](active/pf-b7-s02-projections.md) |
