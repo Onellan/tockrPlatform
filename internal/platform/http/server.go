@@ -23,8 +23,9 @@ import (
 )
 
 const (
-	sessionCookieName = "platform_session"
-	loginCSRFCookie   = "platform_login_csrf"
+	sessionCookieName             = "platform_session"
+	loginCSRFCookie               = "platform_login_csrf"
+	defaultRequestBodyLimit int64 = 1 << 20
 )
 
 type Config struct {
@@ -35,6 +36,8 @@ type Config struct {
 	StaticDir            string
 	LoginLimiter         auth.LoginLimiterConfig
 	AssertionIssuer      *assertion.Issuer
+	ReadinessCheck       func(context.Context) error
+	MaxRequestBodyBytes  int64
 }
 
 type Server struct {
@@ -56,14 +59,18 @@ func NewServer(persistence store.PlatformStore, cfg Config) *Server {
 	if !cfg.AllowInsecureCookies {
 		cfg.CookieSecure = true
 	}
+	if cfg.MaxRequestBodyBytes <= 0 {
+		cfg.MaxRequestBodyBytes = defaultRequestBodyLimit
+	}
 	return &Server{store: persistence, cfg: cfg, limiter: auth.NewLoginLimiter(cfg.LoginLimiter)}
 }
 
 func (s *Server) Handler() http.Handler {
 	r := chi.NewRouter()
 	r.Use(s.securityHeaders)
-	r.Get("/healthz", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
-	r.Get("/readyz", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	r.Use(s.requestBodyLimit)
+	r.Get("/healthz", s.health)
+	r.Get("/readyz", s.ready)
 	r.Get("/.well-known/tockr-platform-assertion-keys", s.assertionKeys)
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir(s.cfg.StaticDir))))
 	r.Get("/login", s.loginPage)
@@ -139,6 +146,30 @@ func (s *Server) securityHeaders(next http.Handler) http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "DENY")
 		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.Header().Set("Permissions-Policy", "camera=(), geolocation=(), microphone=(), payment=(), usb=()")
+		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+		w.Header().Set("Cross-Origin-Resource-Policy", "same-origin")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+}
+
+func (s *Server) ready(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.ReadinessCheck != nil {
+		if err := s.cfg.ReadinessCheck(r.Context()); err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"status": "not_ready"})
+			return
+		}
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
+}
+
+func (s *Server) requestBodyLimit(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, s.cfg.MaxRequestBodyBytes)
 		next.ServeHTTP(w, r)
 	})
 }
@@ -1075,7 +1106,7 @@ func (s *Server) verifyMutationCSRF(w http.ResponseWriter, r *http.Request) bool
 }
 
 func decodeJSON(w http.ResponseWriter, r *http.Request, target any) bool {
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	r.Body = http.MaxBytesReader(w, r.Body, defaultRequestBodyLimit)
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(target); err != nil {
@@ -1347,7 +1378,7 @@ func (s *Server) loadSession(r *http.Request) (store.AuthenticatedSession, error
 }
 
 func parseBoundedForm(w http.ResponseWriter, r *http.Request) error {
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	r.Body = http.MaxBytesReader(w, r.Body, defaultRequestBodyLimit)
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
 		return err

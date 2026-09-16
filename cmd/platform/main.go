@@ -2,53 +2,92 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
+	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/Onellan/tockrplatform/internal/db/sqlite"
 	"github.com/Onellan/tockrplatform/internal/platform/assertion"
+	platformconfig "github.com/Onellan/tockrplatform/internal/platform/config"
 	httpserver "github.com/Onellan/tockrplatform/internal/platform/http"
 )
 
 func main() {
-	path := os.Getenv("PLATFORM_DB_PATH")
-	if path == "" {
-		path = "platform.db"
+	if err := run(context.Background(), os.Getenv); err != nil {
+		log.Print(err)
+		os.Exit(1)
 	}
-	keyText := os.Getenv("PLATFORM_MFA_KEY")
-	if keyText == "" {
-		log.Fatal("PLATFORM_MFA_KEY must be configured as 64 hex characters")
-	}
-	secretKey, err := hex.DecodeString(keyText)
-	if err != nil || len(secretKey) != 32 {
-		log.Fatal("PLATFORM_MFA_KEY must be configured as 64 hex characters")
-	}
-	store, err := sqlite.OpenWithKey(context.Background(), path, secretKey)
+}
+
+func run(parent context.Context, getenv func(string) string) error {
+	return runWithListener(parent, getenv, net.Listen)
+}
+
+func runWithListener(parent context.Context, getenv func(string) string, listen func(string, string) (net.Listener, error)) error {
+	cfg, err := platformconfig.FromEnvironment(getenv)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer store.Close()
-	assertionConfig, err := assertion.ConfigFromEnvironment(os.Getenv)
+	assertionConfig, err := assertion.ConfigFromEnvironment(getenv)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	assertionIssuer, err := assertion.New(assertionConfig)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	store, err := sqlite.OpenWithKey(parent, cfg.DBPath, cfg.MFAKey)
+	if err != nil {
+		return err
+	}
+	defer store.Close()
+
 	server := httpserver.NewServer(store, httpserver.Config{
-		AllowInsecureCookies: os.Getenv("PLATFORM_ALLOW_INSECURE_COOKIES") == "1",
+		AllowInsecureCookies: cfg.AllowInsecureCookie,
 		RateLimitEnabled:     true,
 		AssertionIssuer:      assertionIssuer,
+		ReadinessCheck:       store.DB().PingContext,
 	})
-	addr := os.Getenv("PLATFORM_HTTP_ADDR")
-	if addr == "" {
-		addr = ":8080"
+	httpServer := &http.Server{
+		Addr:              cfg.HTTPAddr,
+		Handler:           server.Handler(),
+		ReadHeaderTimeout: cfg.ReadHeaderTimeout,
+		ReadTimeout:       cfg.ReadTimeout,
+		WriteTimeout:      cfg.WriteTimeout,
+		IdleTimeout:       cfg.IdleTimeout,
+		MaxHeaderBytes:    cfg.MaxHeaderBytes,
 	}
-	log.Printf("tockr Platform listening on %s", addr)
-	if err := http.ListenAndServe(addr, server.Handler()); err != nil {
-		log.Fatal(err)
+	listener, err := listen("tcp", cfg.HTTPAddr)
+	if err != nil {
+		return err
+	}
+
+	serveErr := make(chan error, 1)
+	go func() {
+		serveErr <- httpServer.Serve(listener)
+	}()
+
+	stopContext, stop := signal.NotifyContext(parent, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	select {
+	case err := <-serveErr:
+		if errors.Is(err, http.ErrServerClosed) {
+			return nil
+		}
+		return err
+	case <-stopContext.Done():
+		shutdownContext, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+		defer cancel()
+		if err := httpServer.Shutdown(shutdownContext); err != nil {
+			return err
+		}
+		if err := <-serveErr; err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
 	}
 }

@@ -22,6 +22,7 @@ REQUIRED_FOUNDATION_DOCS = (
     "docs/technical/coding-standards.md",
     "docs/technical/testing-execution-contract.md",
     "docs/technical/engineering-workflow.md",
+    "docs/technical/runtime-deployment.md",
     "plan/pf-platform-foundation.md",
 )
 RUNTIME_REQUIRED = (
@@ -31,6 +32,7 @@ RUNTIME_REQUIRED = (
     "internal/store/identity.go",
     "internal/db/sqlite/store.go",
     "internal/platform/http/server.go",
+    "internal/platform/config/config.go",
     "web/templates/auth_templ.go",
     "web/layouts/layouts_templ.go",
     "web/pages/platform_templ.go",
@@ -66,6 +68,16 @@ def run_command(command: Sequence[str], timeout: int = 180) -> dict[str, object]
     except subprocess.TimeoutExpired:
         return {"status": "TIMEOUT", "reason": f"command exceeded {timeout}s", "command": list(command)}
     output = (result.stdout + result.stderr).strip()
+    if result.returncode != 0:
+        lowered = output.lower()
+        environment_markers = (
+            "failed to connect to the docker api",
+            "cannot connect to the docker daemon",
+            "is the docker daemon running",
+            "dockerdesktoplinuxengine",
+        )
+        if any(marker in lowered for marker in environment_markers):
+            return {"status": "ENV_FAIL", "command": list(command), "output": output[-4000:]}
     return {
         "status": "PASS" if result.returncode == 0 else "TEST_FAIL",
         "command": list(command),
@@ -90,12 +102,14 @@ def run_one(profile: str) -> dict[str, object]:
                 "reason": f"runtime prerequisite not introduced yet: {definition['prerequisite']}",
             }
         commands = {
-            "unit": ["go", "test", "./internal/domain", "./internal/auth", "./internal/store", "./internal/platform/reconciliation", "./web/templates"],
+            "unit": ["go", "test", "./internal/domain", "./internal/auth", "./internal/store", "./internal/platform/assertion", "./internal/platform/config", "./internal/platform/reconciliation", "./web/templates"],
             "integration": ["go", "test", "./internal/db/sqlite", "./internal/platform/http"],
             "migration": ["go", "test", "./internal/db/sqlite"],
             "race": ["go", "test", "-race", "./..."],
+            "build-amd64": ["docker", "buildx", "build", "--platform", "linux/amd64", "--file", "Dockerfile", "--tag", "tockrplatform:validation-amd64", "--load", "."],
+            "build-arm64": ["docker", "buildx", "build", "--platform", "linux/arm64", "--file", "Dockerfile", "--tag", "tockrplatform:validation-arm64", "--load", "."],
         }
-        timeout = 300 if profile == "race" else 180
+        timeout = 600 if profile.startswith("build-") else (900 if profile == "race" else 180)
         result = run_command(commands[profile], timeout=timeout)
         return {"profile": profile, **result}
 

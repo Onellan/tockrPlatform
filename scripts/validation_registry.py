@@ -1,8 +1,9 @@
 """Platform-local validation profile registry.
 
 Runtime profiles become executable as soon as the owning Slice introduces the
-Go/SQLite surface. Container profiles remain explicit NOT_APPLICABLE until a
-container build is authorised by a later Slice.
+Go/SQLite surface. Container profiles become executable when the authorised
+Dockerfile exists; environment/tool failures remain explicit and are never
+converted to PASS.
 """
 
 from dataclasses import dataclass
