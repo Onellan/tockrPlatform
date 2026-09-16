@@ -328,6 +328,27 @@ func supportedMigrations() []migration {
 				`CREATE INDEX user_product_assignments_scope_idx ON user_product_assignments(organisation_id,user_id,product_key,status,assigned_at,id)`,
 			},
 		},
+		{
+			version: 8,
+			name:    "platform-event-outbox",
+			statements: []string{
+				`CREATE TABLE platform_outbox (
+					id INTEGER PRIMARY KEY,
+					event_id TEXT NOT NULL UNIQUE,
+					event_type TEXT NOT NULL,
+					aggregate_type TEXT NOT NULL CHECK(aggregate_type IN ('User','Organisation','Workspace','Product','Access')),
+					aggregate_id TEXT NOT NULL,
+					sequence INTEGER NOT NULL CHECK(sequence>0),
+					schema_version INTEGER NOT NULL CHECK(schema_version=1),
+					occurred_at TEXT NOT NULL,
+					payload TEXT NOT NULL CHECK(length(payload)>1 AND length(payload)<=4096),
+					published_at TEXT,
+					UNIQUE(aggregate_type,aggregate_id,sequence)
+				)`,
+				`CREATE INDEX platform_outbox_pending_idx ON platform_outbox(published_at,id)`,
+				`CREATE INDEX platform_outbox_aggregate_idx ON platform_outbox(aggregate_type,aggregate_id,sequence)`,
+			},
+		},
 	}
 }
 

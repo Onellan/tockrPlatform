@@ -62,8 +62,8 @@ func TestUserLifecycleHasStableOpaqueIdentityAndReopens(t *testing.T) {
 	if err := reopened.DB().QueryRowContext(ctx, `SELECT MAX(version) FROM schema_migrations`).Scan(&migrationVersion); err != nil {
 		t.Fatal(err)
 	}
-	if migrationVersion != 7 {
-		t.Fatalf("migration version = %d, want 7", migrationVersion)
+	if migrationVersion != 8 {
+		t.Fatalf("migration version = %d, want 8", migrationVersion)
 	}
 }
 

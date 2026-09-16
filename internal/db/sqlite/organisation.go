@@ -38,6 +38,7 @@ type organisationMutationDetails struct {
 	MembershipID   string `json:"membership_id,omitempty"`
 	UserID         string `json:"user_id,omitempty"`
 	Role           string `json:"role,omitempty"`
+	Name           string `json:"name,omitempty"`
 	Reason         string `json:"reason,omitempty"`
 }
 
@@ -282,8 +283,9 @@ func (s *Store) DeactivateOrganisationMember(ctx context.Context, actorUserID, o
 		return err
 	}
 	var membershipID int64
+	var membershipPublicID string
 	var targetRole string
-	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, targetUserID).Scan(&membershipID, &targetRole); errors.Is(err, sql.ErrNoRows) {
+	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, targetUserID).Scan(&membershipID, &membershipPublicID, &targetRole); errors.Is(err, sql.ErrNoRows) {
 		return ErrMembershipNotFound
 	} else if err != nil {
 		return fmt.Errorf("read membership for deactivation: %w", err)
@@ -303,7 +305,7 @@ func (s *Store) DeactivateOrganisationMember(ctx context.Context, actorUserID, o
 	} else if rows != 1 {
 		return ErrMembershipNotFound
 	}
-	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventMembershipDeactivated, organisationMutationDetails{OrganisationID: organisationID, UserID: targetUserID, Reason: strings.TrimSpace(reason)}, at); err != nil {
+	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventMembershipDeactivated, organisationMutationDetails{OrganisationID: organisationID, MembershipID: membershipPublicID, UserID: targetUserID, Role: targetRole, Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return err
 	}
 	if err := tx.Commit(); err != nil {
@@ -411,7 +413,7 @@ func (s *Store) RenameOrganisation(ctx context.Context, actorUserID, organisatio
 	} else if rows != 1 {
 		return domain.Organisation{}, ErrOrganisationArchived
 	}
-	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventOrganisationRenamed, organisationMutationDetails{OrganisationID: organisationID, Reason: strings.TrimSpace(reason)}, at); err != nil {
+	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventOrganisationRenamed, organisationMutationDetails{OrganisationID: organisationID, Name: name, Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return domain.Organisation{}, err
 	}
 	if err := tx.Commit(); err != nil {
@@ -596,6 +598,9 @@ func recordOrganisationAuditTx(ctx context.Context, tx *sql.Tx, actorInternalID 
 	}
 	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditOrganisation, organisationID, event, string(payload), formatTime(at.UTC())); err != nil {
 		return fmt.Errorf("record organisation audit: %w", err)
+	}
+	if err := appendOrganisationEventTx(ctx, tx, event, details, at); err != nil {
+		return fmt.Errorf("record organisation outbox event: %w", err)
 	}
 	return nil
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/Onellan/tockrplatform/internal/auth"
 	"github.com/Onellan/tockrplatform/internal/domain"
+	"github.com/Onellan/tockrplatform/internal/events"
 	"github.com/Onellan/tockrplatform/internal/store"
 )
 
@@ -28,10 +29,20 @@ func (s *Store) CreateUser(ctx context.Context, user domain.User, password strin
 	if user.CreatedAt.IsZero() {
 		user.CreatedAt = now
 	}
-	_, err = s.db.ExecContext(ctx, `INSERT INTO users(public_id,email,display_name,password_hash,active,created_at) VALUES(?,?,?,?,?,?)`,
-		user.ID, domain.NormalizeEmail(user.Email), strings.TrimSpace(user.DisplayName), hash, boolInt(user.Active), formatTime(user.CreatedAt))
+	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		return domain.User{}, fmt.Errorf("begin user creation: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	if _, err := tx.ExecContext(ctx, `INSERT INTO users(public_id,email,display_name,password_hash,active,created_at) VALUES(?,?,?,?,?,?)`,
+		user.ID, domain.NormalizeEmail(user.Email), strings.TrimSpace(user.DisplayName), hash, boolInt(user.Active), formatTime(user.CreatedAt)); err != nil {
 		return domain.User{}, fmt.Errorf("create user: %w", err)
+	}
+	if err := appendPlatformEventTx(ctx, tx, events.EventUserCreated, user.ID, user.CreatedAt, map[string]any{"user_id": user.ID, "active": user.Active}); err != nil {
+		return domain.User{}, fmt.Errorf("record user creation event: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return domain.User{}, fmt.Errorf("commit user creation: %w", err)
 	}
 	user.Email = domain.NormalizeEmail(user.Email)
 	user.PasswordHash = ""
@@ -92,7 +103,22 @@ func (s *Store) findUser(ctx context.Context, predicate string, arg any) (*domai
 }
 
 func (s *Store) SetUserActive(ctx context.Context, publicID string, active bool) error {
-	result, err := s.db.ExecContext(ctx, `UPDATE users SET active=? WHERE public_id=?`, boolInt(active), strings.TrimSpace(publicID))
+	publicID = strings.TrimSpace(publicID)
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin user status change: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	var current int
+	if err := tx.QueryRowContext(ctx, `SELECT active FROM users WHERE public_id=?`, publicID).Scan(&current); errors.Is(err, sql.ErrNoRows) {
+		return sql.ErrNoRows
+	} else if err != nil {
+		return fmt.Errorf("read user status: %w", err)
+	}
+	if current == boolInt(active) {
+		return nil
+	}
+	result, err := tx.ExecContext(ctx, `UPDATE users SET active=? WHERE public_id=?`, boolInt(active), publicID)
 	if err != nil {
 		return fmt.Errorf("set user active: %w", err)
 	}
@@ -100,6 +126,12 @@ func (s *Store) SetUserActive(ctx context.Context, publicID string, active bool)
 		return fmt.Errorf("check user active update: %w", err)
 	} else if rows != 1 {
 		return sql.ErrNoRows
+	}
+	if err := appendPlatformEventTx(ctx, tx, events.EventUserStatusChanged, publicID, time.Now().UTC(), map[string]any{"user_id": publicID, "active": active}); err != nil {
+		return fmt.Errorf("record user status event: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit user status change: %w", err)
 	}
 	return nil
 }

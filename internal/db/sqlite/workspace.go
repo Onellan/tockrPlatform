@@ -313,8 +313,9 @@ func (s *Store) DeactivateWorkspaceMember(ctx context.Context, actorUserID, work
 		return err
 	}
 	var membershipID int64
+	var membershipPublicID string
 	var targetRole string
-	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, targetUserID).Scan(&membershipID, &targetRole); errors.Is(err, sql.ErrNoRows) {
+	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, targetUserID).Scan(&membershipID, &membershipPublicID, &targetRole); errors.Is(err, sql.ErrNoRows) {
 		return ErrWorkspaceMembershipNotFound
 	} else if err != nil {
 		return fmt.Errorf("read workspace membership for deactivation: %w", err)
@@ -328,7 +329,7 @@ func (s *Store) DeactivateWorkspaceMember(ctx context.Context, actorUserID, work
 	} else if rows != 1 {
 		return ErrWorkspaceMembershipNotFound
 	}
-	if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, workspaceID, eventWorkspaceMemberRemoved, workspaceMutationDetails{WorkspaceID: workspaceID, UserID: targetUserID, Role: targetRole, Reason: strings.TrimSpace(reason)}, at); err != nil {
+	if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, workspaceID, eventWorkspaceMemberRemoved, workspaceMutationDetails{WorkspaceID: workspaceID, MembershipID: membershipPublicID, UserID: targetUserID, Role: targetRole, Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return err
 	}
 	if err := tx.Commit(); err != nil {
@@ -554,6 +555,13 @@ func recordWorkspaceAuditTx(ctx context.Context, tx *sql.Tx, actorInternalID int
 	}
 	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditWorkspace, workspaceID, event, string(payload), formatTime(at.UTC())); err != nil {
 		return fmt.Errorf("record workspace audit: %w", err)
+	}
+	var organisationID string
+	if err := tx.QueryRowContext(ctx, `SELECT o.public_id FROM workspaces w JOIN organisations o ON o.id=w.organisation_id WHERE w.public_id=?`, workspaceID).Scan(&organisationID); err != nil {
+		return fmt.Errorf("resolve workspace event organisation: %w", err)
+	}
+	if err := appendWorkspaceEventTx(ctx, tx, event, details, organisationID, at); err != nil {
+		return fmt.Errorf("record workspace outbox event: %w", err)
 	}
 	return nil
 }

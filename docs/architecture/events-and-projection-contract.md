@@ -3,6 +3,10 @@
 Platform owns the event contract needed to distribute shared identity and
 access changes. It does not own product-domain events.
 
+The v1 implementation and payload allow-list are defined in
+[`platform-events-v1.md`](../contracts/platform-events-v1.md). The envelope is
+stored in Platform's durable outbox before delivery.
+
 ## Event envelope
 
 ```text
@@ -16,8 +20,8 @@ occurred_at     committed UTC timestamp
 payload         minimum shared, non-secret facts
 ```
 
-The event is emitted only after the owning transaction commits, and the outbox
-record is part of that transaction. Delivery is at-least-once; consumers must
+The outbox record is written in the owning transaction and becomes observable
+only after that transaction commits. Delivery is at-least-once; consumers must
 be idempotent. No event contains credentials, raw session tokens, product roles
 or billing details.
 

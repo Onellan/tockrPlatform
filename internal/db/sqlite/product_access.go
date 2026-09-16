@@ -74,7 +74,7 @@ func (s *Store) AssignUserProduct(ctx context.Context, actorUserID, organisation
 	if _, err := tx.ExecContext(ctx, `INSERT INTO user_product_assignments(public_id,user_id,organisation_id,product_key,status,assigned_by,assigned_at) VALUES(?,?,?,?,'active',?,?)`, assignmentID, targetInternalID, organisationInternalID, productKey, actorInternalID, formatTime(at.UTC())); err != nil {
 		return domain.UserProductAssignment{}, fmt.Errorf("create user product assignment: %w", err)
 	}
-	if err := recordOrganisationProductAuditTx(ctx, tx, actorInternalID, organisationID, eventAssignmentGranted, productAuditDetails{ProductKey: productKey, OrganisationID: organisationID, AssignmentID: assignmentID, Status: string(domain.UserProductAssignmentActive), Reason: strings.TrimSpace(reason)}, at); err != nil {
+	if err := recordOrganisationProductAuditTx(ctx, tx, actorInternalID, organisationID, eventAssignmentGranted, productAuditDetails{ProductKey: productKey, OrganisationID: organisationID, UserID: targetUserID, AssignmentID: assignmentID, Status: string(domain.UserProductAssignmentActive), Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return domain.UserProductAssignment{}, err
 	}
 	if err := tx.Commit(); err != nil {
@@ -96,8 +96,8 @@ func (s *Store) RevokeUserProduct(ctx context.Context, actorUserID, organisation
 	}
 	defer func() { _ = tx.Rollback() }()
 	var assignmentInternalID int64
-	var productKey, status string
-	if err := tx.QueryRowContext(ctx, `SELECT a.id,a.product_key,a.status FROM user_product_assignments a JOIN organisations o ON o.id=a.organisation_id WHERE o.public_id=? AND a.public_id=?`, strings.TrimSpace(organisationID), strings.TrimSpace(assignmentID)).Scan(&assignmentInternalID, &productKey, &status); errors.Is(err, sql.ErrNoRows) {
+	var productKey, status, targetUserID string
+	if err := tx.QueryRowContext(ctx, `SELECT a.id,a.product_key,a.status,u.public_id FROM user_product_assignments a JOIN organisations o ON o.id=a.organisation_id JOIN users u ON u.id=a.user_id WHERE o.public_id=? AND a.public_id=?`, strings.TrimSpace(organisationID), strings.TrimSpace(assignmentID)).Scan(&assignmentInternalID, &productKey, &status, &targetUserID); errors.Is(err, sql.ErrNoRows) {
 		return ErrProductAssignmentNotFound
 	} else if err != nil {
 		return fmt.Errorf("resolve user product assignment revocation: %w", err)
@@ -112,7 +112,7 @@ func (s *Store) RevokeUserProduct(ctx context.Context, actorUserID, organisation
 	if _, err := tx.ExecContext(ctx, `UPDATE user_product_assignments SET status='revoked',revoked_by=?,revoked_at=?,revocation_reason=? WHERE id=? AND status='active'`, actorInternalID, formatTime(at.UTC()), strings.TrimSpace(reason), assignmentInternalID); err != nil {
 		return fmt.Errorf("revoke user product assignment: %w", err)
 	}
-	if err := recordOrganisationProductAuditTx(ctx, tx, actorInternalID, organisationID, eventAssignmentRevoked, productAuditDetails{ProductKey: productKey, OrganisationID: organisationID, AssignmentID: assignmentID, Status: string(domain.UserProductAssignmentRevoked), Reason: strings.TrimSpace(reason)}, at); err != nil {
+	if err := recordOrganisationProductAuditTx(ctx, tx, actorInternalID, organisationID, eventAssignmentRevoked, productAuditDetails{ProductKey: productKey, OrganisationID: organisationID, UserID: targetUserID, AssignmentID: assignmentID, Status: string(domain.UserProductAssignmentRevoked), Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return err
 	}
 	if err := tx.Commit(); err != nil {

@@ -32,6 +32,7 @@ const (
 type productAuditDetails struct {
 	ProductKey     string `json:"product_key"`
 	OrganisationID string `json:"organisation_id,omitempty"`
+	UserID         string `json:"user_id,omitempty"`
 	EntitlementID  string `json:"entitlement_id,omitempty"`
 	AssignmentID   string `json:"assignment_id,omitempty"`
 	Status         string `json:"status,omitempty"`
@@ -280,6 +281,9 @@ func recordProductAuditTx(ctx context.Context, tx *sql.Tx, actorInternalID int64
 	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditProduct, productKey, event, string(payload), formatTime(at.UTC())); err != nil {
 		return fmt.Errorf("record product audit: %w", err)
 	}
+	if err := appendProductEventTx(ctx, tx, event, details, at); err != nil {
+		return fmt.Errorf("record product outbox event: %w", err)
+	}
 	return nil
 }
 
@@ -290,6 +294,9 @@ func recordOrganisationProductAuditTx(ctx context.Context, tx *sql.Tx, actorInte
 	}
 	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditOrganisation, organisationID, event, string(payload), formatTime(at.UTC())); err != nil {
 		return fmt.Errorf("record organisation product audit: %w", err)
+	}
+	if err := appendAccessEventTx(ctx, tx, event, details, at); err != nil {
+		return fmt.Errorf("record access outbox event: %w", err)
 	}
 	return nil
 }

@@ -66,11 +66,12 @@ material only and supports overlap during key rotation.
 
 ## Events and projections
 
-Platform events use a versioned envelope with event ID, aggregate type/ID,
-sequence, occurred-at, schema version and redacted payload. Consumers persist
-inbox identity and last applied sequence; duplicate and out-of-order delivery
-is handled explicitly. Events are integration support, not an excuse for a
-shared database or synchronous Platform call on every product request.
+Platform events use the versioned envelope and allow-list in
+[`platform-events-v1.md`](platform-events-v1.md), with event ID, aggregate
+type/ID, sequence, occurred-at, schema version and redacted payload. Consumers
+persist inbox identity and last applied sequence; duplicate and out-of-order
+delivery is handled explicitly. Events are integration support, not an excuse
+for a shared database or synchronous Platform call on every product request.
 
 ## Compatibility
 
