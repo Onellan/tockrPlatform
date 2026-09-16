@@ -47,10 +47,10 @@ def main() -> int:
         "schema_version": 1,
         "repository": "tockrPlatform",
         "candidate": candidate(),
-        "status": "PASS" if not missing and len(plans) == 21 and runtime_status == "PASS" else "FAIL",
+        "status": "PASS" if not missing and len(plans) == 22 and runtime_status == "PASS" else "FAIL",
         "domains": {
             "architecture": "PASS" if not missing else "FAIL",
-            "delivery": "PASS" if len(plans) == 21 else "FAIL",
+            "delivery": "PASS" if len(plans) == 22 else "FAIL",
             "runtime": runtime_status,
         },
         "missing_foundation_files": missing,
