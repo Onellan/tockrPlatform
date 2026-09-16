@@ -36,6 +36,23 @@ The following Platform Foundation Slices are terminally recorded:
   Dockerfile exists. No CTRL/IMS code, data, product role, migration or
   authority cutover was changed.
 
+## PF-B5 — Product catalogue and product access
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B5-S01 and PF-B5-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `ffd051a093c07df66afc38e195b681d3bc2f444c`
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local `full/local`, migration, assignment, effective-access, HTTP,
+  audit/history, concurrency, plan-routing and boundary evidence: **PASS**;
+  container builds **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform owns the catalogue, Organisation entitlement, UserProductAssignment
+  and shared effective-access predicate. Product-specific roles, billing and
+  CTRL/IMS authority remain outside PF-B5.
+- The initial one-connection SQLite policy remains unchanged. PF-B6-S01 is the
+  next dependency-ready Slice; no later Batch is implemented here.
+
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 
 - Status: **Implemented / terminal**
