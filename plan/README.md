@@ -15,8 +15,8 @@ The completed ledger currently contains the terminal PF-B1 foundation Slices,
 the PF-B2 identity/authentication Batch, the complete PF-B3 Organisation
 authority Batch, the complete PF-B4 Workspace authority Batch, the complete
 PF-B5 product-access Batch, the complete PF-B6 product assertion/consumer
-Batch, PF-B7-S01/S02 and PF-B8-S01/S02; PF-B7 and PF-B8 are certified and the
-next active queue item is PF-B9-S01.
+Batch, PF-B7-S01/S02, PF-B8-S01/S02 and PF-B9-S01; PF-B7 and PF-B8 are
+certified and the next active queue item is PF-B9-S02.
 PF-B7 Batch certification is recorded in
 [`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
 PF-B6 Batch certification is recorded in
@@ -26,6 +26,8 @@ PF-B8-S01 reconciliation evidence is recorded in
 PF-B8-S02 reconciliation evidence and Batch certification are recorded in
 [`docs/implementation/audits/pf-b8-s02-administration.md`](../docs/implementation/audits/pf-b8-s02-administration.md)
 and [`docs/implementation/audits/pf-b8-batch-certification.md`](../docs/implementation/audits/pf-b8-batch-certification.md).
+PF-B9-S01 reconciliation evidence is recorded in
+[`docs/implementation/audits/pf-b9-s01-reconciliation.md`](../docs/implementation/audits/pf-b9-s01-reconciliation.md).
 
 Plans use the repository delivery model:
 

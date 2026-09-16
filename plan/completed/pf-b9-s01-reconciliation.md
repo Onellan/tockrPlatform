@@ -1,6 +1,6 @@
 # PF-B9-S01 — CTRL/IMS reconciliation inventory and mapping
 
-Status: Planned
+Status: **Implemented / terminal**
 
 ## Objective
 
@@ -69,3 +69,29 @@ without explicit authorization or any need to fabricate historical facts.
 
 Delete only disposable dry-run output under its scoped workspace; retain source
 systems and Platform records untouched.
+
+## Terminal evidence
+
+Accepted implementation candidate: `eafb9451572d248275f6eafe6174a547a4eceadb`.
+
+Terminal closeout candidate: to be recorded after the tracker, index and
+implementation ledger reconciliation commit.
+
+- Independent engineering review: **PASS** after sequential repairs for
+  cross-source collision propagation and same-source relationship provenance.
+- Independent tester acceptance: **PASS** for deterministic proposals,
+  collision/ambiguity blocking, exact source/version provenance, redacted
+  match-key output, unresolved relationship blocking and read-only CLI
+  operation.
+- Exact-candidate local validation: `full/local`, format, architecture,
+  security, quality, frontend, unit, focused package and race tests, `go vet`
+  and diff hygiene **PASS**. Container build profiles are
+  **NOT_APPLICABLE** because no authorised Dockerfile exists.
+- Platform keeps its initial one-connection SQLite policy. No CTRL/IMS code,
+  database, source connector, production record, product role or authority
+  cutover was changed.
+
+Detailed evidence:
+[`reconciliation`](../../docs/implementation/audits/pf-b9-s01-reconciliation.md),
+[`independent review`](../../docs/implementation/audits/pf-b9-s01-independent-review.md),
+[`independent acceptance`](../../docs/implementation/audits/pf-b9-s01-independent-acceptance.md).

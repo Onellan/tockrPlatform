@@ -393,5 +393,23 @@ The following Platform Foundation Slices are terminally recorded:
   browser and focused race evidence: **PASS**; the fixed `full/local` race
   child is retained as **TIMEOUT**, not converted to PASS. Container builds
   are **NOT_APPLICABLE** without an authorised Dockerfile.
-- PF-B9-S01 is now the next dependency-ready Slice. No CTRL/IMS authority
-  cutover or product-role ownership is claimed.
+- PF-B9-S01 is now terminally recorded below. No CTRL/IMS authority cutover or
+  product-role ownership is claimed.
+
+## PF-B9-S01 — CTRL/IMS reconciliation inventory and mapping
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b9-s01-reconciliation.md`](../../plan/completed/pf-b9-s01-reconciliation.md)
+- Accepted implementation candidate: `eafb9451572d248275f6eafe6174a547a4eceadb`
+- Evidence: deterministic normalized inventory/proposal tests, collision and
+  ambiguity blocking, source-linked relationship checks, redacted repeatable
+  CLI output, independent review, independent tester acceptance and exact
+  candidate `full/local` validation all passed. Container builds are
+  **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform now provides read-only fixture/adapter reconciliation proposals for
+  Users, Organisations, Workspaces and memberships. Source/version/source-ID
+  provenance is retained; no identity is accepted silently and unresolved
+  mappings remain blocked.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, source connector, product role, import or authority
+  cutover was changed. PF-B9-S02 is the next dependency-ready Slice.
