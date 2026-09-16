@@ -1,0 +1,51 @@
+{
+  "records": [
+    {
+      "source": "ctrl",
+      "source_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "entity": "user",
+      "source_id": "ctrl-user-001",
+      "match_key": "fixture-user-001",
+      "active": true
+    },
+    {
+      "source": "ims",
+      "source_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "entity": "user",
+      "source_id": "ims-user-009",
+      "match_key": "fixture-user-001",
+      "active": true
+    },
+    {
+      "source": "ctrl",
+      "source_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "entity": "organisation",
+      "source_id": "ctrl-org-001",
+      "match_key": "fixture-org-001",
+      "active": true
+    },
+    {
+      "source": "ctrl",
+      "source_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "entity": "workspace",
+      "source_id": "ctrl-workspace-001",
+      "match_key": "fixture-workspace-001",
+      "parent_source_id": "ctrl-org-001",
+      "parent_match_key": "fixture-org-001",
+      "active": true
+    },
+    {
+      "source": "ctrl",
+      "source_version": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "entity": "organisation_membership",
+      "source_id": "ctrl-membership-001",
+      "match_key": "fixture-org-membership-001",
+      "parent_source_id": "ctrl-org-001",
+      "parent_match_key": "fixture-org-001",
+      "user_source_id": "ctrl-user-001",
+      "user_match_key": "fixture-user-001",
+      "role": "member",
+      "active": true
+    }
+  ]
+}

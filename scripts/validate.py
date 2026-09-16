@@ -90,7 +90,7 @@ def run_one(profile: str) -> dict[str, object]:
                 "reason": f"runtime prerequisite not introduced yet: {definition['prerequisite']}",
             }
         commands = {
-            "unit": ["go", "test", "./internal/domain", "./internal/auth", "./internal/store", "./web/templates"],
+            "unit": ["go", "test", "./internal/domain", "./internal/auth", "./internal/store", "./internal/platform/reconciliation", "./web/templates"],
             "integration": ["go", "test", "./internal/db/sqlite", "./internal/platform/http"],
             "migration": ["go", "test", "./internal/db/sqlite"],
             "race": ["go", "test", "-race", "./..."],
