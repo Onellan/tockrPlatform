@@ -424,10 +424,15 @@ func validateManifestIdentity(manifest Manifest) error {
 	if manifest.ManifestID != manifestIdentity(manifest) {
 		return ErrManifestIntegrity
 	}
+	seenPlatformIDs := make(map[string]struct{}, len(manifest.Records))
 	for index, record := range manifest.Records {
 		if !validEntity(record.Entity) || record.PlatformID == "" || !isSHA256Hex(record.MatchKeySHA256) || len(record.SourceRefs) == 0 {
 			return ErrManifestIntegrity
 		}
+		if _, exists := seenPlatformIDs[record.PlatformID]; exists {
+			return ErrManifestIntegrity
+		}
+		seenPlatformIDs[record.PlatformID] = struct{}{}
 		if index > 0 && manifestRecordLess(record, manifest.Records[index-1]) {
 			return ErrManifestIntegrity
 		}

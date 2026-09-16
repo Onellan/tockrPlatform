@@ -77,6 +77,12 @@ func TestSignedManifestRequiresApprovalAndRejectsTampering(t *testing.T) {
 	if err := VerifySignedManifest(signed, publicKey); !errors.Is(err, ErrManifestIntegrity) {
 		t.Fatalf("tampered manifest error = %v, want integrity failure", err)
 	}
+	duplicate := manifest
+	duplicate.Records = append(append([]ManifestRecord(nil), manifest.Records...), manifest.Records[0])
+	duplicate.ManifestID = manifestIdentity(duplicate)
+	if _, err := SignManifest(duplicate, privateKey); !errors.Is(err, ErrManifestIntegrity) {
+		t.Fatalf("duplicate manifest error = %v, want integrity failure", err)
+	}
 }
 
 func TestFixtureImportIsDeterministicIdempotentResumableAndRollbackSafe(t *testing.T) {
