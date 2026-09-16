@@ -18,4 +18,3 @@ changes were made by this review.
 | Platform boundary | No CTRL/IMS production code, data, migration or authority cutover was added | PASS |
 
 Verdict: **PASS**. No R1 finding remains on the reviewed candidate.
-

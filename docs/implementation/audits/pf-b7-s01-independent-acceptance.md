@@ -25,4 +25,3 @@ not represented as a passing composite-profile result.
 
 Verdict: **PASS** for the Slice acceptance criteria. No CTRL/IMS runtime,
 authority or migration evidence is required or claimed.
-
