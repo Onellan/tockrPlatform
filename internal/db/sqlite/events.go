@@ -168,8 +168,18 @@ func (s *Store) ListPendingPlatformEvents(ctx context.Context, limit int) ([]sto
 		}
 		event.OccurredAt = parseTime(occurredAt)
 		event.Payload = json.RawMessage(payload)
-		if !json.Valid(event.Payload) {
-			return nil, errors.New("pending platform event payload is invalid")
+		validated := events.Event{
+			EventID:       event.EventID,
+			EventType:     event.EventType,
+			AggregateType: events.AggregateType(event.AggregateType),
+			AggregateID:   event.AggregateID,
+			Sequence:      event.Sequence,
+			SchemaVersion: event.SchemaVersion,
+			OccurredAt:    event.OccurredAt,
+			Payload:       event.Payload,
+		}
+		if err := validated.Validate(); err != nil {
+			return nil, fmt.Errorf("validate pending platform event: %w", err)
 		}
 		if publishedAt.Valid {
 			value := parseTime(publishedAt.String)
