@@ -112,6 +112,28 @@ func TestAssertionReplayAndKeyRotation(t *testing.T) {
 	}
 }
 
+func TestConsumerVerifierNeedsOnlyPublicKeys(t *testing.T) {
+	issuer, now := testIssuer(t, "key-consumer")
+	token, _, err := issuer.Issue(IssueRequest{Audience: "tockrctrl", PlatformUserID: "usr_1", OrganisationID: "org_1", WorkspaceID: "wsp_1"}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	publicKeys := issuer.PublicKeys()
+	verifier, err := NewVerifier(VerifierConfig{
+		Issuer:           "https://platform.example",
+		VerificationKeys: map[string]ed25519.PublicKey{"key-consumer": publicKeys[0].PublicKey},
+		Audiences:        []string{"tockrctrl"},
+		MaxLifetime:      5 * time.Minute,
+		ClockSkew:        5 * time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := verifier.Verify(token, now.Add(time.Second)); err != nil {
+		t.Fatalf("public-key-only consumer verification = %v", err)
+	}
+}
+
 func TestConfigFromEnvironmentRequiresExplicitKeyMaterial(t *testing.T) {
 	_, private, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {

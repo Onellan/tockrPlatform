@@ -75,6 +75,14 @@ type Config struct {
 	ClockSkew        time.Duration
 }
 
+type VerifierConfig struct {
+	Issuer           string
+	VerificationKeys map[string]ed25519.PublicKey
+	Audiences        []string
+	MaxLifetime      time.Duration
+	ClockSkew        time.Duration
+}
+
 type VerificationKey struct {
 	KeyID     string
 	Algorithm string
@@ -161,8 +169,65 @@ func New(config Config) (*Issuer, error) {
 	}, nil
 }
 
+// NewVerifier constructs the consumer-side boundary with public verification
+// keys only. Consumers never need or receive Platform private signing
+// material.
+func NewVerifier(config VerifierConfig) (*Issuer, error) {
+	issuer := strings.TrimSpace(config.Issuer)
+	if !validText(issuer, 200) || strings.ContainsAny(issuer, "\r\n") {
+		return nil, fmt.Errorf("%w: issuer", ErrConfiguration)
+	}
+	maxLifetime := config.MaxLifetime
+	if maxLifetime == 0 {
+		maxLifetime = 5 * time.Minute
+	}
+	if maxLifetime < DefaultLifetime || maxLifetime > 15*time.Minute {
+		return nil, fmt.Errorf("%w: max lifetime", ErrConfiguration)
+	}
+	clockSkew := config.ClockSkew
+	if clockSkew == 0 {
+		clockSkew = 5 * time.Second
+	}
+	if clockSkew < 0 || clockSkew > time.Minute {
+		return nil, fmt.Errorf("%w: clock skew", ErrConfiguration)
+	}
+	if len(config.Audiences) == 0 || len(config.VerificationKeys) == 0 {
+		return nil, fmt.Errorf("%w: audiences and verification keys", ErrConfiguration)
+	}
+	audiences := make(map[string]struct{}, len(config.Audiences))
+	for _, value := range config.Audiences {
+		value = strings.TrimSpace(value)
+		if !validText(value, 100) || strings.ContainsAny(value, "\r\n") {
+			return nil, fmt.Errorf("%w: audience", ErrConfiguration)
+		}
+		if _, exists := audiences[value]; exists {
+			return nil, fmt.Errorf("%w: duplicate audience", ErrConfiguration)
+		}
+		audiences[value] = struct{}{}
+	}
+	publicKeys := make(map[string]ed25519.PublicKey, len(config.VerificationKeys))
+	for keyID, publicKey := range config.VerificationKeys {
+		keyID = strings.TrimSpace(keyID)
+		if !validText(keyID, 100) || len(publicKey) != ed25519.PublicKeySize {
+			return nil, fmt.Errorf("%w: verification key", ErrConfiguration)
+		}
+		publicKeys[keyID] = append(ed25519.PublicKey(nil), publicKey...)
+	}
+	return &Issuer{
+		issuer:      issuer,
+		publicKeys:  publicKeys,
+		audiences:   audiences,
+		maxLifetime: maxLifetime,
+		clockSkew:   clockSkew,
+		replayed:    make(map[string]time.Time),
+	}, nil
+}
+
 func (i *Issuer) Issue(request IssueRequest, at time.Time) (string, Claims, error) {
 	if i == nil {
+		return "", Claims{}, ErrConfiguration
+	}
+	if len(i.privateKey) != ed25519.PrivateKeySize {
 		return "", Claims{}, ErrConfiguration
 	}
 	audience := strings.TrimSpace(request.Audience)
