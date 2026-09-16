@@ -1,6 +1,6 @@
 # PF-B8-S02 — Platform administration UI
 
-Status: Planned
+Status: **Implemented / terminal**
 
 ## Objective
 
@@ -65,3 +65,29 @@ client-only state decision.
 
 Disable the affected admin route and preserve already committed authority/audit
 facts; do not roll back by deleting membership history.
+
+## Terminal evidence
+
+Accepted implementation candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`.
+
+- Independent engineering review: **PASS**; no R1 or R2 finding remains.
+- Independent tester acceptance: **PASS** for Organisation General/Members/
+  Workspaces/Products, Workspace administration, System Admin catalogue,
+  server-side authorization, CSRF, history, responsive presentation and
+  Platform boundary.
+- Exact-candidate local validation: format, frontend, architecture, security,
+  quality, unit and integration children **PASS**. The repository composite
+  `full/local` race child exceeded its fixed 300-second bound and is recorded
+  as **TIMEOUT**, not PASS; the extended changed-package race command passed.
+- Browser evidence: signed-in wide and narrow administration journeys passed
+  semantic snapshot, visual and console inspection with zero errors/warnings.
+- Container build profiles: **NOT_APPLICABLE** because no authorised
+  Dockerfile exists.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed.
+
+Detailed evidence:
+[`reconciliation`](../../docs/implementation/audits/pf-b8-s02-administration.md),
+[`independent review`](../../docs/implementation/audits/pf-b8-s02-independent-review.md),
+[`independent acceptance`](../../docs/implementation/audits/pf-b8-s02-independent-acceptance.md).

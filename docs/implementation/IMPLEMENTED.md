@@ -111,7 +111,7 @@ The following Platform Foundation Slices are terminally recorded:
   and shared effective-access predicate. Product-specific roles, billing and
   CTRL/IMS authority remain outside PF-B5.
 - The initial one-connection SQLite policy remains unchanged. PF-B7 is
-  terminally certified above; PF-B8-S02 is now the next dependency-ready Slice
+  terminally certified above; PF-B9-S01 is now the next dependency-ready Slice
   and no later Batch is implemented here.
 
 ## PF-B6-S01 — Signed assertion issuance and verification
@@ -170,7 +170,7 @@ The following Platform Foundation Slices are terminally recorded:
   roles, billing, sessions, full entitlement detail and governance remain
   product-owned.
 - The initial one-connection SQLite policy remains unchanged. PF-B7 is
-  terminally certified above; PF-B8-S02 is now the next dependency-ready Slice
+  terminally certified above; PF-B9-S01 is now the next dependency-ready Slice
   and no later Batch or authority cutover is claimed.
 
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
@@ -360,4 +360,38 @@ The following Platform Foundation Slices are terminally recorded:
   roles and operational screens remain outside Platform.
 - The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
   production code, data, migration, product role or authority cutover was
-  changed. PF-B8-S02 is the next dependency-ready Slice.
+  changed. PF-B8 is now terminally certified and PF-B9-S01 is the next
+  dependency-ready Slice.
+
+## PF-B8-S02 — Platform administration UI
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b8-s02-administration-ui.md`](../../plan/completed/pf-b8-s02-administration-ui.md)
+- Accepted implementation candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate Organisation/Workspace/System Admin HTTP tests, CSRF and
+  fail-closed role checks, frontend/architecture/security profiles, focused
+  race validation and wide/narrow browser verification all passed. The
+  `full/local` composite race child exceeded its fixed 300-second bound and is
+  recorded as **TIMEOUT**, not PASS.
+- Platform now provides the initial server-rendered Organisation, Workspace
+  and System Admin surfaces with recorded audit/history facts. Product roles,
+  billing and CTRL/IMS operational screens remain outside Platform.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed.
+
+## PF-B8 — Platform administration UI
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B8-S01 and PF-B8-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`.
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local named profiles, authorization/CSRF, audit/history, responsive
+  browser and focused race evidence: **PASS**; the fixed `full/local` race
+  child is retained as **TIMEOUT**, not converted to PASS. Container builds
+  are **NOT_APPLICABLE** without an authorised Dockerfile.
+- PF-B9-S01 is now the next dependency-ready Slice. No CTRL/IMS authority
+  cutover or product-role ownership is claimed.

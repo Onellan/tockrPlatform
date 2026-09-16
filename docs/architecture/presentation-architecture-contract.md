@@ -1,7 +1,8 @@
 # Platform presentation architecture contract
 
 Status: foundation runtime authority; PF-B8-S01 establishes the Platform shell,
-selectors and access-gated launcher. Administration surfaces remain in PF-B8-S02.
+selectors and access-gated launcher, and PF-B8-S02 establishes the initial
+administration surfaces.
 
 ```text
 Browser
@@ -34,5 +35,6 @@ Rules:
 Initial UI surfaces are sign-in/account security, organisation/workspace
 selectors, product launcher, organisation administration, workspace
 administration and system product catalogue. PF-B8-S01 delivers the shell,
-selectors and access-gated launcher; PF-B8-S02 remains responsible for
-administration screens. CTRL/IMS operational screens are not Platform UI.
+selectors and access-gated launcher; PF-B8-S02 delivers the initial
+server-rendered administration screens with server-side authorization and
+CSRF. CTRL/IMS operational screens are not Platform UI.
