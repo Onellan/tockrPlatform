@@ -70,7 +70,7 @@ its security properties remain valid; no product cutover is rolled back here.
 
 Accepted implementation candidate: `e9de6b100eafd19ad75a4b4c3046e0107cb93f62`.
 
-Terminal closeout candidate: pending the closeout validation commit.
+Terminal closeout candidate: `681a4c82170e3ae0b9abb558a138875235177489`.
 
 - Independent engineering review: **PASS**; no R1 finding remains.
 - Independent tester acceptance: **PASS** for the audience/product matrix,
