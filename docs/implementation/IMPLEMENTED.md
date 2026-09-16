@@ -462,8 +462,8 @@ The following Platform Foundation Slices are terminally recorded:
   Platform data volume.
 - The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
   production code, data, connector, product role, production record or
-  authority cutover was changed. PF-B10-S01-R1 is terminally recorded below;
-  PF-B10-S02 is the next planned certification Slice.
+  authority cutover was changed. PF-B10-S01-R1 and PF-B10-S02 are terminally
+  recorded below; PF-B10 is certified.
 
 ## PF-B10-S01-R1 — Runtime asset packaging repair
 
