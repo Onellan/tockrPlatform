@@ -15,11 +15,13 @@ RUN mkdir -p /out/data \
 
 FROM gcr.io/distroless/static-debian12:nonroot
 
-COPY --from=build /out/platform /platform
+COPY --from=build /out/platform /app/platform
+COPY --from=build --chown=65532:65532 /src/web/static /app/web/static
 COPY --from=build --chown=65532:65532 /out/data /var/lib/tockrplatform
 
+WORKDIR /app
 USER 65532:65532
 ENV PLATFORM_DB_PATH=/var/lib/tockrplatform/platform.db
 EXPOSE 8080
 VOLUME ["/var/lib/tockrplatform"]
-ENTRYPOINT ["/platform"]
+ENTRYPOINT ["/app/platform"]

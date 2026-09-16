@@ -71,6 +71,7 @@ func (s *Server) Handler() http.Handler {
 	r.Use(s.requestBodyLimit)
 	r.Get("/healthz", s.health)
 	r.Get("/readyz", s.ready)
+	r.Get("/favicon.ico", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
 	r.Get("/.well-known/tockr-platform-assertion-keys", s.assertionKeys)
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir(s.cfg.StaticDir))))
 	r.Get("/login", s.loginPage)

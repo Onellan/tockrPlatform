@@ -165,7 +165,7 @@ def run_one(profile: str) -> dict[str, object]:
                 route_failures.append(str(path.relative_to(ROOT)))
         return {
             "profile": profile,
-            "status": "PASS" if len(plans) == 21 and routes >= 63 and not route_failures else "FAIL",
+            "status": "PASS" if len(plans) == 22 and routes >= 66 and not route_failures else "FAIL",
             "slice_plan_count": len(plans),
             "active_slice_plan_count": len(active_plans),
             "completed_slice_plan_count": len(completed_plans),

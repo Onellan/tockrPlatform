@@ -7,9 +7,9 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **1 open execution plan** across **10 Batches**. PF-B1,
-PF-B2, PF-B3, PF-B4, PF-B5, PF-B6, PF-B7, PF-B8, PF-B9 and PF-B10-S01 are
-terminal; PF-B10-S02 is the next active Slice. This tracker records
+Current inventory: **2 open execution plans** across **10 Batches**. PF-B1,
+PF-B2, PF-B3, PF-B4, PF-B5, PF-B6, PF-B7, PF-B8 and PF-B9 are terminal;
+PF-B10-S01-R1 is the active repair Slice and PF-B10-S02 is paused. This tracker records
 runtime implementation evidence only through the linked terminal plan and
 candidate-bound closeout evidence.
 
@@ -51,7 +51,7 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B10-S02 | **Ready** | PF-B10-S01 terminal | [Final Platform foundation certification](active/pf-b10-s02-final-certification.md) |
+| 1 | PF-B10-S01-R1 | **Ready** | PF-B10-S01 terminal; browser regression recorded | [Runtime asset packaging repair](active/pf-b10-s01-r1-runtime-assets.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -66,7 +66,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B7 | S01, S02 | **Terminal** | PF-B5-S02; S01 → S02 |
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
-| PF-B10 | S01, S02 | S01 **Terminal**; S02 **Ready** | PF-B8-S02 + PF-B9-S02; S01 → S02 |
+| PF-B10 | S01, S02 | S01 **Repair required**; S02 Planned | PF-B8-S02 + PF-B9-S02; S01-R1 → S02 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -107,8 +107,8 @@ programme plan.
 
 > Deliver the next active **Tockr Platform Foundation Batch** from
 > [`plan/incomplete.md`](incomplete.md). The first dependency-ready Slice is
-> **PF-B10-S02 — Final Platform foundation certification** from
-> [`plan/active/pf-b10-s02-final-certification.md`](active/pf-b10-s02-final-certification.md).
+> **PF-B10-S01-R1 — Runtime asset packaging repair** from
+> [`plan/active/pf-b10-s01-r1-runtime-assets.md`](active/pf-b10-s01-r1-runtime-assets.md).
 > Re-read the plan, verify the current candidate and repository state, implement
 > only its authorised scope, then obtain independent review and independent
 > acceptance. Repair findings sequentially, rerun exact-candidate local
@@ -130,10 +130,12 @@ S01 reconciliation evidence is recorded in
 and S02 reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b8-s02-administration.md`](../docs/implementation/audits/pf-b8-s02-administration.md).
 PF-B9-S01 and PF-B9-S02 are terminally reconciled and PF-B9 is certified.
-PF-B10-S01 is terminally implemented and reconciled in
+PF-B10-S01 is historically terminal, but its published candidate has a
+browser-discovered runtime asset packaging regression. PF-B10-S01-R1 is now
+the active repair Slice; PF-B10-S02 remains paused until the repair passes.
+The original reconciliation is recorded in
 [`docs/implementation/audits/pf-b10-s01-runtime-hardening.md`](../docs/implementation/audits/pf-b10-s01-runtime-hardening.md).
-PF-B10-S02 is now promoted as the next dependency-ready Slice. PF-B10 remains
-uncertified until S02 passes its final gates.
+PF-B10 remains uncertified until S01-R1 and S02 pass their final gates.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

@@ -52,3 +52,11 @@ func TestReadinessReturnsReadyOnlyAfterDependencyCheck(t *testing.T) {
 		t.Fatalf("ready = %d/%q", response.Code, response.Body.String())
 	}
 }
+
+func TestFaviconRouteAvoidsMissingPublicAssetRequests(t *testing.T) {
+	response := httptest.NewRecorder()
+	NewServer(nil, Config{}).Handler().ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/favicon.ico", nil))
+	if response.Code != http.StatusNoContent || response.Body.Len() != 0 {
+		t.Fatalf("favicon response = %d/%q", response.Code, response.Body.String())
+	}
+}
