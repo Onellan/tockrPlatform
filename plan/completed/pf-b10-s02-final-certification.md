@@ -15,6 +15,21 @@ acceptance evidence, implementation indexing and the terminal delivery record.
 It expands no product runtime scope and does not alter the Platform/CTRL/IMS
 boundary or the one-connection SQLite policy.
 
+## Ordered work
+
+1. Reconcile all Batch/Slice acceptance rows, dependencies, review findings and
+   stop/go decisions against one candidate.
+### WP01 - Certification ledger
+Route: kind=other; risk=H[DOC,GOV]
+2. Run complete `full/local` plus required browser/container/architecture and
+   cross-contract evidence; classify every result.
+### WP02 - Final validation
+Route: kind=other; risk=H[AUTH,DATA,UI,OPS,DEPLOY]
+3. Record terminal PF evidence and explicit future-plan boundary only after
+   every gate passes.
+### WP03 - Terminal record
+Route: kind=other; risk=H[GOV,HIST,DOC]
+
 ## Terminal evidence
 
 Validated certification candidate:
