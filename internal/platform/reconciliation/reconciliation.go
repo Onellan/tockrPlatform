@@ -169,11 +169,8 @@ func Build(inventory Inventory) Report {
 			group.reason = "multiple_records_from_one_source_require_review"
 		}
 		if group.base == StatusProposed {
-			for sourceKey, groupKeys := range sourceIdentityGroups {
-				if !strings.HasPrefix(sourceKey, string(group.records[0].record.Source)+"\x00"+string(group.entity)+"\x00") {
-					continue
-				}
-				if _, present := groupKeys[group.key]; present && len(groupKeys) > 1 {
+			for _, record := range group.records {
+				if len(sourceIdentityGroups[sourceIdentityKey(record.record)]) > 1 {
 					group.base = StatusCollision
 					group.reason = "source_identity_maps_to_multiple_canonical_keys"
 					break

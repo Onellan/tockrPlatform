@@ -81,6 +81,22 @@ func TestBuildBlocksAmbiguousAndCollidingIdentity(t *testing.T) {
 	}
 }
 
+func TestBuildPropagatesSourceIdentityCollisionAcrossMergedSources(t *testing.T) {
+	report := Build(Inventory{Records: []SourceRecord{
+		{Source: SourceIMS, SourceVersion: testVersion, Entity: EntityUser, SourceID: "ims-1", MatchKey: "user-1"},
+		{Source: SourceCTRL, SourceVersion: testVersion, Entity: EntityUser, SourceID: "ctrl-1", MatchKey: "user-1"},
+		{Source: SourceCTRL, SourceVersion: testVersion, Entity: EntityUser, SourceID: "ctrl-1", MatchKey: "user-2"},
+	}})
+	if len(report.Proposals) != 2 || report.Summary.CollisionCount != 2 {
+		t.Fatalf("report = %#v", report)
+	}
+	for _, proposal := range report.Proposals {
+		if proposal.Status != StatusCollision {
+			t.Fatalf("proposal status = %q, want collision: %#v", proposal.Status, proposal)
+		}
+	}
+}
+
 func TestBuildBlocksMissingProvenanceAndUnresolvedDependencies(t *testing.T) {
 	report := Build(Inventory{Records: []SourceRecord{
 		{Source: SourceCTRL, SourceVersion: "not-a-sha", Entity: EntityUser, SourceID: "ctrl-u", MatchKey: "user-1"},
