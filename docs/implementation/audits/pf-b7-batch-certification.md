@@ -2,7 +2,7 @@
 
 Batch: PF-B7 — Events and local projection support
 
-Accepted Batch candidate: `PENDING_BIND`
+Accepted Batch candidate: `da66f502a170cc01c6cd1e8fe690d81f42bc5dd6`
 
 ## Terminal Slice order
 

@@ -47,7 +47,7 @@ The following Platform Foundation Slices are terminally recorded:
 - Status: **Implemented / terminal Batch certification**
 - Slices PF-B7-S01 and PF-B7-S02 are terminal in `plan/completed/` and were
   delivered strictly in dependency order.
-- Accepted Batch candidate: `PENDING_BIND`.
+- Accepted Batch candidate: `da66f502a170cc01c6cd1e8fe690d81f42bc5dd6`.
 - Independent Batch engineering review and independent Batch tester
   acceptance: **PASS**.
 - Batch-local format, architecture, security, migration, frontend, quality,
