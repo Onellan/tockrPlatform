@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B9 and PF-B10-S01-R1 are terminal, and PF-B10-S02 is the next Ready certification Slice.
+**Status:** Terminal / complete at the authorised PF scope; PF-B1 through PF-B10, including PF-B10-S01-R1 and PF-B10-S02, are terminal.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -57,7 +57,7 @@ Workspace and System Admin surfaces. PF-B9-S01 and PF-B9-S02 are terminally
 implemented and PF-B9 is certified. PF-B10-S01 is terminally implemented,
 PF-B10-S01-R1 closes the browser-discovered
 static-asset packaging regression in its published container candidate.
-PF-B10-S02 is the next Ready certification Slice.
+PF-B10-S02 final certification and PF-B10 Batch certification are terminal.
 Reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b9-s01-reconciliation.md`](../docs/implementation/audits/pf-b9-s01-reconciliation.md),
 [`docs/implementation/audits/pf-b9-s02-migration-tooling.md`](../docs/implementation/audits/pf-b9-s02-migration-tooling.md),
@@ -92,6 +92,9 @@ and its linked audit files.
 PF-B10-S01-R1 reconciliation, independent review and independent acceptance
 are recorded in [`docs/implementation/audits/pf-b10-s01-r1-runtime-assets.md`](../docs/implementation/audits/pf-b10-s01-r1-runtime-assets.md)
 and its linked audit files.
+PF-B10-S02 final certification and PF-B10 Batch certification are recorded in
+[`docs/implementation/audits/pf-b10-s02-final-certification.md`](../docs/implementation/audits/pf-b10-s02-final-certification.md)
+and [`docs/implementation/audits/pf-b10-batch-certification.md`](../docs/implementation/audits/pf-b10-batch-certification.md).
 
 ## Plan contract
 
@@ -166,7 +169,7 @@ independent tester acceptance remain separate gates.
 | PF-B7 | Events and local projection support | S01–S02 | **Terminal** |
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
-| PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | S01 and S01-R1 **Terminal**; S02 **Ready** |
+| PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
 
 Total: **10 Batches, 22 Slices including the authorised S01-R1 repair**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
@@ -217,7 +220,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B9-S02 | [Dry-run/import and rollback tooling — terminal](completed/pf-b9-s02-migration-tooling.md) |
 | PF-B10-S01 | [Security and hardened runtime — terminal](completed/pf-b10-s01-runtime-hardening.md) |
 | PF-B10-S01-R1 | [Runtime asset packaging repair — terminal](completed/pf-b10-s01-r1-runtime-assets.md) |
-| PF-B10-S02 | [Final local certification](active/pf-b10-s02-final-certification.md) |
+| PF-B10-S02 | [Final local certification — terminal](completed/pf-b10-s02-final-certification.md) |
 
 ## Programme work packages
 
@@ -285,11 +288,11 @@ BLOCKED / NOT RUN into PASS.
 
 ## Completion definition and publication boundary
 
-PF is complete only when PF-B10-S02 has passed its independent review,
-independent tester acceptance, exact-candidate local validation and final
-certification, with every prior Batch terminally reconciled. The final record
-must bind the accepted candidate, plan paths, implementation ledger and
-validation evidence, and leave `main` clean when publication is required.
+PF is terminal because PF-B10-S02 passed its independent review, independent
+tester acceptance, exact-candidate local validation and final certification,
+with every prior Batch terminally reconciled. The final record binds the
+accepted candidate, plan paths, implementation ledger and validation evidence,
+and leaves `main` clean after publication.
 
 Platform publication does not authorise CTRL/IMS migration, production-data
 import or authority cutover. Those actions require their own forward plans,

@@ -7,10 +7,9 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **1 open execution plan** across **10 Batches**. PF-B1,
+Current inventory: **0 open execution plans** across **10 Batches**. PF-B1,
 PF-B2, PF-B3, PF-B4, PF-B5, PF-B6, PF-B7, PF-B8 and PF-B9 are terminal;
-PF-B10-S01 and PF-B10-S01-R1 are terminal, and PF-B10-S02 is Ready for final
-certification after the published repair closeout. This tracker records runtime
+PF-B10-S01, PF-B10-S01-R1 and PF-B10-S02 are terminal. This tracker records runtime
 implementation evidence only through the linked terminal plan and
 candidate-bound closeout evidence.
 
@@ -48,11 +47,11 @@ shared identity, tenancy and product-access authority for future CTRL and IMS
 consumers. It does not implement CTRL/IMS operational screens, billing,
 production-data import or authority cutover.
 
-The first executable item is:
+There is no remaining executable item:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B10-S02 | **Ready** | PF-B10-S01-R1 published terminal | [Final Platform foundation certification](active/pf-b10-s02-final-certification.md) |
+| — | — | **Terminal** | PF-B1 through PF-B10 are terminal | No remaining open PF Slice |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -67,7 +66,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B7 | S01, S02 | **Terminal** | PF-B5-S02; S01 → S02 |
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
-| PF-B10 | S01, S01-R1, S02 | S01 and S01-R1 **Terminal**; S02 Ready | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
+| PF-B10 | S01, S01-R1, S02 | **Terminal** | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -106,15 +105,10 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver the next active **Tockr Platform Foundation Batch** from
-> [`plan/incomplete.md`](incomplete.md). The first dependency-ready Slice is
-> **PF-B10-S02 — Final Platform foundation certification** from
-> [`plan/active/pf-b10-s02-final-certification.md`](active/pf-b10-s02-final-certification.md).
-> Re-read the plan, verify the current candidate and repository state, implement
-> only its authorised scope, then obtain independent review and independent
-> acceptance. Repair findings sequentially, rerun exact-candidate local
-> validation, and update the tracker/index and implementation reconciliation only
-> if every required gate passes. Do not implement any later Batch.
+> No first Slice remains. PF-B10-S02 and the Platform Foundation programme are
+> terminal. Create a new explicitly authorised plan before starting any future
+> Platform work; do not infer a later Slice or cross the Platform/CTRL/IMS
+> boundary from this terminal record.
 
 ## Closeout update
 
@@ -135,11 +129,12 @@ PF-B10-S01 is terminal and its published candidate's browser-discovered
 runtime asset packaging regression was repaired by PF-B10-S01-R1. R1's
 reconciliation, independent review and independent acceptance are recorded in
 [`docs/implementation/audits/pf-b10-s01-r1-runtime-assets.md`](../docs/implementation/audits/pf-b10-s01-r1-runtime-assets.md),
-with the linked audit files. PF-B10-S02 is now Ready for final certification
-after the published repair closeout.
+with the linked audit files. PF-B10-S02 final certification and PF-B10 Batch
+certification are now terminal.
 The original reconciliation is recorded in
 [`docs/implementation/audits/pf-b10-s01-runtime-hardening.md`](../docs/implementation/audits/pf-b10-s01-runtime-hardening.md).
-PF-B10 remains uncertified until S02 passes its final gates.
+PF-B10 is terminally certified; final evidence is recorded in
+[`docs/implementation/audits/pf-b10-batch-certification.md`](../docs/implementation/audits/pf-b10-batch-certification.md).
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

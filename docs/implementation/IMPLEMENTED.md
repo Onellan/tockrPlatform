@@ -476,5 +476,26 @@ The following Platform Foundation Slices are terminally recorded:
 - The repair packages the existing source-owned static assets in the hardened
   image and adds a safe `204` favicon response. It introduces no new product
   authority, schema, migration, SQLite pool change or CTRL/IMS code/data.
-- PF-B10-S02 is the next planned certification Slice; it was not started in
-  parallel with this repair.
+- PF-B10-S02 was promoted only after this repair was terminally published and
+  is certified below.
+
+## PF-B10-S02 — Final Platform foundation certification
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b10-s02-final-certification.md`](../../plan/completed/pf-b10-s02-final-certification.md)
+- Validated certification candidate: `26d6923dfc277e71a1253b110bd6f740ce3b475f`
+- Independent engineering review, independent tester acceptance, final
+  certification reconciliation and exact `full/local` validation all passed.
+- All PF plan rows and prior Batch evidence reconcile through PF-B10. No later
+  Slice was implemented in parallel, and no CTRL/IMS migration, production
+  import, authority cutover or SQLite pool upgrade is authorized.
+
+## PF-B10 — Security, runtime and final certification
+
+- Status: **Implemented / terminal Batch certification**
+- Batch certification: [`docs/implementation/audits/pf-b10-batch-certification.md`](audits/pf-b10-batch-certification.md)
+- PF-B10-S01, PF-B10-S01-R1 and PF-B10-S02 are terminal and were delivered in
+  strict dependency order with candidate-bound independent gates.
+- The Platform Foundation programme is terminal at the authorised scope. Future
+  runtime upgrades or cross-repository authority changes require a new explicit
+  plan and independent acceptance.
