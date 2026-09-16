@@ -269,6 +269,73 @@ func TestWorkspaceScopeMiddlewareBlocksTamperedRevokedAndArchivedAccess(t *testi
 	}
 }
 
+func TestAdministrationUISurfacesRespectRoleVisibilityAndCSRF(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	ownerSession, ownerCSRF := loginHTTPUser(t, f, f.users[0])
+	memberSession, memberCSRF := loginHTTPUser(t, f, f.users[2])
+
+	response := organisationHTTPRequest(t, f, http.MethodGet, "/organisations/"+f.organisation.ID+"/admin/members", ownerSession, ownerCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Organisation membership") || !strings.Contains(response.Body.String(), "Add member") || strings.Contains(response.Body.String(), "<script") {
+		t.Fatalf("owner administration page = %d/%s", response.Code, response.Body.String())
+	}
+
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/organisations/"+f.organisation.ID+"/admin/general", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "administration actions are limited") || strings.Contains(response.Body.String(), "Save name") {
+		t.Fatalf("member general page = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/organisations/"+f.organisation.ID+"/admin/members", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("member administration page = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+
+	form := url.Values{"name": {"UI Renamed Organisation"}, "reason": {"verify UI rename"}, "csrf": {ownerCSRF.Value}}
+	response = organisationFormRequest(t, f, http.MethodPost, "/organisations/"+f.organisation.ID+"/admin/general/rename", ownerSession, ownerCSRF, form)
+	if response.Code != http.StatusSeeOther {
+		t.Fatalf("owner UI rename = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationFormRequest(t, f, http.MethodPost, "/organisations/"+f.organisation.ID+"/admin/general/rename", memberSession, memberCSRF, url.Values{"name": {"forbidden"}, "reason": {"member attempt"}, "csrf": {memberCSRF.Value}})
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("member UI rename = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+	response = organisationFormRequest(t, f, http.MethodPost, "/organisations/"+f.organisation.ID+"/admin/general/rename", ownerSession, nil, url.Values{"name": {"missing csrf"}, "reason": {"missing csrf"}})
+	if response.Code != http.StatusForbidden {
+		t.Fatalf("missing UI CSRF = %d/%s, want forbidden", response.Code, response.Body.String())
+	}
+}
+
+func TestAdministrationUIWorkspaceAndSystemSurfaces(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	ownerSession, ownerCSRF := loginHTTPUser(t, f, f.users[0])
+	memberSession, memberCSRF := loginHTTPUser(t, f, f.users[2])
+	systemSession, systemCSRF := loginHTTPUser(t, f, f.users[4])
+
+	createForm := url.Values{"name": {"UI Workspace"}, "reason": {"create through UI"}, "csrf": {ownerCSRF.Value}}
+	response := organisationFormRequest(t, f, http.MethodPost, "/organisations/"+f.organisation.ID+"/admin/workspaces/create", ownerSession, ownerCSRF, createForm)
+	if response.Code != http.StatusSeeOther {
+		t.Fatalf("owner UI workspace create = %d/%s", response.Code, response.Body.String())
+	}
+	workspaces, err := f.store.ListOrganisationWorkspaces(context.Background(), f.users[0].ID, f.organisation.ID)
+	if err != nil || len(workspaces) != 1 {
+		t.Fatalf("UI workspaces = %#v, err=%v", workspaces, err)
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/workspaces/"+workspaces[0].ID+"/admin", ownerSession, ownerCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Workspace access") || !strings.Contains(response.Body.String(), "Add Workspace member") {
+		t.Fatalf("owner workspace UI = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/workspaces/"+workspaces[0].ID+"/admin", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("non-member workspace UI = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/admin/system/products", systemSession, systemCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Product catalogue") || strings.Contains(response.Body.String(), "product_role") {
+		t.Fatalf("system product UI = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationHTTPRequest(t, f, http.MethodGet, "/admin/system/products", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("non-system product UI = %d/%s, want safe not found", response.Code, response.Body.String())
+	}
+}
+
 func loginHTTPUser(t *testing.T, f organisationHTTPFixture, user domain.User) (*http.Cookie, *http.Cookie) {
 	t.Helper()
 	page := httptest.NewRecorder()
@@ -303,6 +370,21 @@ func organisationHTTPRequest(t *testing.T, f organisationHTTPFixture, method, pa
 	if csrfMode == "csrf-header" && csrf != nil {
 		request.Header.Set("X-CSRF-Token", csrf.Value)
 	}
+	if session != nil {
+		request.AddCookie(session)
+	}
+	if csrf != nil {
+		request.AddCookie(csrf)
+	}
+	response := httptest.NewRecorder()
+	f.h.ServeHTTP(response, request)
+	return response
+}
+
+func organisationFormRequest(t *testing.T, f organisationHTTPFixture, method, path string, session, csrf *http.Cookie, form url.Values) *httptest.ResponseRecorder {
+	t.Helper()
+	request := httptest.NewRequest(method, path, strings.NewReader(form.Encode()))
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	if session != nil {
 		request.AddCookie(session)
 	}

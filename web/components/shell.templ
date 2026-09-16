@@ -18,6 +18,7 @@ templ Sidebar(user domain.User, csrfToken, activePath string) {
 			<p class="pf-nav-label">Operate</p>
 			<a class={ navClass(activePath, "/") } href="/">Launcher</a>
 			<a class={ navClass(activePath, "/organisations") } href="/organisations">Organisations</a>
+			<a class={ navClass(activePath, "/admin") } href="/admin">Administration</a>
 			<p class="pf-nav-label">Identity</p>
 			<a class={ navClass(activePath, "/account") } href="/account">Account security</a>
 		</nav>

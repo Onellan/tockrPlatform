@@ -223,7 +223,8 @@ func (s *Server) uiNotFoundOrError(w http.ResponseWriter, err error) {
 	if errors.Is(err, store.ErrOrganisationNotFound) || errors.Is(err, store.ErrOrganisationArchived) ||
 		errors.Is(err, store.ErrUnauthorisedOrganisationAction) || errors.Is(err, store.ErrAccessScopeDenied) ||
 		errors.Is(err, store.ErrWorkspaceNotFound) || errors.Is(err, store.ErrWorkspaceArchived) ||
-		errors.Is(err, store.ErrUnauthorisedWorkspaceAction) || errors.Is(err, store.ErrProductAccessDenied) {
+		errors.Is(err, store.ErrUnauthorisedWorkspaceAction) || errors.Is(err, store.ErrProductAccessDenied) ||
+		errors.Is(err, store.ErrUnauthorisedProductAction) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
