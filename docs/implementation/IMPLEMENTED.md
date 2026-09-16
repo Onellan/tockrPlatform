@@ -50,7 +50,7 @@ The following Platform Foundation Slices are terminally recorded:
 - Platform owns the catalogue, Organisation entitlement, UserProductAssignment
   and shared effective-access predicate. Product-specific roles, billing and
   CTRL/IMS authority remain outside PF-B5.
-- The initial one-connection SQLite policy remains unchanged. PF-B6-S02 is the
+- The initial one-connection SQLite policy remains unchanged. PF-B7-S01 is the
   next dependency-ready Slice; no later Batch is implemented here.
 
 ## PF-B6-S01 — Signed assertion issuance and verification
@@ -72,6 +72,25 @@ The following Platform Foundation Slices are terminally recorded:
 - Container build profiles are **NOT_APPLICABLE** because no authorised
   Dockerfile exists. No CTRL/IMS production code, role, data, migration or
   authority cutover was changed.
+
+## PF-B6-S02 — Consumer handoff and compatibility
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b6-s02-consumer-contract.md`](../../plan/completed/pf-b6-s02-consumer-contract.md)
+- Accepted implementation candidate: `e9de6b100eafd19ad75a4b4c3046e0107cb93f62`
+- Terminal closeout candidate: pending the closeout validation commit.
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/quality/unit/integration and
+  repository-wide race validation all passed; uncached assertion and HTTP
+  acceptance tests also passed.
+- Platform now publishes the bounded v1 consumer compatibility matrix for
+  `tockrctrl` and `tockrims`, with explicit product pairing and fail-closed
+  unauthenticated, forbidden, stale, unavailable and version-mismatch classes.
+  Product roles, billing, sessions, full entitlement detail and governance
+  remain product-owned.
+- The initial one-connection SQLite policy is unchanged. Container build
+  profiles are **NOT_APPLICABLE** without an authorised Dockerfile. No CTRL/IMS
+  production code, data, migration or authority cutover was changed.
 
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 
