@@ -18,6 +18,24 @@ The following Platform Foundation Slices are terminally recorded:
 - No CTRL/IMS code, data, product role, migration or authority cutover was
   changed.
 
+## PF-B5-S02 — User assignment and effective product access
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b5-s02-product-access.md`](../../plan/completed/pf-b5-s02-product-access.md)
+- Accepted implementation candidate: `1fbdb1a5a82b3e397d166d2cc24516d4cbf03597`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/migration/quality/unit,
+  SQLite/HTTP integration and race validation all passed.
+- Platform now owns the history-preserving UserProductAssignment lifecycle and
+  one deny-by-default effective-access predicate requiring active identity,
+  Organisation membership, entitlement, assignment, Product, Workspace and
+  permitted scope. Product-specific roles remain outside the proof.
+- Migration 7 and the assignment HTTP seams preserve safe scope, CSRF and
+  audit behavior. The initial one-connection SQLite policy is unchanged.
+- Container build profiles are **NOT_APPLICABLE** because no authorised
+  Dockerfile exists. No CTRL/IMS code, data, product role, migration or
+  authority cutover was changed.
+
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 
 - Status: **Implemented / terminal**

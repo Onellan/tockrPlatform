@@ -13,8 +13,8 @@ while retaining Platform's `Priority → Batch → Slice` structure.
 
 The completed ledger currently contains the terminal PF-B1 foundation Slices,
 the PF-B2 identity/authentication Batch, the complete PF-B3 Organisation
-authority Batch, the complete PF-B4 Workspace authority Batch and PF-B5-S01;
-the next active queue item is PF-B5-S02.
+authority Batch, the complete PF-B4 Workspace authority Batch and the complete
+PF-B5 product-access Batch; the next active queue item is PF-B6-S01.
 
 Plans use the repository delivery model:
 
