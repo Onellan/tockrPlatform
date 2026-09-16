@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/Onellan/tockrplatform/internal/auth"
 	"github.com/Onellan/tockrplatform/internal/domain"
+	"github.com/Onellan/tockrplatform/internal/platform/assertion"
 	"github.com/Onellan/tockrplatform/internal/store"
 	"github.com/Onellan/tockrplatform/web/templates"
 	"github.com/a-h/templ"
@@ -32,6 +34,7 @@ type Config struct {
 	RateLimitEnabled     bool
 	StaticDir            string
 	LoginLimiter         auth.LoginLimiterConfig
+	AssertionIssuer      *assertion.Issuer
 }
 
 type Server struct {
@@ -61,6 +64,7 @@ func (s *Server) Handler() http.Handler {
 	r.Use(s.securityHeaders)
 	r.Get("/healthz", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
 	r.Get("/readyz", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	r.Get("/.well-known/tockr-platform-assertion-keys", s.assertionKeys)
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir(s.cfg.StaticDir))))
 	r.Get("/login", s.loginPage)
 	r.Post("/login", s.login)
@@ -92,6 +96,7 @@ func (s *Server) Handler() http.Handler {
 		protected.Post("/api/organisations/{organisationID}/product-assignments", s.assignUserProduct)
 		protected.Delete("/api/organisations/{organisationID}/product-assignments/{assignmentID}", s.revokeUserProduct)
 		protected.Get("/api/organisations/{organisationID}/product-access/{productKey}/workspaces/{workspaceID}", s.proveProductAccess)
+		protected.Post("/api/organisations/{organisationID}/product-assertions/{productKey}/workspaces/{workspaceID}", s.issueProductAssertion)
 		workspaceRead := protected.With(s.requireWorkspaceScope(false))
 		workspaceRead.Get("/api/workspaces/{workspaceID}", s.getWorkspace)
 		workspaceAdmin := protected.With(s.requireWorkspaceScope(true))
@@ -363,6 +368,23 @@ type productAccessResponse struct {
 	WorkspaceID      string                  `json:"workspace_id"`
 	OrganisationRole domain.OrganisationRole `json:"organisation_role"`
 	WorkspaceRole    domain.WorkspaceRole    `json:"workspace_role"`
+}
+
+type productAssertionRequest struct {
+	Audience string `json:"audience"`
+}
+
+type productAssertionResponse struct {
+	Assertion        string    `json:"assertion"`
+	AssertionVersion int       `json:"assertion_version"`
+	IssuedAt         time.Time `json:"issued_at"`
+	ExpiresAt        time.Time `json:"expires_at"`
+}
+
+type assertionKeyResponse struct {
+	KeyID     string `json:"key_id"`
+	Algorithm string `json:"algorithm"`
+	PublicKey string `json:"public_key"`
 }
 
 type organisationWorkspaceEntryResponse struct {
@@ -962,6 +984,55 @@ func (s *Server) proveProductAccess(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, productAccessResponse{Allowed: true, UserID: access.UserID, OrganisationID: access.OrganisationID, ProductKey: access.ProductKey, WorkspaceID: access.WorkspaceID, OrganisationRole: access.OrganisationRole, WorkspaceRole: access.WorkspaceRole})
 }
 
+func (s *Server) issueProductAssertion(w http.ResponseWriter, r *http.Request) {
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	var request productAssertionRequest
+	if !decodeJSON(w, r, &request) {
+		return
+	}
+	session, ok := s.session(r)
+	if !ok {
+		http.Error(w, "authentication required", http.StatusUnauthorized)
+		return
+	}
+	if s.cfg.AssertionIssuer == nil {
+		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	access, err := s.store.ProveProductAccess(r.Context(), session.User.ID, chi.URLParam(r, "organisationID"), chi.URLParam(r, "productKey"), chi.URLParam(r, "workspaceID"))
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	token, claims, err := s.cfg.AssertionIssuer.Issue(assertion.IssueRequest{
+		Audience:       request.Audience,
+		PlatformUserID: access.UserID,
+		OrganisationID: access.OrganisationID,
+		WorkspaceID:    access.WorkspaceID,
+	}, time.Now().UTC())
+	if err != nil {
+		writeProductError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, productAssertionResponse{Assertion: token, AssertionVersion: claims.AssertionVersion, IssuedAt: claims.IssuedAt, ExpiresAt: claims.ExpiresAt})
+}
+
+func (s *Server) assertionKeys(w http.ResponseWriter, _ *http.Request) {
+	if s.cfg.AssertionIssuer == nil {
+		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	keys := s.cfg.AssertionIssuer.PublicKeys()
+	response := make([]assertionKeyResponse, 0, len(keys))
+	for _, key := range keys {
+		response = append(response, assertionKeyResponse{KeyID: key.KeyID, Algorithm: key.Algorithm, PublicKey: base64.RawURLEncoding.EncodeToString(key.PublicKey)})
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, http.StatusOK, response)
+}
+
 func (s *Server) verifyMutationCSRF(w http.ResponseWriter, r *http.Request) bool {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
@@ -1046,7 +1117,7 @@ func writeProductError(w http.ResponseWriter, err error) {
 		status = http.StatusNotFound
 	case errors.Is(err, store.ErrProductRetired), errors.Is(err, store.ErrEntitlementInactive), errors.Is(err, store.ErrDuplicateOrganisationEntitlement), errors.Is(err, store.ErrProductAssignmentInactive), errors.Is(err, store.ErrDuplicateUserProductAssignment):
 		status = http.StatusConflict
-	case errors.Is(err, domain.ErrInvalidProduct), errors.Is(err, domain.ErrInvalidProductKey), errors.Is(err, domain.ErrInvalidProductStatus), errors.Is(err, domain.ErrInvalidEntitlement), errors.Is(err, domain.ErrInvalidEntitlementID), errors.Is(err, domain.ErrInvalidEntitlementStatus), errors.Is(err, domain.ErrInvalidProductAssignment), errors.Is(err, domain.ErrInvalidProductAssignmentID), errors.Is(err, domain.ErrInvalidProductAssignmentStatus), errors.Is(err, domain.ErrInvalidReason):
+	case errors.Is(err, domain.ErrInvalidProduct), errors.Is(err, domain.ErrInvalidProductKey), errors.Is(err, domain.ErrInvalidProductStatus), errors.Is(err, domain.ErrInvalidEntitlement), errors.Is(err, domain.ErrInvalidEntitlementID), errors.Is(err, domain.ErrInvalidEntitlementStatus), errors.Is(err, domain.ErrInvalidProductAssignment), errors.Is(err, domain.ErrInvalidProductAssignmentID), errors.Is(err, domain.ErrInvalidProductAssignmentStatus), errors.Is(err, domain.ErrInvalidReason), errors.Is(err, assertion.ErrInvalidAudience), errors.Is(err, assertion.ErrInvalidScope), errors.Is(err, assertion.ErrInvalidAssertion):
 		status = http.StatusBadRequest
 	}
 	if status == http.StatusInternalServerError {

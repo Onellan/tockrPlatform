@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/Onellan/tockrplatform/internal/db/sqlite"
+	"github.com/Onellan/tockrplatform/internal/platform/assertion"
 	httpserver "github.com/Onellan/tockrplatform/internal/platform/http"
 )
 
@@ -29,9 +30,18 @@ func main() {
 		log.Fatal(err)
 	}
 	defer store.Close()
+	assertionConfig, err := assertion.ConfigFromEnvironment(os.Getenv)
+	if err != nil {
+		log.Fatal(err)
+	}
+	assertionIssuer, err := assertion.New(assertionConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
 	server := httpserver.NewServer(store, httpserver.Config{
 		AllowInsecureCookies: os.Getenv("PLATFORM_ALLOW_INSECURE_COOKIES") == "1",
 		RateLimitEnabled:     true,
+		AssertionIssuer:      assertionIssuer,
 	})
 	addr := os.Getenv("PLATFORM_HTTP_ADDR")
 	if addr == "" {

@@ -52,6 +52,18 @@ It excludes product roles, billing, passwords, session tokens and full
 entitlement detail. The consumer must validate signature, issuer, audience,
 version, expiry and the active access predicates at the Platform boundary.
 
+The PF-B6-S01 wire form is three URL-safe base64 segments: a strict JSON
+header, a strict JSON payload and an Ed25519 signature over `header.payload`.
+The header contains `alg=Ed25519`, the configured key ID and
+`typ=TockrPlatformAssertion`. Version 1 uses the exact allow-listed payload
+above, a two-minute default lifetime bounded by a fifteen-minute deployment
+maximum, configured consumer audiences (`tockrctrl` and/or `tockrims`), and
+opaque assertion IDs with `ast_` prefix. Consumers must reject unknown key IDs,
+algorithms, versions, audiences, expired/future assertions and replayed
+assertion IDs. Public verification keys are exposed through
+`/.well-known/tockr-platform-assertion-keys`; the endpoint contains public
+material only and supports overlap during key rotation.
+
 ## Events and projections
 
 Platform events use a versioned envelope with event ID, aggregate type/ID,
