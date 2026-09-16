@@ -122,3 +122,19 @@ func TestBuildReportsMissingRelationshipFieldsWithoutGuessing(t *testing.T) {
 		t.Fatalf("report = %#v", report)
 	}
 }
+
+func TestBuildBlocksRelationshipWhenSameSourceProvenanceIsMissing(t *testing.T) {
+	report := Build(Inventory{Records: []SourceRecord{
+		{Source: SourceCTRL, SourceVersion: testVersion, Entity: EntityUser, SourceID: "ctrl-user-1", MatchKey: "user-1"},
+		{Source: SourceCTRL, SourceVersion: testVersion, Entity: EntityOrganisation, SourceID: "ctrl-org-1", MatchKey: "org-1"},
+		{Source: SourceCTRL, SourceVersion: testVersion, Entity: EntityOrganisationMembership, SourceID: "ctrl-membership-1", MatchKey: "membership-1", ParentSourceID: "ctrl-org-missing", ParentMatchKey: "org-1", UserSourceID: "ctrl-user-1", UserMatchKey: "user-1", Role: "member"},
+	}})
+	if report.Summary.ProposalCount != 2 || report.Summary.BlockedCount != 1 {
+		t.Fatalf("report summary = %#v, proposals = %#v", report.Summary, report.Proposals)
+	}
+	for _, proposal := range report.Proposals {
+		if proposal.Entity == EntityOrganisationMembership && (proposal.Status != StatusBlocked || proposal.PlatformID != "") {
+			t.Fatalf("membership proposal = %#v", proposal)
+		}
+	}
+}

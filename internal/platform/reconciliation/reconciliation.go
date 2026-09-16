@@ -345,18 +345,27 @@ func dependenciesResolved(group *proposalGroup, groups map[string]*proposalGroup
 				parentEntity = EntityWorkspace
 			}
 			parent, ok := groups[groupKey(parentEntity, record.record.ParentMatchKey)]
-			if !ok || parent.base != StatusProposed {
+			if !ok || parent.base != StatusProposed || !hasSourceRef(parent, record.record.Source, record.record.ParentSourceID) {
 				return false
 			}
 		}
 		if requiresUser(record.record.Entity) {
 			user, ok := groups[groupKey(EntityUser, record.record.UserMatchKey)]
-			if !ok || user.base != StatusProposed {
+			if !ok || user.base != StatusProposed || !hasSourceRef(user, record.record.Source, record.record.UserSourceID) {
 				return false
 			}
 		}
 	}
 	return true
+}
+
+func hasSourceRef(group *proposalGroup, source SourceSystem, sourceID string) bool {
+	for _, record := range group.records {
+		if record.record.Source == source && record.record.SourceID == sourceID {
+			return true
+		}
+	}
+	return false
 }
 
 func sourceRefs(records []normalizedRecord) []SourceRef {
