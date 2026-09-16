@@ -16,6 +16,8 @@ product assertion/consumer Batch, PF-B7-S01/S02, PF-B8-S01/S02 and the complete
 PF-B9 reconciliation/migration Batch are terminally implemented here. PF-B7,
 PF-B8 and PF-B9 are certified; PF-B10-S01 and PF-B10-S01-R1 are terminal here
 PF-B10-S01, PF-B10-S01-R1 and PF-B10-S02 are terminal here; PF-B10 is
-certified and the PF queue has no remaining open Slice.
+certified and the original PF Foundation scope has no remaining open Slice.
+PF-B11 is a separately authorised forward extension and its active plans remain
+under `plan/active/` until independently implemented and certified.
 Planning, repository setup and validation scaffolding do not by themselves
 make a Slice Implemented.

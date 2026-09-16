@@ -7,11 +7,10 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **0 open execution plans** across **10 Batches**. PF-B1,
-PF-B2, PF-B3, PF-B4, PF-B5, PF-B6, PF-B7, PF-B8 and PF-B9 are terminal;
-PF-B10-S01, PF-B10-S01-R1 and PF-B10-S02 are terminal. This tracker records runtime
-implementation evidence only through the linked terminal plan and
-candidate-bound closeout evidence.
+Current inventory: **1 open execution plan** across **11 Batches**. PF-B1
+through PF-B10 are terminal at the original Foundation scope. PF-B11 is a
+separately authorised forward consumer-read-authority extension; its runtime
+implementation evidence is not yet terminal.
 
 ## How to use this tracker
 
@@ -47,11 +46,11 @@ shared identity, tenancy and product-access authority for future CTRL and IMS
 consumers. It does not implement CTRL/IMS operational screens, billing,
 production-data import or authority cutover.
 
-There is no remaining executable item:
+The first executable item is now PF-B11-S01:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| — | — | **Terminal** | PF-B1 through PF-B10 are terminal | No remaining open PF Slice |
+| PF-B11 | PF-B11-S01 — Read-authority contract and consumer compatibility | **Ready** | PF-B10-S02 terminal plus current CTRL/IMS PD-D5 gate evidence | [active plan](active/pf-b11-s01-read-authority-contract.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -67,6 +66,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B10 | S01, S01-R1, S02 | **Terminal** | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
+| PF-B11 | S01, S02, S03, S04 | **Planned** | PF-B10-S02 + explicit CTRL/IMS read-authority gate; S01 → S02 → S03 → S04 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -105,10 +105,11 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> No first Slice remains. PF-B10-S02 and the Platform Foundation programme are
-> terminal. Create a new explicitly authorised plan before starting any future
-> Platform work; do not infer a later Slice or cross the Platform/CTRL/IMS
-> boundary from this terminal record.
+> Deliver PF-B11 from [the Batch plan](pf-b11-shared-read-authority.md) and its
+> linked active Slice plans. Execute S01 through S04 strictly in order. This
+> forward extension provides the versioned Platform read-authority contract
+> required by CTRL and IMS; it does not implement either consumer's PD-D5-S01,
+> cutover or product-domain authority.
 
 ## Closeout update
 
