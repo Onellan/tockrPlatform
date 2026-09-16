@@ -1,6 +1,6 @@
 # PF-B7-S01 — Platform events and transactional outbox
 
-Status: Planned
+Status: **Implemented / terminal**
 
 ## Objective
 
@@ -10,8 +10,8 @@ dependency.
 
 ## Authority and current evidence
 
-Authority is `docs/architecture/events-and-projection-contract.md` and contract
-v1. CTRL/IMS PD plans call for versioned API/events and bounded local
+Authority is `docs/architecture/events-and-projection-contract.md` and
+contract v1. CTRL/IMS PD plans call for versioned API/events and bounded local
 projections, not a shared database.
 
 ## Affected files/packages
@@ -23,7 +23,6 @@ event serialization, audit and tests.
 
 1. Define event types, aggregate sequences, schema versions and redaction rules.
 ### WP01 - Ordered work package
-
 Route: kind=other; risk=H[API,HIST,DOC]
 2. Write outbox records atomically with shared-authority mutations and publish
 ### WP02 - Ordered work package
@@ -67,3 +66,29 @@ or if the payload becomes product-domain authority.
 
 Stop publication and replay from durable outbox after repair; retain committed
 facts and sequence history.
+
+## Terminal evidence
+
+Accepted implementation candidate: `bde43056446327103f8e1241ce460aebe561bdcd`.
+
+Terminal closeout candidate: `PENDING_BIND`.
+
+- Independent engineering review: **PASS**; no R1 finding remains.
+- Independent tester acceptance: **PASS** for versioned envelope allow-list,
+  transaction atomicity, migration safety, bounded delivery and redaction.
+- Exact-candidate local validation: format, architecture, security, migration,
+  frontend, quality, unit, integration and extended repository-wide race
+  evidence **PASS**. The repository composite `full/local` race child exceeded
+  its fixed 300-second timeout; that diagnostic is retained as `TIMEOUT`, not
+  reported as a pass.
+- Container build profiles: **NOT_APPLICABLE** because no authorised
+  Dockerfile exists.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed.
+
+Detailed evidence:
+[`PF-B7-S01 reconciliation`](../../docs/implementation/audits/pf-b7-s01-events.md),
+[`independent review`](../../docs/implementation/audits/pf-b7-s01-independent-review.md),
+[`independent acceptance`](../../docs/implementation/audits/pf-b7-s01-independent-acceptance.md).
+

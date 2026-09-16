@@ -13,9 +13,9 @@ while retaining Platform's `Priority → Batch → Slice` structure.
 
 The completed ledger currently contains the terminal PF-B1 foundation Slices,
 the PF-B2 identity/authentication Batch, the complete PF-B3 Organisation
-authority Batch, the complete PF-B4 Workspace authority Batch and the complete
-PF-B5 product-access Batch and PF-B6 product assertion/consumer Batch; the next
-active queue item is PF-B7-S01.
+authority Batch, the complete PF-B4 Workspace authority Batch, the complete
+PF-B5 product-access Batch, the complete PF-B6 product assertion/consumer
+Batch and PF-B7-S01; the next active queue item is PF-B7-S02.
 PF-B6 Batch certification is recorded in
 [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 
