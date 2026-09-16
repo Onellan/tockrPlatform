@@ -41,7 +41,7 @@ The following Platform Foundation Slices are terminally recorded:
 - Status: **Implemented / terminal Batch certification**
 - Slices PF-B5-S01 and PF-B5-S02 are terminal in `plan/completed/` and were
   delivered strictly in dependency order.
-- Accepted Batch candidate: `ffd051a093c07df66afc38e195b681d3bc2f444c`
+- Accepted Batch candidate: `b6b79e5d8f92041e7335aac2a4f18b80f3d73e1a`
 - Independent Batch engineering review and independent Batch tester
   acceptance: **PASS**.
 - Batch-local `full/local`, migration, assignment, effective-access, HTTP,

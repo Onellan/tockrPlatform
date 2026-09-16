@@ -1,6 +1,6 @@
 # PF-B5 Batch certification
 
-Accepted Batch candidate: `ffd051a093c07df66afc38e195b681d3bc2f444c`
+Accepted Batch candidate: `b6b79e5d8f92041e7335aac2a4f18b80f3d73e1a`
 
 | Gate | Evidence | Result |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ Accepted Batch candidate: `ffd051a093c07df66afc38e195b681d3bc2f444c`
 | One-connection policy | Existing one-connection SQLite configuration remains unchanged; future upgrade remains separately authorized | PASS |
 | Independent Batch engineering review | Read-only review of both terminal Slice outcomes and the reconciled Batch boundary | PASS; no R1 findings |
 | Independent Batch tester acceptance | Separate acceptance of both terminal Slice outcomes, migration/history/audit evidence and Batch ledger | PASS |
-| Exact-candidate local validation | `python scripts/validate.py run full/local` on the terminal S02 closeout candidate | PASS; container builds NOT_APPLICABLE without Dockerfile |
+| Exact-candidate local validation | `python scripts/validate.py run full/local` on the Batch certification candidate `b6b79e5d` | PASS; container builds NOT_APPLICABLE without Dockerfile |
 | Plan/reconciliation validation | `test_plan_routing.py`, `audit_codebase.py` and `git diff --check` | PASS |
 
 PF-B5 is terminal. PF-B6-S01 is promoted as the next dependency-ready Slice;
