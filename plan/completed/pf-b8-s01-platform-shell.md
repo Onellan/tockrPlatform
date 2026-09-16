@@ -71,6 +71,8 @@ Revert routes/templates while retaining contract docs; no access data changes.
 
 Accepted implementation candidate: `57b1669312d9336e7f5a0d0812e9135c38e75994`.
 
+Terminal closeout candidate: `e8d3d61c5fa877a9ae9fcd404a8b4ab54c079894`.
+
 - Independent engineering review: **PASS**; the initial responsive findings
   were repaired sequentially in `5d806c00ad5426ce60722584f4b51406ca2c80c5`
   and this final candidate, then the affected browser journeys were rerun.
