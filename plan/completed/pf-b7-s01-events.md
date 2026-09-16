@@ -71,7 +71,7 @@ facts and sequence history.
 
 Accepted implementation candidate: `bde43056446327103f8e1241ce460aebe561bdcd`.
 
-Terminal closeout candidate: `PENDING_BIND`.
+Terminal closeout candidate: `7ad1b8988fe81a0767b543fd09927a2d277a5e02`.
 
 - Independent engineering review: **PASS**; no R1 finding remains.
 - Independent tester acceptance: **PASS** for versioned envelope allow-list,
@@ -91,4 +91,3 @@ Detailed evidence:
 [`PF-B7-S01 reconciliation`](../../docs/implementation/audits/pf-b7-s01-events.md),
 [`independent review`](../../docs/implementation/audits/pf-b7-s01-independent-review.md),
 [`independent acceptance`](../../docs/implementation/audits/pf-b7-s01-independent-acceptance.md).
-

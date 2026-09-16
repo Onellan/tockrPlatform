@@ -2,7 +2,7 @@
 
 Accepted implementation candidate: `bde43056446327103f8e1241ce460aebe561bdcd`
 
-Terminal closeout candidate: `PENDING_BIND`
+Terminal closeout candidate: `7ad1b8988fe81a0767b543fd09927a2d277a5e02`
 
 Plan: [`plan/completed/pf-b7-s01-events.md`](../../../plan/completed/pf-b7-s01-events.md)
 
@@ -22,4 +22,3 @@ Plan: [`plan/completed/pf-b7-s01-events.md`](../../../plan/completed/pf-b7-s01-e
 The initial one-connection SQLite policy remains unchanged. No CTRL/IMS route,
 code, data, product role, migration or authority cutover was changed. PF-B7-S02
 was not implemented before this Slice closeout.
-
