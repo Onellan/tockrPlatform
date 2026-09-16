@@ -52,6 +52,8 @@ adds Organisation-owned Workspace lifecycle, generic membership history and
 entry seams and PF-B4-S02 adds the reusable active Workspace scope guard.
 PF-B5 and PF-B6 are terminally implemented; PF-B7-S01 is the next dependency-ready Slice. Containers, production-data import
 and CTRL/IMS authority cutover remain out of scope.
+PF-B6 Batch certification is recorded in
+[`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 
 ## Plan contract
 

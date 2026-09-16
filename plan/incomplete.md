@@ -116,7 +116,9 @@ programme plan.
 ## Closeout update
 
 PF-B6-S02 is terminal and PF-B7-S01 is promoted as the next dependency-ready
-Slice. PF-B6 has now been certified as a terminal Batch. For every terminal Slice:
+Slice. PF-B6 has now been certified as a terminal Batch; its certification is
+recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
+For every terminal Slice:
 
 1. update `docs/implementation/IMPLEMENTED.md`;
 2. move the immutable plan into `completed/`;

@@ -93,6 +93,24 @@ The following Platform Foundation Slices are terminally recorded:
   profiles are **NOT_APPLICABLE** without an authorised Dockerfile. No CTRL/IMS
   production code, data, migration or authority cutover was changed.
 
+## PF-B6 — Product assertion and consumer contract
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B6-S01 and PF-B6-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Batch certification candidate: pending the certification validation commit.
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local `full/local`, plan-routing, read-only codebase audit and boundary
+  checks: **PASS**; container builds **NOT_APPLICABLE** without an authorised
+  Dockerfile.
+- Platform now has a versioned Ed25519 handoff assertion and an explicit
+  consumer audience/product compatibility contract for CTRL and IMS. Product
+  roles, billing, sessions, full entitlement detail and governance remain
+  product-owned.
+- The initial one-connection SQLite policy remains unchanged. PF-B7-S01 is the
+  next dependency-ready Slice; no later Batch or authority cutover is claimed.
+
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 
 - Status: **Implemented / terminal**
