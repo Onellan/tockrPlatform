@@ -39,3 +39,19 @@ writes a deterministic report to stdout or an explicitly named disposable
 output file. It has no database flags and no production source connector.
 PF-B9-S02 owns fixture-only import-shaped workflow, checkpoints and rollback;
 production import and authority cutover remain outside PF.
+
+## Fixture-only import rehearsal
+
+PF-B9-S02 converts an entirely proposed S01 report into a deterministic
+manifest only when every record is resolved. The manifest binds the source
+report digest, opaque candidate IDs, source provenance and explicit operator
+approval. Ed25519 signing and verification fail closed for tampering or
+missing approval; the manifest scope is always `fixture-only`.
+
+The importer is an in-memory disposable rehearsal. It applies records in
+manifest order, HMAC-seals each checkpoint, resumes from the next index after
+a paused run, and returns an idempotent no-op for a completed manifest.
+Compensating rollback removes only records from the verified fixture manifest
+and appends an audit event while retaining the signed manifest and audit
+history. No Platform SQLite migration or production source connector is
+introduced.
