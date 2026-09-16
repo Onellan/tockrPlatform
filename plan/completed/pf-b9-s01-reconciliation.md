@@ -74,8 +74,7 @@ systems and Platform records untouched.
 
 Accepted implementation candidate: `eafb9451572d248275f6eafe6174a547a4eceadb`.
 
-Terminal closeout candidate: to be recorded after the tracker, index and
-implementation ledger reconciliation commit.
+Terminal closeout candidate: `9bd9f527d1a1701273f5196fc39e7a008ef50e23`.
 
 - Independent engineering review: **PASS** after sequential repairs for
   cross-source collision propagation and same-source relationship provenance.
