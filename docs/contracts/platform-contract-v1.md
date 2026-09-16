@@ -76,4 +76,6 @@ shared database or synchronous Platform call on every product request.
 
 Every contract change must state compatibility, consumer impact, migration
 strategy, rollback and the first supported version. Unknown versions fail
-closed at security-sensitive boundaries.
+closed at security-sensitive boundaries. The PF-B6 consumer audience/product
+matrix and failure taxonomy are maintained in
+[`platform-assertion-compatibility.md`](platform-assertion-compatibility.md).

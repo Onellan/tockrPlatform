@@ -359,7 +359,10 @@ func (i *Issuer) sign(claims Claims) (string, Claims, error) {
 }
 
 func (i *Issuer) validateClaims(claims Claims, now time.Time) error {
-	if claims.AssertionVersion != CurrentVersion || claims.Issuer != i.issuer {
+	if claims.AssertionVersion != CurrentVersion {
+		return ErrAssertionVersionMismatch
+	}
+	if claims.Issuer != i.issuer {
 		return ErrInvalidAssertion
 	}
 	if _, ok := i.audiences[claims.Audience]; !ok {
