@@ -12,7 +12,7 @@ implementation reconciliation.
 PF-B1 foundation Slices, the complete PF-B2 identity/authentication Batch, the
 complete PF-B3 Organisation authority Batch, the complete PF-B4 Workspace
 authority Batch, the complete PF-B5 product-access Batch, the complete PF-B6
-product assertion/consumer Batch and PF-B7-S01 are terminally implemented
-here. PF-B7-S02 remains the next active Slice.
+product assertion/consumer Batch and PF-B7-S01/S02 are terminally implemented
+here. PF-B7 Batch certification remains the next gate.
 Planning, repository setup and validation scaffolding do not by themselves
 make a Slice Implemented.

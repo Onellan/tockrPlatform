@@ -22,6 +22,26 @@ The following Platform Foundation Slices are terminally recorded:
   CTRL/IMS production code, data, product role, migration or authority cutover
   was changed.
 
+## PF-B7-S02 — Projection inbox and reconciliation support
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b7-s02-projections.md`](../../plan/completed/pf-b7-s02-projections.md)
+- Accepted implementation candidate: `07c2b23ac35645b809fea3b1fc87042932f111b9`
+- Terminal closeout candidate: `PENDING_BIND`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/migration/frontend/quality/unit,
+  SQLite/HTTP integration and extended repository-wide race validation all
+  passed. The repository composite race child exceeded its fixed 300-second
+  timeout and is retained as diagnostic `TIMEOUT`, not PASS evidence.
+- Platform now retains bounded consumer inbox identity, per-aggregate
+  checkpoints and explicit current/stale/gap/blocked/unavailable states. Gap
+  reconciliation is bounded and unknown source versions remain blocked for
+  repair; projection state is never used as unconditional authorization.
+- Migration 9 and the initial one-connection SQLite policy remain unchanged
+  after acceptance. Container build profiles are **NOT_APPLICABLE** because no
+  authorised Dockerfile exists. No CTRL/IMS production code, data, product
+  role, migration or authority cutover was changed.
+
 ## PF-B5-S01 — Product catalogue and Organisation entitlements
 
 - Status: **Implemented / terminal**
@@ -70,9 +90,9 @@ The following Platform Foundation Slices are terminally recorded:
 - Platform owns the catalogue, Organisation entitlement, UserProductAssignment
   and shared effective-access predicate. Product-specific roles, billing and
   CTRL/IMS authority remain outside PF-B5.
-- The initial one-connection SQLite policy remains unchanged. PF-B7-S01 is
-  terminally recorded below and PF-B7-S02 is the next dependency-ready Slice;
-  no later Batch is implemented here.
+- The initial one-connection SQLite policy remains unchanged. PF-B7-S01 and
+  PF-B7-S02 are terminally recorded above; PF-B7 Batch certification is the
+  next gate and no later Batch is implemented here.
 
 ## PF-B6-S01 — Signed assertion issuance and verification
 
@@ -129,9 +149,9 @@ The following Platform Foundation Slices are terminally recorded:
   consumer audience/product compatibility contract for CTRL and IMS. Product
   roles, billing, sessions, full entitlement detail and governance remain
   product-owned.
-- The initial one-connection SQLite policy remains unchanged. PF-B7-S01 is
-  terminally recorded above and PF-B7-S02 is the next dependency-ready Slice;
-  no later Batch or authority cutover is claimed.
+- The initial one-connection SQLite policy remains unchanged. PF-B7-S01 and
+  PF-B7-S02 are terminally recorded above; PF-B7 Batch certification is the
+  next gate and no later Batch or authority cutover is claimed.
 
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 

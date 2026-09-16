@@ -15,7 +15,8 @@ The completed ledger currently contains the terminal PF-B1 foundation Slices,
 the PF-B2 identity/authentication Batch, the complete PF-B3 Organisation
 authority Batch, the complete PF-B4 Workspace authority Batch, the complete
 PF-B5 product-access Batch, the complete PF-B6 product assertion/consumer
-Batch and PF-B7-S01; the next active queue item is PF-B7-S02.
+Batch and PF-B7-S01/S02; PF-B7 Batch certification is the next gate before the
+PF-B8-S01 queue item is promoted.
 PF-B6 Batch certification is recorded in
 [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 

@@ -1,6 +1,6 @@
 # PF-B7-S02 — Projection inbox and reconciliation support
 
-Status: Planned
+Status: **Implemented / terminal**
 
 ## Objective
 
@@ -12,20 +12,13 @@ explicit stale/gap/reconciliation states.
 Authority is the events/projection contract and CTRL/IMS PD resilience plans.
 Products remain owners of their local projections and product authorization.
 
-## Affected files/packages
-
-`internal/events` projection contracts, inbox schema/adapter, replay and
-reconciliation commands, observability and tests.
-
 ## Ordered work
 
 1. Define inbox identity, per-aggregate sequence, gap and stale-state model.
 ### WP01 - Ordered work package
-
 Route: kind=migration; risk=H[DATA,CONC,API]
 2. Implement idempotent apply/replay boundaries with bounded batch work.
 ### WP02 - Ordered work package
-
 Route: kind=other; risk=H[DATA,OPS,PERF]
 3. Prove duplicate, out-of-order, missing and unavailable cases remain explicit
 ### WP03 - Ordered work package
@@ -65,3 +58,29 @@ silently dropped to make a projection appear current.
 
 Pause projection consumption, preserve inbox/outbox state and replay after a
 corrective version; no destructive truncation.
+
+## Terminal evidence
+
+Accepted implementation candidate: `07c2b23ac35645b809fea3b1fc87042932f111b9`.
+
+Terminal closeout candidate: `PENDING_BIND`.
+
+- Independent engineering review: **PASS**; no R1 finding remains.
+- Independent tester acceptance: **PASS** for duplicate identity, ordered
+  apply, gap detection, bounded reconciliation, blocked unknown versions,
+  unavailable recovery and migration safety.
+- Exact-candidate local validation: format, architecture, security, migration,
+  frontend, quality, unit, integration and extended repository-wide race
+  evidence **PASS**. The repository composite `full/local` race child exceeded
+  its fixed 300-second timeout; that diagnostic is retained as `TIMEOUT`, not
+  reported as a pass.
+- Container build profiles: **NOT_APPLICABLE** because no authorised
+  Dockerfile exists.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed.
+
+Detailed evidence:
+[`PF-B7-S02 reconciliation`](../../docs/implementation/audits/pf-b7-s02-projections.md),
+[`independent review`](../../docs/implementation/audits/pf-b7-s02-independent-review.md),
+[`independent acceptance`](../../docs/implementation/audits/pf-b7-s02-independent-acceptance.md).
