@@ -1349,27 +1349,27 @@ func workspaceMembers(props WorkspaceAdminProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "\"><input type=\"hidden\" name=\"role\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, "\"><select name=\"role\" aria-label=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var71 string
-					templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.ResolveAttributeValue(member.RoleChange)
+					templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.ResolveAttributeValue("New role for " + member.DisplayName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/admin.templ`, Line: 219, Col: 278}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/admin.templ`, Line: 219, Col: 289}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var71)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "\"><input type=\"hidden\" name=\"reason\" value=\"Updated from Platform administration\"><button class=\"pf-text-button\" type=\"submit\">Change role</button></form><form method=\"post\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "\"><option value=\"viewer\">Viewer</option><option value=\"member\">Member</option><option value=\"admin\">Administrator</option></select><input type=\"hidden\" name=\"reason\" value=\"Updated from Platform administration\"><button class=\"pf-text-button\" type=\"submit\">Change role</button></form><form method=\"post\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var72 templ.SafeURL
 					templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/workspaces/" + props.WorkspaceID + "/admin/members/" + member.UserID + "/remove"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/admin.templ`, Line: 219, Col: 563}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/admin.templ`, Line: 219, Col: 701}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var72))
 					if templ_7745c5c3_Err != nil {
@@ -1382,7 +1382,7 @@ func workspaceMembers(props WorkspaceAdminProps) templ.Component {
 					var templ_7745c5c3_Var73 string
 					templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.ResolveAttributeValue(props.CSRF)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/admin.templ`, Line: 219, Col: 617}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/admin.templ`, Line: 219, Col: 755}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var73)
 					if templ_7745c5c3_Err != nil {

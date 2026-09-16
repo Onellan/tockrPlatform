@@ -318,13 +318,20 @@ func TestAdministrationUIWorkspaceAndSystemSurfaces(t *testing.T) {
 	if err != nil || len(workspaces) != 1 {
 		t.Fatalf("UI workspaces = %#v, err=%v", workspaces, err)
 	}
+	if _, err := f.store.AddWorkspaceMember(context.Background(), f.users[0].ID, workspaces[0].ID, f.users[2].ID, domain.WorkspaceViewer, "grant viewer UI access", time.Now().UTC()); err != nil {
+		t.Fatal(err)
+	}
 	response = organisationHTTPRequest(t, f, http.MethodGet, "/workspaces/"+workspaces[0].ID+"/admin", ownerSession, ownerCSRF, "", "")
 	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Workspace access") || !strings.Contains(response.Body.String(), "Add Workspace member") {
 		t.Fatalf("owner workspace UI = %d/%s", response.Code, response.Body.String())
 	}
 	response = organisationHTTPRequest(t, f, http.MethodGet, "/workspaces/"+workspaces[0].ID+"/admin", memberSession, memberCSRF, "", "")
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "visible to Workspace administrators") || strings.Contains(response.Body.String(), "Add Workspace member") {
+		t.Fatalf("viewer workspace UI = %d/%s", response.Code, response.Body.String())
+	}
+	response = organisationFormRequest(t, f, http.MethodPost, "/workspaces/"+workspaces[0].ID+"/admin/members/add", memberSession, memberCSRF, url.Values{"user_id": {f.users[3].ID}, "role": {"member"}, "reason": {"viewer attempt"}, "csrf": {memberCSRF.Value}})
 	if response.Code != http.StatusNotFound {
-		t.Fatalf("non-member workspace UI = %d/%s, want safe not found", response.Code, response.Body.String())
+		t.Fatalf("viewer workspace mutation = %d/%s, want safe not found", response.Code, response.Body.String())
 	}
 	response = organisationHTTPRequest(t, f, http.MethodGet, "/admin/system/products", systemSession, systemCSRF, "", "")
 	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Product catalogue") || strings.Contains(response.Body.String(), "product_role") {
