@@ -80,6 +80,8 @@ older unsafe claims as a compatibility shortcut.
 
 Accepted implementation candidate: `bf3b134e62155481cc98aad7b3613ccdc94129bd`.
 
+Terminal closeout candidate: `cfe24a25e663147f07f8c1d5d5e8fe1e17246477`.
+
 - Independent engineering review: **PASS**, with the public-key-only consumer
   verification repair reviewed as a material candidate change and no remaining
   R1 findings.
@@ -90,6 +92,8 @@ Accepted implementation candidate: `bf3b134e62155481cc98aad7b3613ccdc94129bd`.
 - Exact-candidate local validation on the implementation candidate:
   `format`, `architecture`, `security`, `quality`, `unit`, `integration` and
   repository-wide `race`: **PASS**.
+- Exact-candidate `full/local`, plan routing and read-only codebase audit on
+  the terminal closeout candidate: **PASS**.
 - Container build profiles: **NOT_APPLICABLE** because no authorised
   Dockerfile exists.
 - The initial one-connection SQLite policy remains unchanged. No CTRL/IMS

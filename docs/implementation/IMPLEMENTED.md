@@ -58,6 +58,7 @@ The following Platform Foundation Slices are terminally recorded:
 - Status: **Implemented / terminal**
 - Historical plan: [`plan/completed/pf-b6-s01-assertions.md`](../../plan/completed/pf-b6-s01-assertions.md)
 - Accepted implementation candidate: `bf3b134e62155481cc98aad7b3613ccdc94129bd`
+- Terminal closeout candidate: `cfe24a25e663147f07f8c1d5d5e8fe1e17246477`
 - Evidence: independent engineering review, independent tester acceptance,
   exact-candidate format/architecture/security/quality/unit, SQLite/HTTP
   integration and repository-wide race validation all passed.
