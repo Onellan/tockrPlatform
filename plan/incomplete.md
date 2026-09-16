@@ -8,8 +8,8 @@ plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
 Current inventory: **6 open execution plans** across **10 Batches**. PF-B1,
-PF-B2, PF-B3, PF-B4, PF-B5, PF-B6, PF-B7-S01 and PF-B7-S02 are terminal; PF-B7
-Batch certification is the next gate. This tracker records
+PF-B2, PF-B3, PF-B4, PF-B5, PF-B6 and PF-B7 are terminal; PF-B8-S01 is the next
+active Slice. This tracker records
 runtime implementation evidence only through the linked terminal plan and
 candidate-bound closeout evidence.
 
@@ -51,7 +51,7 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B8-S01 | **Blocked pending PF-B7 certification** | PF-B6-S02 + PF-B7-S02 + PF-B7 Batch certification | [Layouts, selectors and launcher](active/pf-b8-s01-platform-shell.md) |
+| 1 | PF-B8-S01 | **Ready** | PF-B6-S02 + PF-B7-S02 terminal | [Layouts, selectors and launcher](active/pf-b8-s01-platform-shell.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -63,8 +63,8 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B4 | S01, S02 | **Terminal** | PF-B1-S03; S01 → S02 |
 | PF-B5 | S01, S02 | **Terminal** | PF-B2-S02 + PF-B3-S02 + PF-B4-S02; S01 → S02 |
 | PF-B6 | S01, S02 | **Terminal** | PF-B5-S02; S01 → S02 |
-| PF-B7 | S01, S02 | S01 **Terminal**; S02 **Terminal**; Batch certification pending | PF-B5-S02; S01 → S02 |
-| PF-B8 | S01, S02 | Planned | PF-B6-S02 + PF-B7-S02 |
+| PF-B7 | S01, S02 | **Terminal** | PF-B5-S02; S01 → S02 |
+| PF-B8 | S01, S02 | S01 **Ready**; S02 Planned | PF-B6-S02 + PF-B7-S02 |
 | PF-B9 | S01, S02 | Planned | PF-B6-S02 + PF-B7-S02 |
 | PF-B10 | S01, S02 | Planned | PF-B8-S02 + PF-B9-S02 |
 
@@ -105,8 +105,8 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver the next active **Tockr Platform Foundation Batch** only after PF-B7
-> Batch certification is terminal. The next implementation Slice is
+> Deliver the next active **Tockr Platform Foundation Batch** from
+> [`plan/incomplete.md`](incomplete.md). The first dependency-ready Slice is
 > **PF-B8-S01 — Layouts, selectors and launcher** from
 > [`plan/active/pf-b8-s01-platform-shell.md`](active/pf-b8-s01-platform-shell.md).
 > Re-read the plan, verify the current candidate and repository state, implement
@@ -117,11 +117,12 @@ programme plan.
 
 ## Closeout update
 
-PF-B7-S01 and PF-B7-S02 are terminal. Both Slices passed independent review,
-independent tester acceptance and exact-candidate local validation. S02
+PF-B7-S01 and PF-B7-S02 are terminal and PF-B7 is certified. Batch
 reconciliation evidence is recorded in
+[`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
+S02 reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b7-s02-projections.md`](../docs/implementation/audits/pf-b7-s02-projections.md).
-PF-B7 Batch certification is the next gate before PF-B8-S01 promotion.
+PF-B8-S01 is promoted as the next dependency-ready Slice.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

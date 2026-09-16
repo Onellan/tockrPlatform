@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B6 and PF-B7-S01/S02 are terminal; PF-B7 Batch certification is pending.
+**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B7 are terminal, and PF-B8-S01 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -50,8 +50,8 @@ MFA/recovery controls, Organisation lifecycle, canonical membership authority
 and narrow administration seams with focused acceptance evidence. PF-B4-S01
 adds Organisation-owned Workspace lifecycle, generic membership history and
 entry seams and PF-B4-S02 adds the reusable active Workspace scope guard.
-PF-B5 and PF-B6 are terminally implemented; PF-B7-S01 and PF-B7-S02 are
-terminally implemented and PF-B7 Batch certification is pending. Containers, production-data import
+PF-B5, PF-B6 and PF-B7 are terminally implemented; PF-B8-S01 is the next
+dependency-ready Slice. Containers, production-data import
 and CTRL/IMS authority cutover remain out of scope.
 PF-B6 Batch certification is recorded in
 [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
@@ -59,6 +59,8 @@ PF-B7-S01 reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b7-s01-events.md`](../docs/implementation/audits/pf-b7-s01-events.md).
 PF-B7-S02 reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b7-s02-projections.md`](../docs/implementation/audits/pf-b7-s02-projections.md).
+PF-B7 Batch certification is recorded in
+[`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
 
 ## Plan contract
 
@@ -130,8 +132,8 @@ independent tester acceptance remain separate gates.
 | PF-B4 | Workspace authority | S01–S02 | **Terminal** |
 | PF-B5 | Product catalogue and product access | S01–S02 | **Terminal** |
 | PF-B6 | Product assertion and consumer contract | S01–S02 | **Terminal** |
-| PF-B7 | Events and local projection support | S01–S02 | S01 **Terminal**; S02 **Ready** |
-| PF-B8 | Platform administration UI | S01–S02 | Blocked pending PF-B7 certification |
+| PF-B7 | Events and local projection support | S01–S02 | **Terminal** |
+| PF-B8 | Platform administration UI | S01–S02 | S01 **Ready**; S02 Planned |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | Planned |
 | PF-B10 | Security, runtime and final certification | S01–S02 | Planned |
 
