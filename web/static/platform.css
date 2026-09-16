@@ -86,7 +86,7 @@ body :focus-visible { outline: 3px solid var(--pf-focus); outline-offset: 2px; }
 	.pf-app-shell { display: block; }
 	.pf-sidebar { border-right: 0; border-bottom: 1px solid var(--pf-line); }
 	.pf-sidebar-foot { margin-top: 0; }
-	.pf-app-header { padding-block: .65rem; }
+	.pf-app-header { display: none; }
 	.pf-app-header .pf-account-menu > summary > span:not(.pf-avatar) { display: none; }
 	.pf-topbar, .pf-intro, .pf-section-heading { align-items: start; flex-direction: column; }
 	.pf-context-summary, .pf-section-heading > p { justify-content: start; text-align: left; }
