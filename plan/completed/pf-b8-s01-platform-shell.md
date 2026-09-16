@@ -1,6 +1,6 @@
 # PF-B8-S01 — Platform layouts, selectors and launcher
 
-Status: Planned
+Status: **Implemented / terminal**
 
 ## Objective
 
@@ -66,3 +66,31 @@ product operational screens.
 ## Rollback
 
 Revert routes/templates while retaining contract docs; no access data changes.
+
+## Terminal evidence
+
+Accepted implementation candidate: `57b1669312d9336e7f5a0d0812e9135c38e75994`.
+
+- Independent engineering review: **PASS**; the initial responsive findings
+  were repaired sequentially in `5d806c00ad5426ce60722584f4b51406ca2c80c5`
+  and this final candidate, then the affected browser journeys were rerun.
+- Independent tester acceptance: **PASS** for shared shell, no-JavaScript
+  navigation/forms, authorized context/product visibility, fail-closed direct
+  URLs, responsive/accessibility structure and Platform boundary.
+- Exact-candidate local validation: format, architecture, security, frontend,
+  quality, unit and integration children **PASS**. The repository composite
+  `full/local` race child exceeded its fixed 300-second bound and is recorded
+  as **TIMEOUT**, not PASS; the extended changed-package race command passed.
+- Browser evidence: signed-in wide and narrow launcher journeys passed
+  semantic snapshot and visual inspection. The only console observation was a
+  non-blocking missing `/favicon.ico` request; no application error occurred.
+- Container build profiles: **NOT_APPLICABLE** because no authorised
+  Dockerfile exists.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed.
+
+Detailed evidence:
+[`reconciliation`](../../docs/implementation/audits/pf-b8-s01-platform-shell.md),
+[`independent review`](../../docs/implementation/audits/pf-b8-s01-independent-review.md),
+[`independent acceptance`](../../docs/implementation/audits/pf-b8-s01-independent-acceptance.md).

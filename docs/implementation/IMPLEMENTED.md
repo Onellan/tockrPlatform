@@ -111,8 +111,8 @@ The following Platform Foundation Slices are terminally recorded:
   and shared effective-access predicate. Product-specific roles, billing and
   CTRL/IMS authority remain outside PF-B5.
 - The initial one-connection SQLite policy remains unchanged. PF-B7 is
-  terminally certified above; PF-B8-S01 is the next dependency-ready Slice and
-  no later Batch is implemented here.
+  terminally certified above; PF-B8-S02 is now the next dependency-ready Slice
+  and no later Batch is implemented here.
 
 ## PF-B6-S01 — Signed assertion issuance and verification
 
@@ -170,8 +170,8 @@ The following Platform Foundation Slices are terminally recorded:
   roles, billing, sessions, full entitlement detail and governance remain
   product-owned.
 - The initial one-connection SQLite policy remains unchanged. PF-B7 is
-  terminally certified above; PF-B8-S01 is the next dependency-ready Slice and
-  no later Batch or authority cutover is claimed.
+  terminally certified above; PF-B8-S02 is now the next dependency-ready Slice
+  and no later Batch or authority cutover is claimed.
 
 ## PF-B1-S01 — Repository, standards, agents and validation foundation
 
@@ -344,3 +344,20 @@ The following Platform Foundation Slices are terminally recorded:
 - Platform retains one SQLite connection. PF-B5-S01 is the next
   dependency-ready Slice; no CTRL/IMS migration or authority cutover is
   claimed.
+
+## PF-B8-S01 — Platform layouts, selectors and launcher
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b8-s01-platform-shell.md`](../../plan/completed/pf-b8-s01-platform-shell.md)
+- Accepted implementation candidate: `57b1669312d9336e7f5a0d0812e9135c38e75994`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate HTTP/presentation tests, frontend/architecture/security
+  profiles, focused race validation and wide/narrow browser verification all
+  passed. The `full/local` composite race child exceeded its fixed 300-second
+  bound and is recorded as **TIMEOUT**, not PASS.
+- Platform now provides the shared server-rendered shell,
+  Organisation/Workspace selectors and access-gated product launcher. Product
+  roles and operational screens remain outside Platform.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed. PF-B8-S02 is the next dependency-ready Slice.

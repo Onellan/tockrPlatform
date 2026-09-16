@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B7 are terminal, and PF-B8-S01 is Ready.
+**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B8-S01 are terminal, and PF-B8-S02 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -50,8 +50,10 @@ MFA/recovery controls, Organisation lifecycle, canonical membership authority
 and narrow administration seams with focused acceptance evidence. PF-B4-S01
 adds Organisation-owned Workspace lifecycle, generic membership history and
 entry seams and PF-B4-S02 adds the reusable active Workspace scope guard.
-PF-B5, PF-B6 and PF-B7 are terminally implemented; PF-B8-S01 is the next
-dependency-ready Slice. Containers, production-data import
+PF-B5, PF-B6 and PF-B7 are terminally implemented. PF-B8-S01 now delivers the
+shared server-rendered Platform shell, Organisation/Workspace selectors and
+access-gated product launcher; PF-B8-S02 is the next dependency-ready Slice.
+Containers, production-data import
 and CTRL/IMS authority cutover remain out of scope.
 PF-B6 Batch certification is recorded in
 [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
@@ -61,6 +63,9 @@ PF-B7-S02 reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b7-s02-projections.md`](../docs/implementation/audits/pf-b7-s02-projections.md).
 PF-B7 Batch certification is recorded in
 [`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
+PF-B8-S01 reconciliation evidence is recorded in
+[`docs/implementation/audits/pf-b8-s01-platform-shell.md`](../docs/implementation/audits/pf-b8-s01-platform-shell.md),
+with independent review and acceptance in the linked audit files.
 
 ## Plan contract
 
@@ -133,7 +138,7 @@ independent tester acceptance remain separate gates.
 | PF-B5 | Product catalogue and product access | S01–S02 | **Terminal** |
 | PF-B6 | Product assertion and consumer contract | S01–S02 | **Terminal** |
 | PF-B7 | Events and local projection support | S01–S02 | **Terminal** |
-| PF-B8 | Platform administration UI | S01–S02 | S01 **Ready**; S02 Planned |
+| PF-B8 | Platform administration UI | S01–S02 | S01 **Terminal**; S02 **Ready** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | Planned |
 | PF-B10 | Security, runtime and final certification | S01–S02 | Planned |
 
@@ -180,7 +185,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B6-S02 | [Consumer handoff and compatibility — terminal](completed/pf-b6-s02-consumer-contract.md) |
 | PF-B7-S01 | [Platform events and outbox — terminal](completed/pf-b7-s01-events.md) |
 | PF-B7-S02 | [Projection inbox and reconciliation — terminal](completed/pf-b7-s02-projections.md) |
-| PF-B8-S01 | [Layouts, selectors and launcher](active/pf-b8-s01-platform-shell.md) |
+| PF-B8-S01 | [Layouts, selectors and launcher — terminal](completed/pf-b8-s01-platform-shell.md) |
 | PF-B8-S02 | [Administration UI](active/pf-b8-s02-administration-ui.md) |
 | PF-B9-S01 | [Reconciliation inventory and mapping](active/pf-b9-s01-reconciliation.md) |
 | PF-B9-S02 | [Dry-run/import and rollback tooling](active/pf-b9-s02-migration-tooling.md) |
