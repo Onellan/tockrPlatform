@@ -2,7 +2,7 @@
 
 Accepted implementation candidate: `07c2b23ac35645b809fea3b1fc87042932f111b9`
 
-Terminal closeout candidate: `PENDING_BIND`
+Terminal closeout candidate: `5d884cc3395e7ee6b2b7a11010f7bac3f435b8ba`
 
 Plan: [`plan/completed/pf-b7-s02-projections.md`](../../../plan/completed/pf-b7-s02-projections.md)
 

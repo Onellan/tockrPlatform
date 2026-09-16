@@ -63,7 +63,7 @@ corrective version; no destructive truncation.
 
 Accepted implementation candidate: `07c2b23ac35645b809fea3b1fc87042932f111b9`.
 
-Terminal closeout candidate: `PENDING_BIND`.
+Terminal closeout candidate: `5d884cc3395e7ee6b2b7a11010f7bac3f435b8ba`.
 
 - Independent engineering review: **PASS**; no R1 finding remains.
 - Independent tester acceptance: **PASS** for duplicate identity, ordered

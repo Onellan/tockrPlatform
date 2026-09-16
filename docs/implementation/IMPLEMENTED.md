@@ -27,7 +27,7 @@ The following Platform Foundation Slices are terminally recorded:
 - Status: **Implemented / terminal**
 - Historical plan: [`plan/completed/pf-b7-s02-projections.md`](../../plan/completed/pf-b7-s02-projections.md)
 - Accepted implementation candidate: `07c2b23ac35645b809fea3b1fc87042932f111b9`
-- Terminal closeout candidate: `PENDING_BIND`
+- Terminal closeout candidate: `5d884cc3395e7ee6b2b7a11010f7bac3f435b8ba`
 - Evidence: independent engineering review, independent tester acceptance,
   exact-candidate format/architecture/security/migration/frontend/quality/unit,
   SQLite/HTTP integration and extended repository-wide race validation all
