@@ -349,6 +349,45 @@ func supportedMigrations() []migration {
 				`CREATE INDEX platform_outbox_aggregate_idx ON platform_outbox(aggregate_type,aggregate_id,sequence)`,
 			},
 		},
+		{
+			version: 9,
+			name:    "platform-projection-inbox",
+			statements: []string{
+				`CREATE TABLE platform_projection_inbox (
+					id INTEGER PRIMARY KEY,
+					consumer_key TEXT NOT NULL CHECK(length(trim(consumer_key))>0 AND length(consumer_key)<=100),
+					event_id TEXT NOT NULL,
+					event_type TEXT NOT NULL CHECK(length(event_type)>0 AND length(event_type)<=200),
+					aggregate_type TEXT NOT NULL CHECK(length(aggregate_type)>0 AND length(aggregate_type)<=50),
+					aggregate_id TEXT NOT NULL CHECK(length(aggregate_id)>0 AND length(aggregate_id)<=200),
+					sequence INTEGER NOT NULL CHECK(sequence>0),
+					schema_version INTEGER NOT NULL CHECK(schema_version>0),
+					occurred_at TEXT NOT NULL,
+					payload TEXT NOT NULL CHECK(length(payload)>1 AND length(payload)<=4096),
+					state TEXT NOT NULL CHECK(state IN ('pending','applied','gap','stale','blocked')),
+					reason TEXT NOT NULL DEFAULT '' CHECK(length(reason)<=500),
+					received_at TEXT NOT NULL,
+					applied_at TEXT,
+					UNIQUE(consumer_key,event_id),
+					CHECK((state='applied' AND applied_at IS NOT NULL) OR (state<>'applied' AND applied_at IS NULL))
+				)`,
+				`CREATE INDEX platform_projection_inbox_order_idx ON platform_projection_inbox(consumer_key,aggregate_type,aggregate_id,sequence,id)`,
+				`CREATE INDEX platform_projection_inbox_state_idx ON platform_projection_inbox(consumer_key,state,id)`,
+				`CREATE TABLE platform_projection_checkpoints (
+					id INTEGER PRIMARY KEY,
+					consumer_key TEXT NOT NULL CHECK(length(trim(consumer_key))>0 AND length(consumer_key)<=100),
+					aggregate_type TEXT NOT NULL CHECK(length(aggregate_type)>0 AND length(aggregate_type)<=50),
+					aggregate_id TEXT NOT NULL CHECK(length(aggregate_id)>0 AND length(aggregate_id)<=200),
+					last_sequence INTEGER NOT NULL CHECK(last_sequence>=0),
+					last_event_id TEXT NOT NULL DEFAULT '',
+					state TEXT NOT NULL CHECK(state IN ('current','stale','gap','blocked','unavailable')),
+					reason TEXT NOT NULL DEFAULT '' CHECK(length(reason)<=500),
+					updated_at TEXT NOT NULL,
+					UNIQUE(consumer_key,aggregate_type,aggregate_id)
+				)`,
+				`CREATE INDEX platform_projection_checkpoint_state_idx ON platform_projection_checkpoints(consumer_key,state,updated_at)`,
+			},
+		},
 	}
 }
 

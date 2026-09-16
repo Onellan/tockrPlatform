@@ -63,4 +63,5 @@ type PlatformStore interface {
 	ProductAccessStore
 	AccessScopeStore
 	EventStore
+	ProjectionStore
 }

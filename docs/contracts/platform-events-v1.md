@@ -59,5 +59,9 @@ entitlement detail.
 `ListPendingPlatformEvents` reads committed rows in bounded batches and
 `MarkPlatformEventsPublished` records a delivery marker only for exact pending
 event IDs. Delivery remains at-least-once; consumers own idempotency and local
-projection state. No synchronous per-request Platform call, shared database,
-Kafka/Redis dependency or CTRL/IMS authority cutover is introduced.
+projection state. The bounded Platform-side inbox/checkpoint state used for
+consumer receipt and reconciliation is defined in
+[`platform-projection-v1.md`](platform-projection-v1.md); it does not apply
+product projections or grant product authorization. No synchronous per-request
+Platform call, shared database, Kafka/Redis dependency or CTRL/IMS authority
+cutover is introduced.

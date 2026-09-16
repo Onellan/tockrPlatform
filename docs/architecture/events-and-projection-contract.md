@@ -7,6 +7,11 @@ The v1 implementation and payload allow-list are defined in
 [`platform-events-v1.md`](../contracts/platform-events-v1.md). The envelope is
 stored in Platform's durable outbox before delivery.
 
+Local consumer inbox and checkpoint behavior is defined in
+[`platform-projection-v1.md`](../contracts/platform-projection-v1.md). Platform
+retains received events and explicit projection state; it does not apply
+product projections or treat eventual state as authorization.
+
 ## Event envelope
 
 ```text
@@ -31,6 +36,7 @@ or billing details.
 - duplicate events are harmless;
 - gaps are detected and reconciled rather than silently skipped;
 - stale or unavailable projections are classified explicitly;
+- unknown source versions are retained as blocked for repair;
 - product authorization remains local to the product after shared access is
   established;
 - reconciliation can prove source/version/decision provenance.
