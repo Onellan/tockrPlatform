@@ -1,6 +1,6 @@
 # PF-B9-S02 — Dry-run/import and rollback tooling
 
-Status: Planned
+Status: **Implemented / terminal**
 
 ## Objective
 
@@ -66,3 +66,29 @@ if a record requires guessed identity/history.
 
 Use fixture database disposal only; preserve manifests/checkpoints and do not
 touch CTRL/IMS production data.
+
+## Terminal evidence
+
+Accepted implementation candidate: `05b4cfb020dead9cc5cc1fcd22e8bb2cb671489d`.
+
+Terminal closeout candidate: to be recorded after the PF-B9 Batch
+certification, tracker, index and implementation ledger reconciliation commit.
+
+- Independent engineering review: **PASS** after the duplicate-target
+  fail-closed repair and command-level review.
+- Independent tester acceptance: **PASS** for signed fixture manifests,
+  explicit approval, deterministic order, blocked unresolved records,
+  checkpoint integrity, pause/resume, idempotency, compensating rollback,
+  audit retention and the `platform-manifest` command.
+- Exact-candidate local validation: `full/local`, format, architecture,
+  security, quality, frontend, unit, focused package and race tests, `go vet`
+  and diff hygiene **PASS**. Container build profiles are
+  **NOT_APPLICABLE** because no authorised Dockerfile exists.
+- The importer is in-memory and fixture-only. Platform keeps its initial
+  one-connection SQLite policy; no CTRL/IMS code, database, production record,
+  source connector, product role or authority cutover was changed.
+
+Detailed evidence:
+[`reconciliation`](../../docs/implementation/audits/pf-b9-s02-migration-tooling.md),
+[`independent review`](../../docs/implementation/audits/pf-b9-s02-independent-review.md),
+[`independent acceptance`](../../docs/implementation/audits/pf-b9-s02-independent-acceptance.md).

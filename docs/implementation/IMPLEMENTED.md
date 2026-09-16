@@ -393,7 +393,7 @@ The following Platform Foundation Slices are terminally recorded:
   browser and focused race evidence: **PASS**; the fixed `full/local` race
   child is retained as **TIMEOUT**, not converted to PASS. Container builds
   are **NOT_APPLICABLE** without an authorised Dockerfile.
-- PF-B9-S01 is now terminally recorded below. No CTRL/IMS authority cutover or
+- PF-B9 is now terminally recorded below. No CTRL/IMS authority cutover or
   product-role ownership is claimed.
 
 ## PF-B9-S01 — CTRL/IMS reconciliation inventory and mapping
@@ -412,4 +412,36 @@ The following Platform Foundation Slices are terminally recorded:
   mappings remain blocked.
 - The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
   production code, data, source connector, product role, import or authority
-  cutover was changed. PF-B9-S02 is the next dependency-ready Slice.
+  cutover was changed.
+
+## PF-B9-S02 — Dry-run/import and rollback tooling
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b9-s02-migration-tooling.md`](../../plan/completed/pf-b9-s02-migration-tooling.md)
+- Accepted implementation candidate: `05b4cfb020dead9cc5cc1fcd22e8bb2cb671489d`
+- Evidence: signed fixture-manifest approval and verification, deterministic
+  fixture import, HMAC checkpoint integrity, pause/resume, idempotency,
+  compensating rollback, audit retention, independent review, independent
+  tester acceptance and exact-candidate `full/local` validation all passed.
+  Container builds are **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform now has a fixture-only rehearsal boundary for staged migration
+  manifests. Blocked/ambiguous records cannot be imported, and production
+  import, shadow mode and authority cutover remain outside PF.
+- No Platform SQLite migration, CTRL/IMS source connector, production record,
+  product role or authority cutover was added. PF-B9 is terminally certified;
+  PF-B10-S01 is the next dependency-ready Slice.
+
+## PF-B9 — CTRL/IMS reconciliation and migration tooling
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B9-S01 and PF-B9-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: to be recorded after the reconciliation closeout
+  commit.
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local signed-manifest, fixture import/rollback, provenance, profile
+  and race evidence: **PASS**; container builds are **NOT_APPLICABLE** without
+  an authorised Dockerfile.
+- PF-B10-S01 is now the next dependency-ready Slice. No production import,
+  consumer-repository migration or authority cutover is claimed.
