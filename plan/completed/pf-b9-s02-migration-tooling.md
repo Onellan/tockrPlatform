@@ -71,8 +71,7 @@ touch CTRL/IMS production data.
 
 Accepted implementation candidate: `05b4cfb020dead9cc5cc1fcd22e8bb2cb671489d`.
 
-Terminal closeout candidate: to be recorded after the PF-B9 Batch
-certification, tracker, index and implementation ledger reconciliation commit.
+Terminal closeout candidate: `9c073cba5ce495de9bc217696062485c9999ab62`.
 
 - Independent engineering review: **PASS** after the duplicate-target
   fail-closed repair and command-level review.

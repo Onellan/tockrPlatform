@@ -1,7 +1,6 @@
 # PF-B9 — CTRL/IMS reconciliation and migration tooling Batch certification
 
-PF-B9 Batch certification candidate: to be recorded after the closeout
-reconciliation commit.
+PF-B9 Batch certification candidate: `9c073cba5ce495de9bc217696062485c9999ab62`.
 
 ## Batch ledger
 

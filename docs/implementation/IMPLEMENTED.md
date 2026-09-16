@@ -436,8 +436,7 @@ The following Platform Foundation Slices are terminally recorded:
 - Status: **Implemented / terminal Batch certification**
 - Slices PF-B9-S01 and PF-B9-S02 are terminal in `plan/completed/` and were
   delivered strictly in dependency order.
-- Accepted Batch candidate: to be recorded after the reconciliation closeout
-  commit.
+- Accepted Batch candidate: `9c073cba5ce495de9bc217696062485c9999ab62`.
 - Independent Batch engineering review and independent Batch tester
   acceptance: **PASS**.
 - Batch-local signed-manifest, fixture import/rollback, provenance, profile
