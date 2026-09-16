@@ -15,6 +15,6 @@ authority Batch, the complete PF-B5 product-access Batch, the complete PF-B6
 product assertion/consumer Batch, PF-B7-S01/S02, PF-B8-S01/S02 and the complete
 PF-B9 reconciliation/migration Batch are terminally implemented here. PF-B7,
 PF-B8 and PF-B9 are certified; PF-B10-S01 and PF-B10-S01-R1 are terminal here
-and PF-B10-S02 is the next planned Slice.
+and PF-B10-S02 is the next Ready Slice.
 Planning, repository setup and validation scaffolding do not by themselves
 make a Slice Implemented.

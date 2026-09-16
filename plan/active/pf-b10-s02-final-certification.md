@@ -1,6 +1,6 @@
 # PF-B10-S02 — Final Platform foundation certification
 
-Status: Planned
+Status: Ready
 
 ## Objective
 

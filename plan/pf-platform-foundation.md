@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B9 and PF-B10-S01-R1 are terminal, and PF-B10-S02 is the next planned certification Slice.
+**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B9 and PF-B10-S01-R1 are terminal, and PF-B10-S02 is the next Ready certification Slice.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -57,7 +57,7 @@ Workspace and System Admin surfaces. PF-B9-S01 and PF-B9-S02 are terminally
 implemented and PF-B9 is certified. PF-B10-S01 is terminally implemented,
 PF-B10-S01-R1 closes the browser-discovered
 static-asset packaging regression in its published container candidate.
-PF-B10-S02 is the next planned certification Slice.
+PF-B10-S02 is the next Ready certification Slice.
 Reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b9-s01-reconciliation.md`](../docs/implementation/audits/pf-b9-s01-reconciliation.md),
 [`docs/implementation/audits/pf-b9-s02-migration-tooling.md`](../docs/implementation/audits/pf-b9-s02-migration-tooling.md),
@@ -166,7 +166,7 @@ independent tester acceptance remain separate gates.
 | PF-B7 | Events and local projection support | S01–S02 | **Terminal** |
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
-| PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | S01 and S01-R1 **Terminal**; S02 **Planned** |
+| PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | S01 and S01-R1 **Terminal**; S02 **Ready** |
 
 Total: **10 Batches, 22 Slices including the authorised S01-R1 repair**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before

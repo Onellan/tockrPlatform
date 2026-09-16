@@ -9,8 +9,8 @@ resuming work.
 
 Current inventory: **1 open execution plan** across **10 Batches**. PF-B1,
 PF-B2, PF-B3, PF-B4, PF-B5, PF-B6, PF-B7, PF-B8 and PF-B9 are terminal;
-PF-B10-S01 and PF-B10-S01-R1 are terminal, and PF-B10-S02 remains planned
-until the repair closeout is published. This tracker records runtime
+PF-B10-S01 and PF-B10-S01-R1 are terminal, and PF-B10-S02 is Ready for final
+certification after the published repair closeout. This tracker records runtime
 implementation evidence only through the linked terminal plan and
 candidate-bound closeout evidence.
 
@@ -52,7 +52,7 @@ The first executable item is:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| 1 | PF-B10-S02 | **Planned** | PF-B10-S01-R1 terminal; promote after published repair closeout | [Final Platform foundation certification](active/pf-b10-s02-final-certification.md) |
+| 1 | PF-B10-S02 | **Ready** | PF-B10-S01-R1 published terminal | [Final Platform foundation certification](active/pf-b10-s02-final-certification.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -67,7 +67,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B7 | S01, S02 | **Terminal** | PF-B5-S02; S01 → S02 |
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
-| PF-B10 | S01, S01-R1, S02 | S01 and S01-R1 **Terminal**; S02 Planned | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
+| PF-B10 | S01, S01-R1, S02 | S01 and S01-R1 **Terminal**; S02 Ready | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -135,8 +135,8 @@ PF-B10-S01 is terminal and its published candidate's browser-discovered
 runtime asset packaging regression was repaired by PF-B10-S01-R1. R1's
 reconciliation, independent review and independent acceptance are recorded in
 [`docs/implementation/audits/pf-b10-s01-r1-runtime-assets.md`](../docs/implementation/audits/pf-b10-s01-r1-runtime-assets.md),
-with the linked audit files. PF-B10-S02 remains planned until the published
-repair closeout is promoted.
+with the linked audit files. PF-B10-S02 is now Ready for final certification
+after the published repair closeout.
 The original reconciliation is recorded in
 [`docs/implementation/audits/pf-b10-s01-runtime-hardening.md`](../docs/implementation/audits/pf-b10-s01-runtime-hardening.md).
 PF-B10 remains uncertified until S02 passes its final gates.
