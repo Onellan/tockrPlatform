@@ -429,7 +429,7 @@ The following Platform Foundation Slices are terminally recorded:
   import, shadow mode and authority cutover remain outside PF.
 - No Platform SQLite migration, CTRL/IMS source connector, production record,
   product role or authority cutover was added. PF-B9 is terminally certified;
-  PF-B10-S01 is the next dependency-ready Slice.
+  PF-B10-S02 is the next dependency-ready Slice.
 
 ## PF-B9 — CTRL/IMS reconciliation and migration tooling
 
@@ -442,5 +442,24 @@ The following Platform Foundation Slices are terminally recorded:
 - Batch-local signed-manifest, fixture import/rollback, provenance, profile
   and race evidence: **PASS**; container builds are **NOT_APPLICABLE** without
   an authorised Dockerfile.
-- PF-B10-S01 is now the next dependency-ready Slice. No production import,
+- PF-B10-S02 is now the next dependency-ready Slice. No production import,
   consumer-repository migration or authority cutover is claimed.
+
+## PF-B10-S01 — Security and hardened runtime
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b10-s01-runtime-hardening.md`](../../plan/completed/pf-b10-s01-runtime-hardening.md)
+- Accepted implementation candidate: `6cdfed1179d4f0dbc5266991ad6074741ef7dd75`
+- Independent engineering review, independent tester acceptance and exact
+  candidate `full/local` validation all passed. Format, architecture,
+  security, migration, frontend, quality, unit, integration, repository-wide
+  race, AMD64 and ARM64 container build profiles all passed.
+- Platform now has strict secret-safe startup configuration, bounded HTTP
+  resources, restrictive security headers, graceful shutdown, distinct safe
+  `/healthz` and SQLite-backed `/readyz`, and hardened non-root container
+  targets for Linux AMD64/ARM64. Compose applies read-only root storage,
+  dropped capabilities, bounded `/tmp`, no-new-privileges and a persistent
+  Platform data volume.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, connector, product role, production record or
+  authority cutover was changed. PF-B10-S02 is the next dependency-ready Slice.

@@ -84,5 +84,6 @@ Organisation-owned Workspace lifecycle, generic membership authority, audit,
 history and HTTP entry seams. PF-B4-S02 adds a reusable active User,
 Organisation and Workspace scope proof with protected route middleware and
 transaction-time writer rechecks. SQLite remains intentionally limited to one
-connection. PF-B5 product authority, containers, CTRL/IMS data migration and
-authority cutover remain future work.
+connection. PF-B5 product authority and PF-B10-S01 runtime/container hardening
+are implemented in Platform. CTRL/IMS data migration and authority cutover
+remain future work and require separate consumer-repository authority.

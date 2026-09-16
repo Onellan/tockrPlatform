@@ -18,5 +18,6 @@ The deployment target is Linux AMD64 and ARM64, with a non-root container,
 dropped capabilities, read-only root filesystem, bounded writable `/tmp`,
 persistent data volume, graceful shutdown and explicit `/healthz` and `/readyz`.
 
-These are planned runtime acceptance conditions, not claims that a container or
-endpoint exists in the foundation checkout.
+PF-B10-S01 implements these runtime conditions in the Platform checkout. Final
+programme certification remains PF-B10-S02; this contract does not authorize
+CTRL/IMS migration, production-data import or authority cutover.

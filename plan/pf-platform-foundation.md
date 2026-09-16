@@ -1,6 +1,6 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B9 are terminal, and PF-B10-S01 is Ready.
+**Status:** Planned / active owner-authorised programme; PF-B1 through PF-B9 are terminal, PF-B10-S01 is terminal, and PF-B10-S02 is Ready.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -54,15 +54,15 @@ PF-B5, PF-B6 and PF-B7 are terminally implemented. PF-B8-S01 delivers the
 shared server-rendered Platform shell, Organisation/Workspace selectors and
 access-gated product launcher; PF-B8-S02 delivers the initial Organisation,
 Workspace and System Admin surfaces. PF-B9-S01 and PF-B9-S02 are terminally
-implemented and PF-B9 is certified. PF-B10-S01 is the next dependency-ready
-Slice. Reconciliation evidence is recorded in
+implemented and PF-B9 is certified. PF-B10-S01 is terminally implemented and
+PF-B10-S02 is the next dependency-ready Slice. Reconciliation evidence is recorded in
 [`docs/implementation/audits/pf-b9-s01-reconciliation.md`](../docs/implementation/audits/pf-b9-s01-reconciliation.md),
 [`docs/implementation/audits/pf-b9-s02-migration-tooling.md`](../docs/implementation/audits/pf-b9-s02-migration-tooling.md),
 and Batch certification is recorded in
 [`docs/implementation/audits/pf-b9-batch-certification.md`](../docs/implementation/audits/pf-b9-batch-certification.md).
-No production import or authority cutover is authorized.
-Containers, production-data import
-and CTRL/IMS authority cutover remain out of scope.
+No production import or authority cutover is authorized. Containers are now
+implemented only for the PF-B10-S01 runtime-hardening target; production-data
+import and CTRL/IMS authority cutover remain out of scope.
 PF-B6 Batch certification is recorded in
 [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 PF-B7-S01 reconciliation evidence is recorded in
@@ -83,6 +83,9 @@ PF-B9-S01 reconciliation evidence is recorded in
 PF-B9-S02 reconciliation evidence and Batch certification are recorded in
 [`docs/implementation/audits/pf-b9-s02-migration-tooling.md`](../docs/implementation/audits/pf-b9-s02-migration-tooling.md)
 and [`docs/implementation/audits/pf-b9-batch-certification.md`](../docs/implementation/audits/pf-b9-batch-certification.md).
+PF-B10-S01 reconciliation, independent review and independent acceptance are
+recorded in [`docs/implementation/audits/pf-b10-s01-runtime-hardening.md`](../docs/implementation/audits/pf-b10-s01-runtime-hardening.md)
+and its linked audit files.
 
 ## Plan contract
 
@@ -132,10 +135,10 @@ plan → implement → independent engineering review → independent acceptance
 ```
 
 Use the repository validation authority through `scripts/validate.py` and its
-registry. The current foundation candidate has a Go/SQLite runtime but no
-Dockerfile, so runtime profiles are executable while container build profiles
-remain `NOT_APPLICABLE`; unavailable profiles must never be represented as
-runtime PASS evidence.
+registry. The current foundation candidate has an executable Go/SQLite runtime
+and the PF-B10-S01-authorised Dockerfile, so runtime and AMD64/ARM64 container
+build profiles are executable; unavailable profiles must never be represented
+as runtime PASS evidence.
 Context failures such as `INVOCATION_FAIL`, `ENV_FAIL`, `TOOL_FAIL`,
 `FIXTURE_FAIL` and `PREREQUISITE_FAIL` are reported truthfully and do not
 justify application repair.
@@ -157,7 +160,7 @@ independent tester acceptance remain separate gates.
 | PF-B7 | Events and local projection support | S01–S02 | **Terminal** |
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
-| PF-B10 | Security, runtime and final certification | S01–S02 | S01 **Ready**; S02 Planned |
+| PF-B10 | Security, runtime and final certification | S01–S02 | S01 **Terminal**; S02 **Ready** |
 
 Total: **10 Batches, 21 Slices**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
@@ -206,7 +209,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B8-S02 | [Administration UI — terminal](completed/pf-b8-s02-administration-ui.md) |
 | PF-B9-S01 | [Reconciliation inventory and mapping — terminal](completed/pf-b9-s01-reconciliation.md) |
 | PF-B9-S02 | [Dry-run/import and rollback tooling — terminal](completed/pf-b9-s02-migration-tooling.md) |
-| PF-B10-S01 | [Security and hardened runtime](active/pf-b10-s01-runtime-hardening.md) |
+| PF-B10-S01 | [Security and hardened runtime — terminal](completed/pf-b10-s01-runtime-hardening.md) |
 | PF-B10-S02 | [Final local certification](active/pf-b10-s02-final-certification.md) |
 
 ## Programme work packages
