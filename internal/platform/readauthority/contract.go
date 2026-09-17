@@ -378,7 +378,7 @@ func validateEventProvenance(record Record) error {
 }
 
 func hasMigrationProvenance(record Record) bool {
-	return record.MigrationVersion != 0 || strings.TrimSpace(record.MigrationName) != "" || record.MigrationChecksum != ""
+	return record.MigrationVersion != 0 || record.MigrationName != "" || record.MigrationChecksum != ""
 }
 
 func isSHA256(value string) bool {

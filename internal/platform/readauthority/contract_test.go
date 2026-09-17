@@ -105,6 +105,16 @@ func TestV2AcceptsMigrationSeedAndRejectsMixedOrFabricatedProvenance(t *testing.
 	if !errors.Is(ValidateRecordVersion(VersionV2, seed), ErrInvalidRecord) {
 		t.Fatal("migration seed accepted malformed migration checksum")
 	}
+	event := seed
+	event.ProvenanceKind = ProvenanceEvent
+	event.SourceEventID = "evt_event"
+	event.SourceSequence = 1
+	event.SourceSchemaVersion = SourceSchemaVersion
+	event.MigrationChecksum = ""
+	event.MigrationName = " "
+	if !errors.Is(ValidateRecordVersion(VersionV2, event), ErrInvalidRecord) {
+		t.Fatal("event provenance accepted whitespace-only migration metadata")
+	}
 }
 
 func TestV1RemainsEventOnly(t *testing.T) {
