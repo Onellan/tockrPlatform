@@ -1,8 +1,8 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** PF-B1 through PF-B10 are terminal at the original authorised
-Foundation scope. PF-B11 is an active, separately authorised forward
-consumer-read-authority extension; it does not reopen PF-B1–PF-B10.
+**Status:** PF-B1 through PF-B11 are terminal at their authorised scopes.
+PF-B11 is a separately authorised forward consumer-read-authority extension;
+it does not reopen PF-B1–PF-B10.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -172,7 +172,7 @@ independent tester acceptance remain separate gates.
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
 | PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
-| PF-B11 | Shared read authority and consumer projection source | S01, S01-R1, S02–S04 | **Active at S04** |
+| PF-B11 | Shared read authority and consumer projection source | S01, S01-R1, S02–S04 | **Terminal** |
 
 Total: **11 Batches, 27 Slices including the authorised PF-B11-S01-R1 correction and PF-B11 extension**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
@@ -229,7 +229,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B11-S01-R1 | [Seed provenance contract correction — terminal](completed/pf-b11-s01-r1-seed-provenance-v2.md) |
 | PF-B11-S02 | [Durable snapshot and source cursor — terminal](completed/pf-b11-s02-durable-snapshot.md) |
 | PF-B11-S03 | [Authenticated feed and resynchronisation API — terminal](completed/pf-b11-s03-feed-and-api.md) |
-| PF-B11-S04 | [Security, operability and consumer-readiness certification — Ready](active/pf-b11-s04-certification.md) |
+| PF-B11-S04 | [Security, operability and consumer-readiness certification — terminal](completed/pf-b11-s04-certification.md) |
 
 PF-B11-S01 is terminally accepted at implementation candidate
 `b79b9321a06dd1c0e25381127dc61e861bae520d`; its exact contract and
@@ -244,8 +244,10 @@ in the completed plan and linked audits. PF-B11-S03 is terminally accepted at
 implementation candidate `bfc111ad1e7f8add6967e2dbb8b41f8ac2d192ea`; its
 authenticated feed, resynchronisation, rotation, replay and bounded-resource
 evidence are recorded in the completed plan and linked audits. PF-B11-S04 is
-now **Ready**. No consumer projection or authority cutover is claimed by this
-closeout.
+terminal at certification candidate `6da51a24b281549e5c8084f6c109bd860560154d`;
+Batch certification is recorded in
+[`docs/implementation/audits/pf-b11-batch-certification.md`](../docs/implementation/audits/pf-b11-batch-certification.md).
+No consumer projection or authority cutover is claimed by this closeout.
 
 ## Programme work packages
 

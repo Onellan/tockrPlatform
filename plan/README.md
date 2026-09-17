@@ -45,21 +45,17 @@ Lane 1 preparation → Lane 2 sequential implementation → Lane 3 certification
 ## Forward PF-B11 — Shared read authority and consumer projection source
 
 PF-B1 through PF-B10 remain terminal historical Foundation scope. PF-B11 is a
-new explicitly authorised forward Batch that supplies the missing versioned,
-bounded and fail-closed Platform read-authority contract required before CTRL
-or IMS may start PD-D5-S01. PF-B11-S01, PF-B11-S01-R1 and PF-B11-S02 are
-terminal; S02 delivered the durable v2 snapshot/source-cursor seam and S03 is
-now terminal; S03 delivered the authenticated v2 feed, resynchronisation and
-machine-authentication routes. S04 is now **Ready** and remains the only unrun
-Slice. The
-Batch and remaining Slice plans are:
+new explicitly authorised and terminally certified Batch that supplies the
+versioned, bounded and fail-closed Platform read-authority contract required
+before CTRL or IMS may start PD-D5-S01. PF-B11-S01, S01-R1, S02, S03 and S04
+are terminal. The Batch and completed Slice plans are:
 
 - [`pf-b11-shared-read-authority.md`](pf-b11-shared-read-authority.md)
 - [`completed/pf-b11-s01-read-authority-contract.md`](completed/pf-b11-s01-read-authority-contract.md)
 - [`completed/pf-b11-s01-r1-seed-provenance-v2.md`](completed/pf-b11-s01-r1-seed-provenance-v2.md)
 - [`completed/pf-b11-s02-durable-snapshot.md`](completed/pf-b11-s02-durable-snapshot.md)
 - [`completed/pf-b11-s03-feed-and-api.md`](completed/pf-b11-s03-feed-and-api.md)
-- [`active/pf-b11-s04-certification.md`](active/pf-b11-s04-certification.md)
+- [`completed/pf-b11-s04-certification.md`](completed/pf-b11-s04-certification.md)
 
 PF-B11 does not reopen terminal plans, implement CTRL/IMS cutover or move
 product roles, billing or product data into Platform.

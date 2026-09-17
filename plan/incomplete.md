@@ -7,10 +7,10 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **1 open execution Batch** across **11 Batches**. PF-B1
-through PF-B10 are terminal at the original Foundation scope. PF-B11 is a
-separately authorised forward consumer-read-authority extension; its runtime
-implementation evidence is not yet terminal.
+Current inventory: **0 open execution Batches** across **11 Batches**. PF-B1
+through PF-B10 are terminal at the original Foundation scope. PF-B11 is now
+terminally certified as the separately authorised consumer-read-authority
+extension.
 
 ## How to use this tracker
 
@@ -46,15 +46,15 @@ shared identity, tenancy and product-access authority for future CTRL and IMS
 consumers. It does not implement CTRL/IMS operational screens, billing,
 production-data import or authority cutover.
 
-PF-B11-S03 is now terminally closed below. PF-B11-S01 and its superseding
+PF-B11-S04 is now terminally closed below. PF-B11-S01 and its superseding
 PF-B11-S01-R1 correction are terminally closed after their exact
 contracts, independent gates and local validation passed:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| PF-B11 | PF-B11-S04 — Security, operability and consumer-readiness certification | **Ready** | S03 terminal; authenticated v2 feed and resynchronisation API | [active plan](active/pf-b11-s04-certification.md) |
+| PF-B11 | PF-B11-S04 — Security, operability and consumer-readiness certification | **Terminal** | S03 terminal; authenticated v2 feed and resynchronisation API | [completed plan](completed/pf-b11-s04-certification.md) |
 
-All later Slices remain dependency-bound. The complete inventory is:
+No later Slices remain open. The complete terminal inventory is:
 
 | Batch | Slices | State | Depends on |
 | --- | --- | --- | --- |
@@ -68,7 +68,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B10 | S01, S01-R1, S02 | **Terminal** | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
-| PF-B11 | S01, S01-R1, S02 and S03 terminal, S04 Ready | **Active at S04** | S01 → S01-R1 → S02 → S03 → S04 |
+| PF-B11 | S01, S01-R1, S02, S03 and S04 | **Terminal** | S01 → S01-R1 → S02 → S03 → S04 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -151,7 +151,11 @@ with independent review and acceptance recorded in the linked audit files.
 PF-B11-S03 is now terminally implemented and reconciled in
 [`plan/completed/pf-b11-s03-feed-and-api.md`](completed/pf-b11-s03-feed-and-api.md),
 with independent review and acceptance recorded in the linked audit files.
-PF-B11-S04 is now **Ready**; no later Batch was started.
+PF-B11-S04 is now terminally certified and reconciled in
+[`plan/completed/pf-b11-s04-certification.md`](completed/pf-b11-s04-certification.md),
+with Batch certification in
+[`docs/implementation/audits/pf-b11-batch-certification.md`](../docs/implementation/audits/pf-b11-batch-certification.md).
+PF-B11 is terminal; no later Batch was started.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

@@ -20,7 +20,8 @@ certified and the original PF Foundation scope has no remaining open Slice.
 PF-B11 is a separately authorised forward extension. PF-B11-S01,
 PF-B11-S01-R1 and PF-B11-S02 are terminal here; S02's durable snapshot/source
 cursor is accepted under `platform.read-authority.v2`. PF-B11-S03's
-authenticated feed and resynchronisation plan is now terminal here; S04 remains
-under `plan/active/` until independently certified and the Batch is published.
+authenticated feed and resynchronisation plan and PF-B11-S04 certification are
+terminal here; PF-B11 is Batch-certified and published for consumer
+re-evaluation.
 Planning, repository setup and validation scaffolding do not by themselves
 make a Slice Implemented.

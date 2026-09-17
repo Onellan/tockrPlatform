@@ -1,6 +1,6 @@
 # PF-B11 — Shared read authority and consumer projection source
 
-**Status:** Active at PF-B11-S04; PF-B1 through PF-B10 remain terminal historical
+**Status:** Terminal at PF-B11; PF-B1 through PF-B10 remain terminal historical
 scope. PF-B11 is a separately authorised forward extension for the gated
 CTRL/IMS PD-D5-S01 dependency.
 
@@ -71,7 +71,7 @@ authority.
 | 2 | PF-B11-S01-R1 — Seed provenance contract correction | [completed plan](completed/pf-b11-s01-r1-seed-provenance-v2.md) | **Terminal** | PF-B11-S01 terminal; explicit provenance authority decision |
 | 3 | PF-B11-S02 — Durable snapshot and source cursor | [completed plan](completed/pf-b11-s02-durable-snapshot.md) | **Terminal** | PF-B11-S01-R1 terminal; v2 provenance contract |
 | 4 | PF-B11-S03 — Authenticated feed and resynchronisation API | [completed plan](completed/pf-b11-s03-feed-and-api.md) | **Terminal** | PF-B11-S02 terminal |
-| 5 | PF-B11-S04 — Security, operability and consumer-readiness certification | [active plan](active/pf-b11-s04-certification.md) | **Ready** | PF-B11-S01–S03 terminal; CTRL/IMS plan review |
+| 5 | PF-B11-S04 — Security, operability and consumer-readiness certification | [completed plan](completed/pf-b11-s04-certification.md) | **Terminal** | PF-B11-S01–S03 terminal; CTRL/IMS plan review |
 
 Slices are strictly sequential. PF-B11-S01 freezes the terminal v1 contract;
 PF-B11-S01-R1 supersedes the unresolved provenance decision with v2 and is
@@ -79,7 +79,10 @@ terminal. PF-B11-S02 is terminal and uses v2 migration-seed provenance for the
 two migration 6 Product rows. PF-B11-S03 is terminal at implementation
 candidate `bfc111ad1e7f8add6967e2dbb8b41f8ac2d192ea`; its independent review,
 tester acceptance and exact-candidate local validation all passed. PF-B11-S04
-is now **Ready** and is the only unrun Slice.
+is terminal at certification candidate
+`6da51a24b281549e5c8084f6c109bd860560154d`. Batch certification passed and
+the complete PF-B11 plan is now terminal. CTRL and IMS still require their
+own PD-D5-S01 implementation and acceptance.
 
 ## Batch acceptance contract
 

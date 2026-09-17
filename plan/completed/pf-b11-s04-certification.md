@@ -1,6 +1,6 @@
 # PF-B11-S04 — Security, operability and consumer-readiness certification
 
-**Status:** Active / certification
+**Status:** Implemented / terminal
 **Priority:** PF — Platform consumer read-authority extension
 **Batch:** PF-B11
 **Depends on:** PF-B11-S01, S02 and S03 terminal; current CTRL and IMS plan
@@ -106,6 +106,20 @@ or because a plan was written.
 
 ## Completion
 
-Move this plan to `plan/completed/`, update the Batch/index/ledger/audit
-records and publish only after all required gates pass. The published handoff
-is the sole event that can make CTRL/IMS PD-D5-S01 eligible for re-evaluation.
+PF-B11-S04 is **PASS / terminal** at certification candidate
+`6da51a24b281549e5c8084f6c109bd860560154d`. S01, S01-R1, S02 and S03 are
+independently reviewed, tester-accepted and exact-candidate validated. The
+complete local profile passed every applicable document, security, migration,
+unit, integration, frontend, quality and race child. Its AMD64 and ARM64
+Docker children are recorded as `ENV_FAIL / BLOCKED / NOT RUN` because Docker
+Desktop is unavailable; they are not required because PF-B11 changed no
+Dockerfile, image packaging, Compose, generated runtime asset or container
+deployment surface.
+
+The engineering review is recorded in
+[`docs/implementation/audits/pf-b11-s04-engineering-review.md`](../../docs/implementation/audits/pf-b11-s04-engineering-review.md)
+and independent tester acceptance is recorded in
+[`docs/implementation/audits/pf-b11-s04-tester-acceptance.md`](../../docs/implementation/audits/pf-b11-s04-tester-acceptance.md).
+PF-B11 Batch certification passed and publication is authorized. The published
+handoff makes CTRL/IMS PD-D5-S01 eligible for re-evaluation only; it does not
+implement either consumer or authorize cutover.

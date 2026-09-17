@@ -48,8 +48,9 @@
   cursor, deterministic SHA-256 checksum, v2 event/migration-seed provenance,
   consumer-bound paging, expiry and bounded cleanup. Fresh/upgrade/reopen,
   corruption, omission, duplicate, source-mutation and race evidence passed.
-- PF-B11-S04 is now **Ready**. No consumer cutover, CTRL/IMS production code,
-  product role, billing fact, shared database or authority transfer was changed.
+- PF-B11 is now **terminally certified**. No consumer cutover, CTRL/IMS
+  production code, product role, billing fact, shared database or authority
+  transfer was changed.
 
 ## PF-B11-S03 — Authenticated feed and resynchronisation API
 
@@ -66,8 +67,23 @@
   resynchronisation. Snapshot provenance and terminal `platform-events-v1`
   payload semantics remain intact.
 - All required local profiles and focused HTTP contract evidence passed on the
-  exact candidate. PF-B11-S04 is the only remaining unrun Slice; no CTRL/IMS
-  runtime, consumer cutover or shared database was implemented.
+  exact candidate; no CTRL/IMS runtime, consumer cutover or shared database was
+  implemented.
+
+## PF-B11-S04 — Security, operability and consumer-readiness certification
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s04-certification.md`](../../plan/completed/pf-b11-s04-certification.md)
+- Certification candidate: `6da51a24b281549e5c8084f6c109bd860560154d`
+- Evidence: [`audits/pf-b11-s04-engineering-review.md`](audits/pf-b11-s04-engineering-review.md),
+  [`audits/pf-b11-s04-tester-acceptance.md`](audits/pf-b11-s04-tester-acceptance.md)
+  and [`audits/pf-b11-batch-certification.md`](audits/pf-b11-batch-certification.md).
+- PF-B11 is terminally certified. All 27 PF Slices are reconciled; required
+  validation passed; the unavailable Docker builds remain explicitly
+  `BLOCKED / NOT RUN` and were not required because no container deployment
+  surface changed. The Platform handoff makes CTRL and IMS eligible to
+  re-evaluate PD-D5-S01 only; it does not implement their runtimes or
+  authorize cutover.
 
 The following Platform Foundation Slices are terminally recorded:
 
