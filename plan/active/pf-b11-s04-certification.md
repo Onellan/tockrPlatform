@@ -1,6 +1,6 @@
 # PF-B11-S04 — Security, operability and consumer-readiness certification
 
-**Status:** Ready
+**Status:** Active / certification
 **Priority:** PF — Platform consumer read-authority extension
 **Batch:** PF-B11
 **Depends on:** PF-B11-S01, S02 and S03 terminal; current CTRL and IMS plan
