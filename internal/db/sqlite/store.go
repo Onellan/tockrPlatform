@@ -388,6 +388,44 @@ func supportedMigrations() []migration {
 				`CREATE INDEX platform_projection_checkpoint_state_idx ON platform_projection_checkpoints(consumer_key,state,updated_at)`,
 			},
 		},
+		{
+			version: 10,
+			name:    "platform-read-authority-snapshots",
+			statements: []string{
+				`CREATE TABLE platform_read_authority_snapshots (
+					id INTEGER PRIMARY KEY,
+					snapshot_id TEXT NOT NULL UNIQUE CHECK(length(snapshot_id)>5 AND substr(snapshot_id,1,5)='snap_'),
+					consumer_key TEXT NOT NULL CHECK(length(trim(consumer_key))>0 AND length(consumer_key)<=100),
+					contract_version TEXT NOT NULL CHECK(contract_version='platform.read-authority.v2'),
+					source_cursor TEXT NOT NULL CHECK(length(source_cursor)>4 AND substr(source_cursor,1,4)='cur_'),
+					checksum_algorithm TEXT NOT NULL CHECK(checksum_algorithm='sha256'),
+					checksum TEXT NOT NULL CHECK(length(checksum)=64),
+					created_at TEXT NOT NULL,
+					expires_at TEXT NOT NULL,
+					record_count INTEGER NOT NULL CHECK(record_count>=0 AND record_count<=10000),
+					page_size INTEGER NOT NULL CHECK(page_size>0 AND page_size<=500),
+					complete INTEGER NOT NULL CHECK(complete IN (0,1)),
+					finalized_at TEXT,
+					CHECK((complete=1 AND finalized_at IS NOT NULL) OR (complete=0 AND finalized_at IS NULL)),
+					CHECK(expires_at>created_at)
+				)`,
+				`CREATE INDEX platform_read_authority_snapshots_consumer_idx ON platform_read_authority_snapshots(consumer_key,created_at,snapshot_id)`,
+				`CREATE TABLE platform_read_authority_snapshot_records (
+					id INTEGER PRIMARY KEY,
+					snapshot_id TEXT NOT NULL REFERENCES platform_read_authority_snapshots(snapshot_id) ON DELETE CASCADE,
+					ordinal INTEGER NOT NULL CHECK(ordinal>=0 AND ordinal<10000),
+					entity_kind TEXT NOT NULL,
+					record_id TEXT NOT NULL,
+					record_hash TEXT NOT NULL CHECK(length(record_hash)=64),
+					record_json TEXT NOT NULL CHECK(length(record_json)>1 AND length(record_json)<=4096),
+					UNIQUE(snapshot_id,ordinal),
+					UNIQUE(snapshot_id,entity_kind,record_id),
+					UNIQUE(snapshot_id,record_hash)
+				)`,
+				`CREATE INDEX platform_read_authority_snapshot_records_page_idx ON platform_read_authority_snapshot_records(snapshot_id,ordinal)`,
+				`CREATE INDEX platform_read_authority_snapshot_records_kind_idx ON platform_read_authority_snapshot_records(snapshot_id,entity_kind,ordinal)`,
+			},
+		},
 	}
 }
 

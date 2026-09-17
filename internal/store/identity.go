@@ -64,4 +64,5 @@ type PlatformStore interface {
 	AccessScopeStore
 	EventStore
 	ProjectionStore
+	ReadAuthoritySnapshotStore
 }

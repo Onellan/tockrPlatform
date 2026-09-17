@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -463,6 +464,39 @@ func CanonicalRequest(method, path, bodyDigest, consumer, keyID, timestamp, nonc
 func BodyDigest(body []byte) string {
 	digest := sha256.Sum256(body)
 	return hex.EncodeToString(digest[:])
+}
+
+// SourceCursor encodes the committed outbox row boundary. The decimal
+// representation is deliberately opaque to consumers; only Platform parses
+// it at the source boundary.
+func SourceCursor(value int64) string {
+	if value < 0 {
+		return ""
+	}
+	return "cur_" + strconv.FormatInt(value, 10)
+}
+
+func ParseSourceCursor(value string) (int64, error) {
+	value = strings.TrimSpace(value)
+	if !strings.HasPrefix(value, "cur_") || len(value) <= len("cur_") {
+		return 0, ErrInvalidCursor
+	}
+	parsed, err := strconv.ParseInt(strings.TrimPrefix(value, "cur_"), 10, 64)
+	if err != nil || parsed < 0 {
+		return 0, ErrInvalidCursor
+	}
+	return parsed, nil
+}
+
+// RecordsChecksum is the canonical snapshot checksum: a stable JSON array of
+// already validated records, with no paging or metadata fields included.
+func RecordsChecksum(records []Record) (string, error) {
+	body, err := json.Marshal(records)
+	if err != nil {
+		return "", fmt.Errorf("marshal read-authority records: %w", err)
+	}
+	digest := sha256.Sum256(body)
+	return hex.EncodeToString(digest[:]), nil
 }
 
 func ResponseVersionHeader() (string, string) {
