@@ -32,8 +32,25 @@
 - The superseding `platform.read-authority.v2` contract adds explicit
   `migration_seed` version/name/checksum provenance for rows created before the
   outbox, while v1 and `platform-events-v1` remain unchanged.
-- PF-B11-S02 is now **Ready**. This correction did not implement snapshot
-  persistence, feed routes or CTRL/IMS runtime behavior.
+- PF-B11-S02 was promoted to **Ready** by this correction; the correction did
+  not implement snapshot persistence, feed routes or CTRL/IMS runtime behavior.
+
+## PF-B11-S02 — Durable snapshot and source cursor
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s02-durable-snapshot.md`](../../plan/completed/pf-b11-s02-durable-snapshot.md)
+- Accepted implementation candidate: `065564e9db4be88dc556bb4b0fd0a88050c9487a`
+- Evidence: [`audits/pf-b11-s02-engineering-review.md`](audits/pf-b11-s02-engineering-review.md),
+  [`audits/pf-b11-s02-tester-acceptance.md`](audits/pf-b11-s02-tester-acceptance.md)
+  and the retained initial-review repair record.
+- Platform now provides a transactionally materialized, immutable and bounded
+  `platform.read-authority.v2` bootstrap snapshot with an opaque source
+  cursor, deterministic SHA-256 checksum, v2 event/migration-seed provenance,
+  consumer-bound paging, expiry and bounded cleanup. Fresh/upgrade/reopen,
+  corruption, omission, duplicate, source-mutation and race evidence passed.
+- PF-B11-S03 is now **Ready**. No authenticated feed route, consumer runtime,
+  CTRL/IMS production code, product role, billing fact, shared database or
+  authority cutover was changed.
 
 The following Platform Foundation Slices are terminally recorded:
 

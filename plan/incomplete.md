@@ -46,13 +46,14 @@ shared identity, tenancy and product-access authority for future CTRL and IMS
 consumers. It does not implement CTRL/IMS operational screens, billing,
 production-data import or authority cutover.
 
-The first executable item is now PF-B11-S02. PF-B11-S01 and its superseding
-PF-B11-S01-R1 correction are terminally closed below after their exact
+PF-B11-S02 was the first executable item and is now terminally closed below.
+PF-B11-S01 and its superseding PF-B11-S01-R1 correction are terminally closed
+after their exact
 contracts, independent gates and local validation passed:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| PF-B11 | PF-B11-S02 — Durable snapshot and source cursor | **Ready** | S01-R1 terminal; v2 event or migration-seed provenance contract | [active plan](active/pf-b11-s02-durable-snapshot.md) |
+| PF-B11 | PF-B11-S03 — Authenticated feed and resynchronisation API | **Ready** | S02 terminal; immutable v2 snapshot/source cursor | [active plan](active/pf-b11-s03-feed-and-api.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -68,7 +69,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B10 | S01, S01-R1, S02 | **Terminal** | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
-| PF-B11 | S01 and S01-R1 terminal, S02 Ready, S03/S04 not run | **Active at S02** | S01 → S01-R1 → S02 → S03 → S04 |
+| PF-B11 | S01, S01-R1 and S02 terminal, S03 Ready, S04 not run | **Active at S03** | S01 → S01-R1 → S02 → S03 → S04 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -145,8 +146,11 @@ with independent review and acceptance in the linked audit files. PF-B11-S01-R1
 is now terminally implemented and reconciled in
 [`plan/completed/pf-b11-s01-r1-seed-provenance-v2.md`](completed/pf-b11-s01-r1-seed-provenance-v2.md),
 with independent review and acceptance recorded in the linked audit files.
-PF-B11-S02 is now **Ready** under `platform.read-authority.v2`; S03 and S04
-were not started.
+PF-B11-S02 is now terminally implemented and reconciled in
+[`plan/completed/pf-b11-s02-durable-snapshot.md`](completed/pf-b11-s02-durable-snapshot.md),
+with independent review and acceptance recorded in the linked audit files.
+PF-B11-S03 is now **Ready** under the terminal S02 snapshot/source-cursor
+seam; S04 remains planned and no later Batch was started.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

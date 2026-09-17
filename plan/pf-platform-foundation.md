@@ -172,7 +172,7 @@ independent tester acceptance remain separate gates.
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
 | PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
-| PF-B11 | Shared read authority and consumer projection source | S01, S01-R1, S02–S04 | **Active at S02** |
+| PF-B11 | Shared read authority and consumer projection source | S01, S01-R1, S02–S04 | **Active at S03** |
 
 Total: **11 Batches, 27 Slices including the authorised PF-B11-S01-R1 correction and PF-B11 extension**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
@@ -227,8 +227,8 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B10-S02 | [Final local certification — terminal](completed/pf-b10-s02-final-certification.md) |
 | PF-B11-S01 | [Read-authority contract and consumer compatibility — terminal](completed/pf-b11-s01-read-authority-contract.md) |
 | PF-B11-S01-R1 | [Seed provenance contract correction — terminal](completed/pf-b11-s01-r1-seed-provenance-v2.md) |
-| PF-B11-S02 | [Durable snapshot and source cursor — Ready](active/pf-b11-s02-durable-snapshot.md) |
-| PF-B11-S03 | [Authenticated feed and resynchronisation API — planned](active/pf-b11-s03-feed-and-api.md) |
+| PF-B11-S02 | [Durable snapshot and source cursor — terminal](completed/pf-b11-s02-durable-snapshot.md) |
+| PF-B11-S03 | [Authenticated feed and resynchronisation API — Ready](active/pf-b11-s03-feed-and-api.md) |
 | PF-B11-S04 | [Security, operability and consumer-readiness certification — planned](active/pf-b11-s04-certification.md) |
 
 PF-B11-S01 is terminally accepted at implementation candidate
@@ -237,8 +237,12 @@ compatibility evidence are recorded in the completed plan and linked audits.
 PF-B11-S01-R1 is terminally accepted at implementation candidate
 `25c2502298b030f77e38aa246822611f875ad57a`; it publishes v2 migration-seed
 provenance without changing terminal v1 or the event allow-list. PF-B11-S02 is
-now **Ready**. No PF-B11 runtime snapshot, feed, consumer projection or
-authority cutover is claimed by this closeout. S03 and S04 remain unrun.
+terminally accepted at implementation candidate
+`065564e9db4be88dc556bb4b0fd0a88050c9487a`; its durable snapshot, source
+cursor, migration, independent gates and exact local validation are recorded
+in the completed plan and linked audits. PF-B11-S03 is now **Ready**. No feed,
+consumer projection or authority cutover is claimed by this closeout, and S04
+remains unrun.
 
 ## Programme work packages
 

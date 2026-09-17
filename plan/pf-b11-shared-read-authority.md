@@ -1,6 +1,6 @@
 # PF-B11 — Shared read authority and consumer projection source
 
-**Status:** Active at PF-B11-S02; PF-B1 through PF-B10 remain terminal historical
+**Status:** Active at PF-B11-S03; PF-B1 through PF-B10 remain terminal historical
 scope. PF-B11 is a separately authorised forward extension for the gated
 CTRL/IMS PD-D5-S01 dependency.
 
@@ -69,14 +69,17 @@ authority.
 | ---: | --- | --- | --- | --- |
 | 1 | PF-B11-S01 — Read-authority contract and compatibility | [completed plan](completed/pf-b11-s01-read-authority-contract.md) | **Terminal** | PF-B10-S02 terminal; CTRL/IMS PD-D5 gate evidence |
 | 2 | PF-B11-S01-R1 — Seed provenance contract correction | [completed plan](completed/pf-b11-s01-r1-seed-provenance-v2.md) | **Terminal** | PF-B11-S01 terminal; explicit provenance authority decision |
-| 3 | PF-B11-S02 — Durable snapshot and source cursor | [active plan](active/pf-b11-s02-durable-snapshot.md) | **Ready** | PF-B11-S01-R1 terminal; v2 provenance contract |
-| 4 | PF-B11-S03 — Authenticated feed and resynchronisation API | [active plan](active/pf-b11-s03-feed-and-api.md) | Planned | PF-B11-S02 terminal |
+| 3 | PF-B11-S02 — Durable snapshot and source cursor | [completed plan](completed/pf-b11-s02-durable-snapshot.md) | **Terminal** | PF-B11-S01-R1 terminal; v2 provenance contract |
+| 4 | PF-B11-S03 — Authenticated feed and resynchronisation API | [active plan](active/pf-b11-s03-feed-and-api.md) | **Ready** | PF-B11-S02 terminal |
 | 5 | PF-B11-S04 — Security, operability and consumer-readiness certification | [active plan](active/pf-b11-s04-certification.md) | Planned | PF-B11-S01–S03 terminal; CTRL/IMS plan review |
 
 Slices are strictly sequential. PF-B11-S01 freezes the terminal v1 contract;
 PF-B11-S01-R1 supersedes the unresolved provenance decision with v2 and is
-terminal. PF-B11-S02 is now **Ready** and must use v2 migration-seed
-provenance for the two migration 6 Product rows. S03 and S04 remain unrun.
+terminal. PF-B11-S02 is terminal and uses v2 migration-seed provenance for the
+two migration 6 Product rows. Its accepted implementation candidate is
+`065564e9db4be88dc556bb4b0fd0a88050c9487a`; independent review, tester
+acceptance and exact-candidate local validation all passed. PF-B11-S03 is now
+**Ready** and S04 remains unrun.
 
 ## Batch acceptance contract
 

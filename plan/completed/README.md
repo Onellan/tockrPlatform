@@ -17,9 +17,10 @@ PF-B9 reconciliation/migration Batch are terminally implemented here. PF-B7,
 PF-B8 and PF-B9 are certified; PF-B10-S01 and PF-B10-S01-R1 are terminal here
 PF-B10-S01, PF-B10-S01-R1 and PF-B10-S02 are terminal here; PF-B10 is
 certified and the original PF Foundation scope has no remaining open Slice.
-PF-B11 is a separately authorised forward extension. PF-B11-S01 and the
-superseding PF-B11-S01-R1 provenance correction are terminal here; its
-remaining S02–S04 plans remain under `plan/active/` until independently
-implemented and the Batch is certified.
+PF-B11 is a separately authorised forward extension. PF-B11-S01,
+PF-B11-S01-R1 and PF-B11-S02 are terminal here; S02's durable snapshot/source
+cursor is accepted under `platform.read-authority.v2`. Its remaining S03–S04
+plans remain under `plan/active/` until independently implemented and the
+Batch is certified.
 Planning, repository setup and validation scaffolding do not by themselves
 make a Slice Implemented.
