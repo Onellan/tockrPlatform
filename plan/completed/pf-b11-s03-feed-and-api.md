@@ -1,6 +1,6 @@
 # PF-B11-S03 — Authenticated feed and resynchronisation API
 
-**Status:** Planned
+**Status:** Implemented / terminal
 **Priority:** PF — Platform consumer read-authority extension
 **Batch:** PF-B11
 **Depends on:** PF-B11-S02 terminal
@@ -123,7 +123,28 @@ projection behavior.
 
 ## Completion
 
-Move to `plan/completed/` only after exact-candidate implementation,
-independent review, independent acceptance and local validation pass. S04 must
-then certify the complete Batch before the consumer gates are eligible for
-promotion.
+PF-B11-S03 is **PASS / terminal** at implementation candidate
+`bfc111ad1e7f8add6967e2dbb8b41f8ac2d192ea`. The capability-local API provides
+Ed25519 signed consumer authentication with overlap rotation, bounded
+timestamp and durable nonce replay protection; bounded snapshot and committed
+event-feed routes; cursor-gap resynchronisation; safe errors; and explicit
+body, page, response and per-consumer rate limits. It preserves the v2
+snapshot/provenance seam and terminal `platform-events-v1` payload boundary.
+
+Independent engineering review passed after the initial timestamp-overflow R1
+was repaired in the accepted candidate. Evidence is recorded in
+[`docs/implementation/audits/pf-b11-s03-engineering-review.md`](../../docs/implementation/audits/pf-b11-s03-engineering-review.md)
+and the retained initial finding in
+[`docs/implementation/audits/pf-b11-s03-engineering-review-initial.md`](../../docs/implementation/audits/pf-b11-s03-engineering-review-initial.md).
+Independent tester acceptance passed in
+[`docs/implementation/audits/pf-b11-s03-tester-acceptance.md`](../../docs/implementation/audits/pf-b11-s03-tester-acceptance.md).
+
+Exact-candidate `format`, `architecture`, `security`, `quality`, `migration`,
+`unit`, `integration` and `race` validation all passed on the implementation
+candidate. The repository does not expose the generic focused-validator
+subcommand; that unsupported invocation is retained as `INVOCATION_FAIL` and
+was not used as evidence. The direct focused HTTP contract test passed.
+
+No required S03 evidence is blocked or not run. PF-B11-S04 is promoted to
+**Ready** and is the only remaining Slice in PF-B11; no CTRL/IMS runtime,
+product cutover, shared database or authority transfer was implemented.

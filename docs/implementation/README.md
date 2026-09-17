@@ -12,6 +12,6 @@ terminal plans are retained immutably in [plan/completed](../../plan/completed/)
 
 PF-B11 is the active forward Platform extension for the versioned consumer
 read-authority contract required by CTRL and IMS. PF-B11-S01, S01-R1 and S02
-are terminal; S02 delivered the durable v2 snapshot/source-cursor seam and
-S03 is **Ready**. S04 remains unrun. No authenticated feed route or consumer
-cutover is implemented.
+are terminal; S03 delivered the authenticated v2 feed, resynchronisation and
+machine-authentication routes. S04 is **Ready** and remains the only unrun
+Slice. No consumer cutover is implemented.

@@ -49,14 +49,16 @@ new explicitly authorised forward Batch that supplies the missing versioned,
 bounded and fail-closed Platform read-authority contract required before CTRL
 or IMS may start PD-D5-S01. PF-B11-S01, PF-B11-S01-R1 and PF-B11-S02 are
 terminal; S02 delivered the durable v2 snapshot/source-cursor seam and S03 is
-now **Ready**. S04 remains unrun. The
+now terminal; S03 delivered the authenticated v2 feed, resynchronisation and
+machine-authentication routes. S04 is now **Ready** and remains the only unrun
+Slice. The
 Batch and remaining Slice plans are:
 
 - [`pf-b11-shared-read-authority.md`](pf-b11-shared-read-authority.md)
 - [`completed/pf-b11-s01-read-authority-contract.md`](completed/pf-b11-s01-read-authority-contract.md)
 - [`completed/pf-b11-s01-r1-seed-provenance-v2.md`](completed/pf-b11-s01-r1-seed-provenance-v2.md)
 - [`completed/pf-b11-s02-durable-snapshot.md`](completed/pf-b11-s02-durable-snapshot.md)
-- [`active/pf-b11-s03-feed-and-api.md`](active/pf-b11-s03-feed-and-api.md)
+- [`completed/pf-b11-s03-feed-and-api.md`](completed/pf-b11-s03-feed-and-api.md)
 - [`active/pf-b11-s04-certification.md`](active/pf-b11-s04-certification.md)
 
 PF-B11 does not reopen terminal plans, implement CTRL/IMS cutover or move

@@ -48,9 +48,26 @@
   cursor, deterministic SHA-256 checksum, v2 event/migration-seed provenance,
   consumer-bound paging, expiry and bounded cleanup. Fresh/upgrade/reopen,
   corruption, omission, duplicate, source-mutation and race evidence passed.
-- PF-B11-S03 is now **Ready**. No authenticated feed route, consumer runtime,
-  CTRL/IMS production code, product role, billing fact, shared database or
-  authority cutover was changed.
+- PF-B11-S04 is now **Ready**. No consumer cutover, CTRL/IMS production code,
+  product role, billing fact, shared database or authority transfer was changed.
+
+## PF-B11-S03 — Authenticated feed and resynchronisation API
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s03-feed-and-api.md`](../../plan/completed/pf-b11-s03-feed-and-api.md)
+- Accepted implementation candidate: `bfc111ad1e7f8add6967e2dbb8b41f8ac2d192ea`
+- Evidence: [`audits/pf-b11-s03-engineering-review.md`](audits/pf-b11-s03-engineering-review.md),
+  [`audits/pf-b11-s03-tester-acceptance.md`](audits/pf-b11-s03-tester-acceptance.md)
+  and the retained initial-review repair record.
+- Platform now provides bounded v2 machine-authenticated snapshot, record,
+  committed-change and status routes for `tockrctrl` and `tockrims`, with
+  Ed25519 key overlap/retirement, durable nonce replay protection, bounded
+  timestamp/body/page/response/rate controls, safe errors and explicit cursor
+  resynchronisation. Snapshot provenance and terminal `platform-events-v1`
+  payload semantics remain intact.
+- All required local profiles and focused HTTP contract evidence passed on the
+  exact candidate. PF-B11-S04 is the only remaining unrun Slice; no CTRL/IMS
+  runtime, consumer cutover or shared database was implemented.
 
 The following Platform Foundation Slices are terminally recorded:
 
