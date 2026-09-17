@@ -163,8 +163,12 @@ The successful response returns immutable metadata:
 
 Only `complete: true` snapshots are usable. A snapshot is bound to one
 consumer, contract version, source cursor, checksum, creation time, expiry
-and deterministic record order. Records are ordered by the canonical entity
-kind order in the implementation contract, then `id`, then relationship IDs.
+and deterministic record order. The canonical entity-kind order is exactly
+`user`, `organisation`, `organisation_membership`, `workspace`,
+`workspace_membership`, `product`, `organisation_product_entitlement`,
+`user_product_assignment`; records are then ordered by `id`, then relationship
+IDs. This order is exposed defensively by the Platform contract package and
+must not be changed by a consumer.
 The checksum is SHA-256 over the canonical UTF-8 JSON sequence of all records
 in that order, with no transport paging metadata. A page cursor is opaque,
 snapshot-bound and cannot be used against another snapshot or consumer.
@@ -185,6 +189,21 @@ opaque `next_cursor` (or `null` at completion), and `complete`. A page cannot
 claim current authority until the consumer has received every page, verified
 the snapshot binding/checksum and separately verified source state.
 
+The records response has this exact envelope; each record uses only the
+allow-listed fields for its entity kind:
+
+```json
+{
+  "version":"platform.read-authority.v1",
+  "snapshot_id":"snap_*",
+  "source_cursor":"cur_*",
+  "checksum":"<lowercase hex>",
+  "records":[{"entity_kind":"user","id":"usr_example","status":"active","source_event_id":"evt_example","source_sequence":1,"source_schema_version":1}],
+  "next_cursor":null,
+  "complete":true
+}
+```
+
 ## Incremental changes and cursors
 
 After bootstrap, the consumer reads committed changes:
@@ -197,8 +216,21 @@ The global cursor is opaque to consumers and monotonic at the committed
 Platform outbox boundary. It is distinct from each event's per-aggregate
 `sequence`. A change response contains the read-authority version, source
 state, `changes`, `next_cursor` and `has_more`; each change contains its global
-cursor and the existing versioned Platform event envelope. The Platform event
-payload allow-list remains the authority in
+cursor and the existing versioned Platform event envelope. Its exact envelope
+is:
+
+```json
+{
+  "version":"platform.read-authority.v1",
+  "state":"current",
+  "source_cursor":"cur_2",
+  "changes":[{"cursor":"cur_2","event":{"event_id":"evt_example","event_type":"platform.user.created","aggregate_type":"User","aggregate_id":"usr_example","sequence":1,"schema_version":1,"occurred_at":"2026-09-17T10:00:00Z","payload":{"user_id":"usr_example","active":true}}}],
+  "next_cursor":"cur_2",
+  "has_more":false
+}
+```
+
+The Platform event payload allow-list remains the authority in
 [`platform-events-v1.md`](platform-events-v1.md); this contract does not add
 credentials, product roles or billing facts to event payloads.
 
@@ -217,7 +249,21 @@ outbox rows are visible.
 ## Freshness and fail-closed states
 
 The status endpoint returns the version, consumer binding, source cursor,
-source state, retention horizon and readiness without returning records.
+source state, retention horizon and readiness without returning records. Its
+exact envelope is:
+
+```json
+{
+  "version":"platform.read-authority.v1",
+  "consumer":"tockrctrl",
+  "contract_version":"platform.read-authority.v1",
+  "state":"current",
+  "ready":true,
+  "source_cursor":"cur_2",
+  "retention_horizon":"cur_0"
+}
+```
+
 These states have one meaning:
 
 | State | Meaning | Authoritative reads |

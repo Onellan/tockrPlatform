@@ -7,11 +7,11 @@ package readauthority
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
-	"sort"
 	"strings"
 )
 
@@ -42,6 +42,7 @@ var (
 	ErrUnsupportedVersion = errors.New("unsupported read-authority version")
 	ErrInvalidConsumer    = errors.New("invalid read-authority consumer")
 	ErrInvalidRequest     = errors.New("invalid read-authority request")
+	ErrInvalidRecord      = errors.New("invalid read-authority record")
 	ErrInvalidState       = errors.New("invalid read-authority state")
 	ErrInvalidCursor      = errors.New("invalid read-authority cursor")
 	ErrInvalidSignature   = errors.New("invalid read-authority signature input")
@@ -64,8 +65,9 @@ const (
 	EntityUserProductAssignment   EntityKind = "user_product_assignment"
 )
 
-// AllowedEntityKinds is sorted and must be treated as immutable by callers.
-var AllowedEntityKinds = []EntityKind{
+// allowedEntityKinds is the canonical deterministic record order. It is
+// intentionally private so callers cannot mutate the contract in place.
+var allowedEntityKinds = [...]EntityKind{
 	EntityUser,
 	EntityOrganisation,
 	EntityOrganisationMembership,
@@ -74,6 +76,14 @@ var AllowedEntityKinds = []EntityKind{
 	EntityProduct,
 	EntityOrganisationEntitlement,
 	EntityUserProductAssignment,
+}
+
+const SourceSchemaVersion = 1
+
+// AllowedEntityKinds returns a defensive copy of the complete allow-list in
+// canonical snapshot order.
+func AllowedEntityKinds() []EntityKind {
+	return append([]EntityKind(nil), allowedEntityKinds[:]...)
 }
 
 type State string
@@ -164,8 +174,8 @@ type Record struct {
 // Its payload remains governed by platform-events-v1; no new event payload is
 // introduced by this contract package.
 type Change struct {
-	Cursor string `json:"cursor"`
-	Event  any    `json:"event"`
+	Cursor string          `json:"cursor"`
+	Event  json.RawMessage `json:"event"`
 }
 
 // ErrorResponse is intentionally non-sensitive. Implementations must not add
@@ -216,7 +226,7 @@ func ValidateState(state State) error {
 }
 
 func ValidateEntityKind(kind EntityKind) error {
-	for _, allowed := range AllowedEntityKinds {
+	for _, allowed := range allowedEntityKinds {
 		if kind == allowed {
 			return nil
 		}
@@ -225,8 +235,8 @@ func ValidateEntityKind(kind EntityKind) error {
 }
 
 func ValidateSnapshotRequest(request SnapshotRequest) error {
-	if len(request.EntityKinds) == 0 || len(request.EntityKinds) > len(AllowedEntityKinds) {
-		return fmt.Errorf("%w: entity_kinds must contain one to %d values", ErrInvalidRequest, len(AllowedEntityKinds))
+	if len(request.EntityKinds) == 0 || len(request.EntityKinds) > len(allowedEntityKinds) {
+		return fmt.Errorf("%w: entity_kinds must contain one to %d values", ErrInvalidRequest, len(allowedEntityKinds))
 	}
 	seen := make(map[EntityKind]struct{}, len(request.EntityKinds))
 	for _, kind := range request.EntityKinds {
@@ -243,6 +253,114 @@ func ValidateSnapshotRequest(request SnapshotRequest) error {
 	}
 	return nil
 }
+
+// ValidateRecord enforces the per-entity field and relationship allow-list at
+// the contract seam. Later snapshot materialization must call this before a
+// record can be persisted or returned.
+func ValidateRecord(record Record) error {
+	if err := ValidateEntityKind(record.EntityKind); err != nil {
+		return fmt.Errorf("%w: entity kind: %v", ErrInvalidRecord, err)
+	}
+	if record.SourceEventID == "" || !strings.HasPrefix(record.SourceEventID, "evt_") || record.SourceSequence <= 0 || record.SourceSchemaVersion != SourceSchemaVersion {
+		return fmt.Errorf("%w: missing or invalid source provenance", ErrInvalidRecord)
+	}
+	if record.Status != StatusActive && record.Status != StatusArchived && record.Status != StatusRevoked && record.Status != StatusRetired {
+		return fmt.Errorf("%w: invalid status", ErrInvalidRecord)
+	}
+	if record.ID == "" {
+		return fmt.Errorf("%w: missing id", ErrInvalidRecord)
+	}
+	switch record.EntityKind {
+	case EntityUser:
+		if !hasPrefixID(record.ID, "usr_") || !statusAllowed(record.Status, StatusActive, StatusArchived) || record.hasAny("organisation_id", "workspace_id", "product_key", "role", "name", "user_id") {
+			return fmt.Errorf("%w: invalid user fields", ErrInvalidRecord)
+		}
+	case EntityOrganisation:
+		if !hasPrefixID(record.ID, "org_") || !statusAllowed(record.Status, StatusActive, StatusArchived) || !validName(record.Name) || record.hasAny("user_id", "organisation_id", "workspace_id", "product_key", "role") {
+			return fmt.Errorf("%w: invalid organisation fields", ErrInvalidRecord)
+		}
+	case EntityOrganisationMembership:
+		if !hasPrefixID(record.ID, "omem_") || !hasPrefixID(record.UserID, "usr_") || !hasPrefixID(record.OrganisationID, "org_") || !validRole(record.Role) || !statusAllowed(record.Status, StatusActive, StatusRevoked) || record.hasAny("workspace_id", "product_key", "name") {
+			return fmt.Errorf("%w: invalid organisation membership fields", ErrInvalidRecord)
+		}
+	case EntityWorkspace:
+		if !hasPrefixID(record.ID, "wsp_") || !hasPrefixID(record.OrganisationID, "org_") || !statusAllowed(record.Status, StatusActive, StatusArchived) || !validName(record.Name) || record.hasAny("user_id", "workspace_id", "product_key", "role") {
+			return fmt.Errorf("%w: invalid workspace fields", ErrInvalidRecord)
+		}
+	case EntityWorkspaceMembership:
+		if !hasPrefixID(record.ID, "wmem_") || !hasPrefixID(record.UserID, "usr_") || !hasPrefixID(record.WorkspaceID, "wsp_") || !validRole(record.Role) || !statusAllowed(record.Status, StatusActive, StatusRevoked) || record.hasAny("organisation_id", "product_key", "name") {
+			return fmt.Errorf("%w: invalid workspace membership fields", ErrInvalidRecord)
+		}
+	case EntityProduct:
+		if !hasPrefixID(record.ID, "product.") || !statusAllowed(record.Status, StatusActive, StatusRetired) || record.hasAny("user_id", "organisation_id", "workspace_id", "product_key", "role", "name") {
+			return fmt.Errorf("%w: invalid product fields", ErrInvalidRecord)
+		}
+	case EntityOrganisationEntitlement:
+		if !hasPrefixID(record.ID, "ent_") || !hasPrefixID(record.OrganisationID, "org_") || !validProductKey(record.ProductKey) || !statusAllowed(record.Status, StatusActive, StatusRevoked) || record.hasAny("user_id", "workspace_id", "role", "name") {
+			return fmt.Errorf("%w: invalid organisation entitlement fields", ErrInvalidRecord)
+		}
+	case EntityUserProductAssignment:
+		if !hasPrefixID(record.ID, "upa_") || !hasPrefixID(record.UserID, "usr_") || !hasPrefixID(record.OrganisationID, "org_") || !validProductKey(record.ProductKey) || !statusAllowed(record.Status, StatusActive, StatusRevoked) || record.hasAny("workspace_id", "role", "name") {
+			return fmt.Errorf("%w: invalid user assignment fields", ErrInvalidRecord)
+		}
+	}
+	return nil
+}
+
+func (r Record) hasAny(fields ...string) bool {
+	for _, field := range fields {
+		switch field {
+		case "user_id":
+			if r.UserID != "" {
+				return true
+			}
+		case "organisation_id":
+			if r.OrganisationID != "" {
+				return true
+			}
+		case "workspace_id":
+			if r.WorkspaceID != "" {
+				return true
+			}
+		case "product_key":
+			if r.ProductKey != "" {
+				return true
+			}
+		case "role":
+			if r.Role != "" {
+				return true
+			}
+		case "name":
+			if r.Name != "" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func CanonicalEntityKinds() []EntityKind { return AllowedEntityKinds() }
+
+func hasPrefixID(value, prefix string) bool {
+	return strings.HasPrefix(value, prefix) && len(value) > len(prefix)
+}
+
+func statusAllowed(value RecordStatus, allowed ...RecordStatus) bool {
+	for _, candidate := range allowed {
+		if value == candidate {
+			return true
+		}
+	}
+	return false
+}
+
+func validRole(value string) bool {
+	return value == "owner" || value == "admin" || value == "member" || value == "viewer"
+}
+
+func validProductKey(value string) bool { return value == ProductCTRL || value == ProductIMS }
+
+func validName(value string) bool { return value != "" && len(value) <= 200 }
 
 // CanonicalRequest returns the exact bytes signed by a machine consumer. The
 // body digest is lowercase SHA-256 hex of the raw request body, not parsed JSON.
@@ -263,12 +381,6 @@ func CanonicalRequest(method, path, bodyDigest, consumer, keyID, timestamp, nonc
 func BodyDigest(body []byte) string {
 	digest := sha256.Sum256(body)
 	return hex.EncodeToString(digest[:])
-}
-
-func SortEntityKinds(kinds []EntityKind) []EntityKind {
-	copyOf := append([]EntityKind(nil), kinds...)
-	sort.Slice(copyOf, func(i, j int) bool { return copyOf[i] < copyOf[j] })
-	return copyOf
 }
 
 func ResponseVersionHeader() (string, string) {

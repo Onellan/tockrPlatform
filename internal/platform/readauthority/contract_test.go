@@ -43,6 +43,67 @@ func TestContractRejectsUnknownFieldsAndUnboundedSnapshotRequests(t *testing.T) 
 	}
 }
 
+func TestContractRejectsForbiddenRecordFields(t *testing.T) {
+	base := Record{
+		EntityKind:          EntityUser,
+		ID:                  "usr_example",
+		Status:              StatusActive,
+		SourceEventID:       "evt_example",
+		SourceSequence:      1,
+		SourceSchemaVersion: SourceSchemaVersion,
+	}
+	if err := ValidateRecord(base); err != nil {
+		t.Fatal(err)
+	}
+	base.Role = "admin"
+	if !errors.Is(ValidateRecord(base), ErrInvalidRecord) {
+		t.Fatal("product/platform role crossed the user record boundary")
+	}
+	base = Record{
+		EntityKind:          EntityOrganisationEntitlement,
+		ID:                  "ent_example",
+		Status:              StatusActive,
+		OrganisationID:      "org_example",
+		ProductKey:          ProductCTRL,
+		SourceEventID:       "evt_example",
+		SourceSequence:      1,
+		SourceSchemaVersion: SourceSchemaVersion,
+	}
+	if err := ValidateRecord(base); err != nil {
+		t.Fatal(err)
+	}
+	base.ProductKey = "product.unknown"
+	if !errors.Is(ValidateRecord(base), ErrInvalidRecord) {
+		t.Fatal("unknown product key was accepted")
+	}
+}
+
+func TestCanonicalEntityOrderIsExplicitAndDefensive(t *testing.T) {
+	want := []EntityKind{
+		EntityUser,
+		EntityOrganisation,
+		EntityOrganisationMembership,
+		EntityWorkspace,
+		EntityWorkspaceMembership,
+		EntityProduct,
+		EntityOrganisationEntitlement,
+		EntityUserProductAssignment,
+	}
+	got := CanonicalEntityKinds()
+	if len(got) != len(want) {
+		t.Fatalf("canonical entity count = %d, want %d", len(got), len(want))
+	}
+	for index := range want {
+		if got[index] != want[index] {
+			t.Fatalf("canonical entity %d = %q, want %q", index, got[index], want[index])
+		}
+	}
+	got[0] = EntityProduct
+	if CanonicalEntityKinds()[0] != EntityUser {
+		t.Fatal("canonical entity order exposed mutable backing storage")
+	}
+}
+
 func TestContractStatesFailClosed(t *testing.T) {
 	for _, state := range []State{StateStale, StateGap, StateBlocked, StateUnavailable, StateResyncRequired} {
 		if err := ValidateState(state); err != nil {
