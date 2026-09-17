@@ -117,6 +117,40 @@ func TestV2AcceptsMigrationSeedAndRejectsMixedOrFabricatedProvenance(t *testing.
 	}
 }
 
+func TestV2ProvenanceWireShapesAreMutuallyExclusive(t *testing.T) {
+	seed := Record{
+		EntityKind:        EntityProduct,
+		ID:                ProductIMS,
+		Status:            StatusActive,
+		ProvenanceKind:    ProvenanceMigrationSeed,
+		MigrationVersion:  6,
+		MigrationName:     "product-catalogue-organisation-entitlements",
+		MigrationChecksum: strings.Repeat("c", 64),
+	}
+	seedJSON, err := json.Marshal(seed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(seedJSON), "source_event_id") || strings.Contains(string(seedJSON), "source_sequence") || strings.Contains(string(seedJSON), "source_schema_version") {
+		t.Fatalf("migration seed serialized event provenance: %s", seedJSON)
+	}
+	event := seed
+	event.ProvenanceKind = ProvenanceEvent
+	event.SourceEventID = "evt_example"
+	event.SourceSequence = 1
+	event.SourceSchemaVersion = SourceSchemaVersion
+	event.MigrationVersion = 0
+	event.MigrationName = ""
+	event.MigrationChecksum = ""
+	eventJSON, err := json.Marshal(event)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(eventJSON), "migration_version") || strings.Contains(string(eventJSON), "migration_name") || strings.Contains(string(eventJSON), "migration_checksum") {
+		t.Fatalf("event serialized migration provenance: %s", eventJSON)
+	}
+}
+
 func TestV1RemainsEventOnly(t *testing.T) {
 	event := Record{
 		EntityKind:          EntityProduct,
