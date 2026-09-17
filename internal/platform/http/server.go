@@ -16,6 +16,7 @@ import (
 	"github.com/Onellan/tockrplatform/internal/auth"
 	"github.com/Onellan/tockrplatform/internal/domain"
 	"github.com/Onellan/tockrplatform/internal/platform/assertion"
+	"github.com/Onellan/tockrplatform/internal/platform/readauthority"
 	"github.com/Onellan/tockrplatform/internal/store"
 	"github.com/Onellan/tockrplatform/web/templates"
 	"github.com/a-h/templ"
@@ -38,12 +39,15 @@ type Config struct {
 	AssertionIssuer      *assertion.Issuer
 	ReadinessCheck       func(context.Context) error
 	MaxRequestBodyBytes  int64
+	ReadAuthorityKeys    readauthority.PublicKeySet
 }
 
 type Server struct {
-	store   store.PlatformStore
-	cfg     Config
-	limiter *auth.LoginLimiter
+	store             store.PlatformStore
+	cfg               Config
+	limiter           *auth.LoginLimiter
+	readAuthorityKeys readauthority.PublicKeySet
+	readAuthorityRate *readAuthorityRateLimiter
 }
 
 type sessionContextKey struct{}
@@ -62,7 +66,7 @@ func NewServer(persistence store.PlatformStore, cfg Config) *Server {
 	if cfg.MaxRequestBodyBytes <= 0 {
 		cfg.MaxRequestBodyBytes = defaultRequestBodyLimit
 	}
-	return &Server{store: persistence, cfg: cfg, limiter: auth.NewLoginLimiter(cfg.LoginLimiter)}
+	return &Server{store: persistence, cfg: cfg, limiter: auth.NewLoginLimiter(cfg.LoginLimiter), readAuthorityKeys: cloneReadAuthorityKeys(cfg.ReadAuthorityKeys), readAuthorityRate: newReadAuthorityRateLimiter()}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -74,6 +78,11 @@ func (s *Server) Handler() http.Handler {
 	r.Get("/favicon.ico", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
 	r.Get("/.well-known/tockr-platform-assertion-keys", s.assertionKeys)
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir(s.cfg.StaticDir))))
+	readAuthority := r.With(s.requireReadAuthority)
+	readAuthority.Post("/api/v1/read-authority/snapshots", s.createReadAuthoritySnapshot)
+	readAuthority.Get("/api/v1/read-authority/snapshots/{snapshotID}/records", s.listReadAuthoritySnapshotRecords)
+	readAuthority.Get("/api/v1/read-authority/changes", s.listReadAuthorityChanges)
+	readAuthority.Get("/api/v1/read-authority/status", s.readAuthorityStatus)
 	r.Get("/login", s.loginPage)
 	r.Post("/login", s.login)
 	r.Group(func(protected chi.Router) {

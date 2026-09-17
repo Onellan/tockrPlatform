@@ -232,3 +232,77 @@ func (s *Store) MarkPlatformEventsPublished(ctx context.Context, eventIDs []stri
 	}
 	return nil
 }
+
+func (s *Store) PlatformEventCursorBounds(ctx context.Context) (int64, int64, error) {
+	var first, current int64
+	if err := s.db.QueryRowContext(ctx, `SELECT COALESCE(MIN(id),0),COALESCE(MAX(id),0) FROM platform_outbox`).Scan(&first, &current); err != nil {
+		return 0, 0, fmt.Errorf("read platform event cursor bounds: %w", err)
+	}
+	if first == 0 {
+		return current, 0, nil
+	}
+	return current, first - 1, nil
+}
+
+func (s *Store) ListPlatformEventsAfter(ctx context.Context, after int64, limit int) (store.PlatformEventFeed, error) {
+	if after < 0 || limit <= 0 || limit > 500 {
+		return store.PlatformEventFeed{}, store.ErrInvalidOutboxLimit
+	}
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return store.PlatformEventFeed{}, fmt.Errorf("begin platform event feed: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+	var first, current int64
+	if err := tx.QueryRowContext(ctx, `SELECT COALESCE(MIN(id),0),COALESCE(MAX(id),0) FROM platform_outbox`).Scan(&first, &current); err != nil {
+		return store.PlatformEventFeed{}, fmt.Errorf("read platform event feed bounds: %w", err)
+	}
+	horizon := int64(0)
+	if first > 0 {
+		horizon = first - 1
+	}
+	if after < horizon || after > current {
+		return store.PlatformEventFeed{}, store.ErrReadAuthoritySourceGap
+	}
+	rows, err := tx.QueryContext(ctx, `SELECT id,event_id,event_type,aggregate_type,aggregate_id,sequence,schema_version,occurred_at,payload,published_at
+		FROM platform_outbox WHERE id>? ORDER BY id LIMIT ?`, after, limit+1)
+	if err != nil {
+		return store.PlatformEventFeed{}, fmt.Errorf("read platform event feed: %w", err)
+	}
+	defer rows.Close()
+	feed := store.PlatformEventFeed{SourceCursor: current, RetentionHorizon: horizon, Events: make([]store.OutboxEvent, 0, limit)}
+	var previous int64 = after
+	for rows.Next() {
+		var event store.OutboxEvent
+		var occurredAt string
+		var payload string
+		var publishedAt sql.NullString
+		if err := rows.Scan(&event.GlobalCursor, &event.EventID, &event.EventType, &event.AggregateType, &event.AggregateID, &event.Sequence, &event.SchemaVersion, &occurredAt, &payload, &publishedAt); err != nil {
+			return store.PlatformEventFeed{}, fmt.Errorf("scan platform event feed: %w", err)
+		}
+		if event.GlobalCursor != previous+1 {
+			return store.PlatformEventFeed{}, store.ErrReadAuthoritySourceGap
+		}
+		previous = event.GlobalCursor
+		event.OccurredAt = parseTime(occurredAt)
+		event.Payload = json.RawMessage(payload)
+		validated := events.Event{EventID: event.EventID, EventType: event.EventType, AggregateType: events.AggregateType(event.AggregateType), AggregateID: event.AggregateID, Sequence: event.Sequence, SchemaVersion: event.SchemaVersion, OccurredAt: event.OccurredAt, Payload: event.Payload}
+		if err := validated.Validate(); err != nil {
+			return store.PlatformEventFeed{}, fmt.Errorf("%w: %v", store.ErrReadAuthoritySourceInvalid, err)
+		}
+		if publishedAt.Valid {
+			value := parseTime(publishedAt.String)
+			event.PublishedAt = &value
+		}
+		feed.Events = append(feed.Events, event)
+	}
+	if err := rows.Err(); err != nil {
+		return store.PlatformEventFeed{}, fmt.Errorf("iterate platform event feed: %w", err)
+	}
+	if len(feed.Events) > limit {
+		feed.HasMore = true
+		feed.Events = feed.Events[:limit]
+		feed.NextCursor = feed.Events[len(feed.Events)-1].GlobalCursor
+	}
+	return feed, nil
+}

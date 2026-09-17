@@ -1,6 +1,10 @@
 package config
 
 import (
+	"crypto/ed25519"
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -59,5 +63,27 @@ func TestFromEnvironmentAcceptsExplicitRuntimeOptions(t *testing.T) {
 	}
 	if config.DBPath != values["PLATFORM_DB_PATH"] || config.HTTPAddr != values["PLATFORM_HTTP_ADDR"] || !config.AllowInsecureCookie {
 		t.Fatalf("explicit configuration = %#v", config)
+	}
+}
+
+func TestFromEnvironmentParsesReadAuthorityKeyOverlapWithoutPrivateMaterial(t *testing.T) {
+	publicKey, _, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	values := map[string]string{
+		"PLATFORM_MFA_KEY":             strings.Repeat("ab", 32),
+		"PLATFORM_READ_AUTHORITY_KEYS": fmt.Sprintf(`{"tockrctrl":{"current":"%s","overlap":"%s"}}`, hex.EncodeToString(publicKey), hex.EncodeToString(publicKey)),
+	}
+	config, err := FromEnvironment(func(key string) string { return values[key] })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(config.ReadAuthorityKeys["tockrctrl"]) != 2 || len(config.ReadAuthorityKeys["tockrctrl"]["current"]) != ed25519.PublicKeySize {
+		t.Fatalf("read-authority keys = %#v", config.ReadAuthorityKeys)
+	}
+	values["PLATFORM_READ_AUTHORITY_KEYS"] = "not-json"
+	if _, err := FromEnvironment(func(key string) string { return values[key] }); err == nil || !strings.Contains(err.Error(), ErrConfiguration.Error()) {
+		t.Fatalf("invalid read-authority keys error = %v", err)
 	}
 }

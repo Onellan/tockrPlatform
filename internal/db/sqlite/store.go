@@ -426,6 +426,21 @@ func supportedMigrations() []migration {
 				`CREATE INDEX platform_read_authority_snapshot_records_kind_idx ON platform_read_authority_snapshot_records(snapshot_id,entity_kind,ordinal)`,
 			},
 		},
+		{
+			version: 11,
+			name:    "platform-read-authority-nonce-replay",
+			statements: []string{
+				`CREATE TABLE platform_read_authority_nonces (
+					id INTEGER PRIMARY KEY,
+					consumer_key TEXT NOT NULL CHECK(length(trim(consumer_key))>0 AND length(consumer_key)<=100),
+					nonce TEXT NOT NULL CHECK(length(nonce)>0 AND length(nonce)<=128),
+					reserved_at TEXT NOT NULL,
+					expires_at TEXT NOT NULL CHECK(expires_at>reserved_at),
+					UNIQUE(consumer_key,nonce)
+				)`,
+				`CREATE INDEX platform_read_authority_nonces_expiry_idx ON platform_read_authority_nonces(expires_at)`,
+			},
+		},
 	}
 }
 

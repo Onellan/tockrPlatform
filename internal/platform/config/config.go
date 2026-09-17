@@ -2,13 +2,18 @@
 package config
 
 import (
+	"crypto/ed25519"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Onellan/tockrplatform/internal/platform/readauthority"
 )
 
 const (
@@ -35,6 +40,7 @@ type Config struct {
 	WriteTimeout        time.Duration
 	IdleTimeout         time.Duration
 	ShutdownTimeout     time.Duration
+	ReadAuthorityKeys   readauthority.PublicKeySet
 }
 
 // FromEnvironment validates process configuration without echoing secret
@@ -71,6 +77,10 @@ func FromEnvironment(getenv func(string) string) (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("%w: PLATFORM_ALLOW_INSECURE_COOKIES", ErrConfiguration)
 	}
+	readAuthorityKeys, err := parseReadAuthorityKeys(getenv("PLATFORM_READ_AUTHORITY_KEYS"))
+	if err != nil {
+		return Config{}, fmt.Errorf("%w: PLATFORM_READ_AUTHORITY_KEYS", ErrConfiguration)
+	}
 
 	return Config{
 		DBPath:              dbPath,
@@ -83,7 +93,47 @@ func FromEnvironment(getenv func(string) string) (Config, error) {
 		WriteTimeout:        defaultWriteTimeout,
 		IdleTimeout:         defaultIdleTimeout,
 		ShutdownTimeout:     defaultShutdown,
+		ReadAuthorityKeys:   readAuthorityKeys,
 	}, nil
+}
+
+func parseReadAuthorityKeys(value string) (readauthority.PublicKeySet, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return readauthority.PublicKeySet{}, nil
+	}
+	var encoded map[string]map[string]string
+	decoder := json.NewDecoder(strings.NewReader(value))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&encoded); err != nil {
+		return nil, err
+	}
+	if encoded == nil {
+		return nil, errors.New("read-authority key set must be an object")
+	}
+	var trailing any
+	if err := decoder.Decode(&trailing); !errors.Is(err, io.EOF) {
+		return nil, errors.New("read-authority key set contains trailing data")
+	}
+	keys := make(readauthority.PublicKeySet, len(encoded))
+	for consumer, consumerKeys := range encoded {
+		if err := readauthority.ValidateConsumer(consumer); err != nil || len(consumerKeys) == 0 {
+			return nil, errors.New("invalid consumer key set")
+		}
+		keys[consumer] = make(map[string]ed25519.PublicKey, len(consumerKeys))
+		for keyID, text := range consumerKeys {
+			trimmedKeyID := strings.TrimSpace(keyID)
+			if keyID != trimmedKeyID || !readauthority.ValidateKeyID(trimmedKeyID) {
+				return nil, errors.New("invalid key ID")
+			}
+			decoded, err := hex.DecodeString(strings.TrimSpace(text))
+			if err != nil || len(decoded) != ed25519.PublicKeySize {
+				return nil, errors.New("invalid public key")
+			}
+			keys[consumer][trimmedKeyID] = append(ed25519.PublicKey(nil), decoded...)
+		}
+	}
+	return keys, nil
 }
 
 func validateHTTPAddr(addr string) error {

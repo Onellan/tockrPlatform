@@ -65,4 +65,5 @@ type PlatformStore interface {
 	EventStore
 	ProjectionStore
 	ReadAuthoritySnapshotStore
+	ReadAuthorityNonceStore
 }

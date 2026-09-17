@@ -5,6 +5,7 @@
 package readauthority
 
 import (
+	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -15,6 +16,10 @@ import (
 	"strconv"
 	"strings"
 )
+
+// PublicKeySet is deployment-managed machine authentication state. Private
+// keys never enter Platform configuration or persistence.
+type PublicKeySet map[string]map[string]ed25519.PublicKey
 
 const (
 	VersionV1                 = "platform.read-authority.v1"
@@ -37,6 +42,7 @@ const (
 	ChangeMaxPageSize         = 500
 	RequestMaxBodyBytes       = 64 * 1024
 	ResponseMaxBytes          = 4 * 1024 * 1024
+	RequestsPerMinute         = 120
 	SnapshotMaxTTLSeconds     = 24 * 60 * 60
 	CursorRetentionMinSeconds = 7 * 24 * 60 * 60
 )
@@ -530,6 +536,10 @@ func HTTPStatus(code ErrorCode) int {
 
 func validRequestToken(value string) bool {
 	return requestTokenPattern.MatchString(value)
+}
+
+func ValidateKeyID(value string) bool {
+	return validRequestToken(strings.TrimSpace(value)) && len(strings.TrimSpace(value)) <= 128
 }
 
 func validSHA256Hex(value string) bool {

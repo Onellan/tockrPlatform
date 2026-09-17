@@ -51,6 +51,7 @@ func runWithListener(parent context.Context, getenv func(string) string, listen 
 		RateLimitEnabled:     true,
 		AssertionIssuer:      assertionIssuer,
 		ReadinessCheck:       store.DB().PingContext,
+		ReadAuthorityKeys:    cfg.ReadAuthorityKeys,
 	})
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,
