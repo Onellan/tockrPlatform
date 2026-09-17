@@ -65,15 +65,15 @@ authority.
 
 | Order | Slice | Plan | State | Depends on |
 | ---: | --- | --- | --- | --- |
-| 1 | PF-B11-S01 — Read-authority contract and compatibility | [active plan](active/pf-b11-s01-read-authority-contract.md) | **Ready** | PF-B10-S02 terminal; CTRL/IMS PD-D5 gate evidence |
-| 2 | PF-B11-S02 — Durable snapshot and source cursor | [active plan](active/pf-b11-s02-durable-snapshot.md) | Planned | PF-B11-S01 terminal |
+| 1 | PF-B11-S01 — Read-authority contract and compatibility | [completed plan](completed/pf-b11-s01-read-authority-contract.md) | **Terminal** | PF-B10-S02 terminal; CTRL/IMS PD-D5 gate evidence |
+| 2 | PF-B11-S02 — Durable snapshot and source cursor | [active plan](active/pf-b11-s02-durable-snapshot.md) | **Ready** | PF-B11-S01 terminal |
 | 3 | PF-B11-S03 — Authenticated feed and resynchronisation API | [active plan](active/pf-b11-s03-feed-and-api.md) | Planned | PF-B11-S02 terminal |
 | 4 | PF-B11-S04 — Security, operability and consumer-readiness certification | [active plan](active/pf-b11-s04-certification.md) | Planned | PF-B11-S01–S03 terminal; CTRL/IMS plan review |
 
 Slices are strictly sequential. PF-B11-S01 freezes the contract before any
-runtime/API implementation; S02 provides consistent source material; S03
-publishes the machine boundary; S04 certifies the exact candidate and the
-cross-repository handoff.
+runtime/API implementation and is terminal; S02 is the next Ready Slice and
+provides consistent source material; S03 publishes the machine boundary; S04
+certifies the exact candidate and the cross-repository handoff.
 
 ## Batch acceptance contract
 

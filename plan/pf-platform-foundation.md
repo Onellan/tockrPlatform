@@ -172,7 +172,7 @@ independent tester acceptance remain separate gates.
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
 | PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
-| PF-B11 | Shared read authority and consumer projection source | S01–S04 | **Active / planned** |
+| PF-B11 | Shared read authority and consumer projection source | S01–S04 | **Active / S01 terminal; S02 Ready** |
 
 Total: **11 Batches, 26 Slices including the authorised S01-R1 repair and PF-B11 extension**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
@@ -225,10 +225,16 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B10-S01 | [Security and hardened runtime — terminal](completed/pf-b10-s01-runtime-hardening.md) |
 | PF-B10-S01-R1 | [Runtime asset packaging repair — terminal](completed/pf-b10-s01-r1-runtime-assets.md) |
 | PF-B10-S02 | [Final local certification — terminal](completed/pf-b10-s02-final-certification.md) |
-| PF-B11-S01 | [Read-authority contract and consumer compatibility — active](active/pf-b11-s01-read-authority-contract.md) |
+| PF-B11-S01 | [Read-authority contract and consumer compatibility — terminal](completed/pf-b11-s01-read-authority-contract.md) |
 | PF-B11-S02 | [Durable snapshot and source cursor — planned](active/pf-b11-s02-durable-snapshot.md) |
 | PF-B11-S03 | [Authenticated feed and resynchronisation API — planned](active/pf-b11-s03-feed-and-api.md) |
 | PF-B11-S04 | [Security, operability and consumer-readiness certification — planned](active/pf-b11-s04-certification.md) |
+
+PF-B11-S01 is terminally accepted at implementation candidate
+`b79b9321a06dd1c0e25381127dc61e861bae520d`; its exact contract and
+compatibility evidence are recorded in the completed plan and linked audits.
+PF-B11-S02 is now the first Ready Slice. No PF-B11 runtime snapshot, feed,
+consumer projection or authority cutover is claimed by this closeout.
 
 ## Programme work packages
 

@@ -1,5 +1,24 @@
 # Implemented delivery ledger
 
+## PF-B11-S01 — Read-authority contract and consumer compatibility
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b11-s01-read-authority-contract.md`](../../plan/completed/pf-b11-s01-read-authority-contract.md)
+- Accepted implementation candidate: `b79b9321a06dd1c0e25381127dc61e861bae520d`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/unit and plan-routing checks all
+  passed. The initial unsupported focused-validator invocation is retained as
+  `INVOCATION_FAIL`; the repository-resolved unit profile passed and no
+  required S01 evidence is blocked.
+- Platform now publishes the separate `platform.read-authority.v1` contract,
+  exact snapshot/feed/status envelopes, the CTRL/IMS compatibility matrix,
+  fail-closed freshness states, bounded limits, machine-signing requirements
+  and a capability-local validation seam. Snapshot persistence, feed routes
+  and consumer cutover remain outside this Slice.
+- No CTRL/IMS production code, data, migration, product role, billing fact,
+  shared database or authority cutover was changed. PF-B11-S02 is the next
+  dependency-ready Slice.
+
 The following Platform Foundation Slices are terminally recorded:
 
 ## PF-B7-S01 — Platform events and transactional outbox

@@ -46,11 +46,12 @@ shared identity, tenancy and product-access authority for future CTRL and IMS
 consumers. It does not implement CTRL/IMS operational screens, billing,
 production-data import or authority cutover.
 
-The first executable item is now PF-B11-S01:
+The first executable item is now PF-B11-S02. PF-B11-S01 is terminally closed
+below after its exact contract, independent gates and local validation passed:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| PF-B11 | PF-B11-S01 — Read-authority contract and consumer compatibility | **Ready** | PF-B10-S02 terminal plus current CTRL/IMS PD-D5 gate evidence | [active plan](active/pf-b11-s01-read-authority-contract.md) |
+| PF-B11 | PF-B11-S02 — Durable snapshot and source cursor | **Ready** | PF-B11-S01 terminal | [active plan](active/pf-b11-s02-durable-snapshot.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -66,7 +67,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B10 | S01, S01-R1, S02 | **Terminal** | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
-| PF-B11 | S01, S02, S03, S04 | **Planned** | PF-B10-S02 + explicit CTRL/IMS read-authority gate; S01 → S02 → S03 → S04 |
+| PF-B11 | S01 terminal, S02 Ready, S03/S04 Planned | **Active** | PF-B10-S02 + explicit CTRL/IMS read-authority gate; S01 → S02 → S03 → S04 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -136,6 +137,11 @@ The original reconciliation is recorded in
 [`docs/implementation/audits/pf-b10-s01-runtime-hardening.md`](../docs/implementation/audits/pf-b10-s01-runtime-hardening.md).
 PF-B10 is terminally certified; final evidence is recorded in
 [`docs/implementation/audits/pf-b10-batch-certification.md`](../docs/implementation/audits/pf-b10-batch-certification.md).
+PF-B11-S01 is now terminally implemented and reconciled in
+[`plan/completed/pf-b11-s01-read-authority-contract.md`](completed/pf-b11-s01-read-authority-contract.md),
+with independent review and acceptance in the linked audit files. PF-B11-S02
+is the next dependency-ready Slice; no snapshot, feed or consumer cutover has
+been implemented.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

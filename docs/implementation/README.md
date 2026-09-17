@@ -11,6 +11,6 @@ execution queue is maintained in [the incomplete-plan tracker](../../plan/incomp
 terminal plans are retained immutably in [plan/completed](../../plan/completed/).
 
 PF-B11 is the active forward Platform extension for the versioned consumer
-read-authority contract required by CTRL and IMS. Its active Batch/Slice plans
-and Staff Engineer planning review are recorded under `plan/`; no PF-B11
-runtime behavior is implemented or terminally recorded yet.
+read-authority contract required by CTRL and IMS. PF-B11-S01 is terminally
+recorded; its S02–S04 plans and Staff Engineer planning review remain under
+`plan/`. No PF-B11 snapshot/feed runtime or consumer cutover is implemented.
