@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -128,11 +129,21 @@ func TestReadAuthoritySnapshotIntegrityExpiryCleanupAndMissingProvenanceFailClos
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := persistence.DB().ExecContext(ctx, `UPDATE platform_read_authority_snapshot_records SET record_json='{}' WHERE snapshot_id=? AND ordinal=0`, snapshot.SnapshotID); err != nil {
+	var originalHash, originalJSON string
+	if err := persistence.DB().QueryRowContext(ctx, `SELECT record_hash,record_json FROM platform_read_authority_snapshot_records WHERE snapshot_id=? AND ordinal=0`, snapshot.SnapshotID).Scan(&originalHash, &originalJSON); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := persistence.DB().ExecContext(ctx, `UPDATE platform_read_authority_snapshot_records SET record_hash=? WHERE snapshot_id=? AND ordinal=0`, strings.Repeat("0", 64), snapshot.SnapshotID); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := persistence.GetReadAuthoritySnapshot(ctx, readauthority.ConsumerCTRL, snapshot.SnapshotID, created.Add(time.Minute)); !errors.Is(err, store.ErrReadAuthorityChecksumMismatch) {
-		t.Fatalf("corrupt snapshot = %v", err)
+		t.Fatalf("record hash corruption = %v", err)
+	}
+	if _, err := persistence.DB().ExecContext(ctx, `UPDATE platform_read_authority_snapshot_records SET record_hash=?,record_json=? WHERE snapshot_id=? AND ordinal=0`, originalHash, originalJSON+"{}", snapshot.SnapshotID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := persistence.GetReadAuthoritySnapshot(ctx, readauthority.ConsumerCTRL, snapshot.SnapshotID, created.Add(time.Minute)); !errors.Is(err, store.ErrReadAuthorityChecksumMismatch) {
+		t.Fatalf("trailing record corruption = %v", err)
 	}
 
 	expiring, err := persistence.CreateReadAuthoritySnapshot(ctx, readauthority.ConsumerCTRL, []string{string(readauthority.EntityProduct)}, time.Hour, 500, created.Add(time.Hour))

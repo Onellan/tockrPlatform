@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"sort"
 	"strings"
 	"time"
@@ -765,7 +766,7 @@ func (s *Store) readReadAuthoritySnapshotMetadata(ctx context.Context, consumer,
 }
 
 func (s *Store) readReadAuthoritySnapshotRecords(ctx context.Context, snapshotID string) ([]readauthority.Record, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT ordinal,record_json FROM platform_read_authority_snapshot_records WHERE snapshot_id=? ORDER BY ordinal`, snapshotID)
+	rows, err := s.db.QueryContext(ctx, `SELECT ordinal,entity_kind,record_id,record_hash,record_json FROM platform_read_authority_snapshot_records WHERE snapshot_id=? ORDER BY ordinal`, snapshotID)
 	if err != nil {
 		return nil, fmt.Errorf("read read-authority snapshot records: %w", err)
 	}
@@ -774,8 +775,9 @@ func (s *Store) readReadAuthoritySnapshotRecords(ctx context.Context, snapshotID
 	wantOrdinal := 0
 	for rows.Next() {
 		var ordinal int
+		var entityKind, recordID, recordHash string
 		var recordJSON string
-		if err := rows.Scan(&ordinal, &recordJSON); err != nil {
+		if err := rows.Scan(&ordinal, &entityKind, &recordID, &recordHash, &recordJSON); err != nil {
 			return nil, fmt.Errorf("%w: scan read-authority snapshot record: %v", store.ErrReadAuthorityChecksumMismatch, err)
 		}
 		if ordinal != wantOrdinal {
@@ -787,8 +789,15 @@ func (s *Store) readReadAuthoritySnapshotRecords(ctx context.Context, snapshotID
 		if err := decoder.Decode(&record); err != nil {
 			return nil, fmt.Errorf("%w: decode read-authority snapshot record: %v", store.ErrReadAuthorityChecksumMismatch, err)
 		}
+		var trailing any
+		if err := decoder.Decode(&trailing); !errors.Is(err, io.EOF) {
+			return nil, fmt.Errorf("%w: trailing read-authority snapshot record content", store.ErrReadAuthorityChecksumMismatch)
+		}
 		if err := readauthority.ValidateRecordVersion(readauthority.VersionV2, record); err != nil {
 			return nil, fmt.Errorf("%w: validate read-authority snapshot record: %v", store.ErrReadAuthorityChecksumMismatch, err)
+		}
+		if string(record.EntityKind) != entityKind || record.ID != recordID || readauthority.BodyDigest([]byte(recordJSON)) != recordHash {
+			return nil, fmt.Errorf("%w: persisted read-authority record identity or hash mismatch", store.ErrReadAuthorityChecksumMismatch)
 		}
 		records = append(records, record)
 		wantOrdinal++
