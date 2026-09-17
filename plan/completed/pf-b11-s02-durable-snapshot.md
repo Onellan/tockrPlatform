@@ -38,10 +38,14 @@ CTRL/IMS runtime, feed route, shared database or authority cutover changed.
 
 ### WP01 — Deep read-authority seam
 
+Route: kind=other; risk=H[DATA,API,DEP,DOC]
+
 The domain/store seam exposes validated snapshot metadata and records without
 SQLite table knowledge, product-role knowledge or billing knowledge.
 
 ### WP02 — Snapshot migration
+
+Route: kind=migration; risk=H[DATA,HIST,CONC,OPS]
 
 Migration 10 creates immutable metadata and record tables under the existing
 single-connection SQLite policy. Completion is promoted only after all rows
@@ -49,11 +53,15 @@ and the checksum are committed in one transaction.
 
 ### WP03 — Consistent materialization
 
+Route: kind=migration; risk=H[DATA,CONC,API,PERF]
+
 The source cursor and all selected canonical records are read from one
 transaction. Records are bounded, ordered by the v2 canonical kind/identity
 order, validated at the contract seam and checksum-bound before finalization.
 
 ### WP04 — Retention and integrity evidence
+
+Route: kind=other; risk=H[DATA,CONC,OPS,PERF]
 
 Paging, expiry, cleanup, source mutation immutability, duplicate prevention,
 checksum/hash corruption, missing provenance, fresh/upgrade/reopen migration,
