@@ -12,5 +12,6 @@ terminal plans are retained immutably in [plan/completed](../../plan/completed/)
 
 PF-B11 is the active forward Platform extension for the versioned consumer
 read-authority contract required by CTRL and IMS. PF-B11-S01 is terminally
-recorded; its S02–S04 plans and Staff Engineer planning review remain under
-`plan/`. No PF-B11 snapshot/feed runtime or consumer cutover is implemented.
+recorded; S02 is **BLOCKED / NOT RUN** by the Product source-provenance
+authority conflict and S03–S04 were not started. No PF-B11 snapshot/feed
+runtime or consumer cutover is implemented.

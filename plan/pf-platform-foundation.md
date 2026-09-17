@@ -172,7 +172,7 @@ independent tester acceptance remain separate gates.
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
 | PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
-| PF-B11 | Shared read authority and consumer projection source | S01–S04 | **Active / S01 terminal; S02 Ready** |
+| PF-B11 | Shared read authority and consumer projection source | S01–S04 | **BLOCKED / NOT RUN at S02** |
 
 Total: **11 Batches, 26 Slices including the authorised S01-R1 repair and PF-B11 extension**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
@@ -233,8 +233,11 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 PF-B11-S01 is terminally accepted at implementation candidate
 `b79b9321a06dd1c0e25381127dc61e861bae520d`; its exact contract and
 compatibility evidence are recorded in the completed plan and linked audits.
-PF-B11-S02 is now the first Ready Slice. No PF-B11 runtime snapshot, feed,
-consumer projection or authority cutover is claimed by this closeout.
+PF-B11-S02 is currently **BLOCKED / NOT RUN**: fresh Product rows are seeded
+before the outbox exists and have no committed `platform-events-v1` source
+event, while S02 cannot fabricate provenance or change the terminal event
+payload allow-list. No PF-B11 runtime snapshot, feed, consumer projection or
+authority cutover is claimed by this closeout. S03 and S04 remain unrun.
 
 ## Programme work packages
 

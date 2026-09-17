@@ -51,7 +51,7 @@ below after its exact contract, independent gates and local validation passed:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| PF-B11 | PF-B11-S02 — Durable snapshot and source cursor | **Ready** | PF-B11-S01 terminal | [active plan](active/pf-b11-s02-durable-snapshot.md) |
+| PF-B11 | PF-B11-S02 — Durable snapshot and source cursor | **BLOCKED / NOT RUN** | S01 terminal, but Product source provenance conflict unresolved | [active plan](active/pf-b11-s02-durable-snapshot.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -67,7 +67,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B10 | S01, S01-R1, S02 | **Terminal** | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
-| PF-B11 | S01 terminal, S02 Ready, S03/S04 Planned | **Active** | PF-B10-S02 + explicit CTRL/IMS read-authority gate; S01 → S02 → S03 → S04 |
+| PF-B11 | S01 terminal, S02 blocked, S03/S04 not run | **BLOCKED / NOT RUN** | S02 source provenance authority conflict; S01 → S02 → S03 → S04 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -140,8 +140,9 @@ PF-B10 is terminally certified; final evidence is recorded in
 PF-B11-S01 is now terminally implemented and reconciled in
 [`plan/completed/pf-b11-s01-read-authority-contract.md`](completed/pf-b11-s01-read-authority-contract.md),
 with independent review and acceptance in the linked audit files. PF-B11-S02
-is the next dependency-ready Slice; no snapshot, feed or consumer cutover has
-been implemented.
+is now recorded **BLOCKED / NOT RUN** because fresh Product rows have no
+committed v1 source event and the existing plans do not authorize fabricated
+provenance or an event-contract change. S03 and S04 were not started.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

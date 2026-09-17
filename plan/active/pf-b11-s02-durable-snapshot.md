@@ -1,6 +1,6 @@
 # PF-B11-S02 — Durable snapshot and source cursor
 
-**Status:** Planned
+**Status:** BLOCKED / NOT RUN
 **Priority:** PF — Platform consumer read-authority extension
 **Batch:** PF-B11
 **Depends on:** PF-B11-S01 terminal
@@ -17,6 +17,24 @@ Platform currently owns canonical current tables and an outbox, but its
 projection support stores inbox/checkpoint state only. There is no durable,
 consistent snapshot that a consumer can verify and page through while source
 mutations continue.
+
+## Blocking authority evidence
+
+S02 cannot safely begin implementation under the frozen S01 contract. Every
+snapshot record must carry an `evt_*` source event identity, positive aggregate
+sequence and source schema version. The fresh Platform migration history seeds
+the two active Product rows in migration 6, while the `platform_outbox` is
+introduced only in migration 8. The existing v1 event allow-list contains
+`platform.product.retired` but no `platform.product.created` event. Therefore
+an active seeded Product has no committed source event from which S02 can
+derive the mandatory provenance.
+
+Creating a synthetic `evt_*`, silently omitting Product records, or treating a
+retirement event as creation would fabricate or misstate source history.
+Adding a product-created event would materially change the terminal
+`platform-events-v1` payload contract, while this Slice explicitly requires
+the existing event payload allow-list to remain unchanged. This is an
+unresolved source/contract conflict, not an implementation or test failure.
 
 ## Affected surfaces
 
@@ -107,11 +125,12 @@ product failure.
 
 ## Stop/go and rollback
 
-Stop if a consistent snapshot cannot be proven without an unbounded transaction
-or if the implementation requires changing the event payload contract. Roll
-back by disabling the new read-authority snapshot surface and retaining prior
-terminal outbox/projection behavior; never delete source authority rows as part
-of this Slice.
+**BLOCKED / NOT RUN:** stop because source provenance cannot be proven for
+fresh/upgrade databases without fabricating history or changing the terminal
+event payload contract. No S02 production code, migration, snapshot table or
+test fixture was implemented. Retain the S01 contract and prior terminal
+outbox/projection behavior; never delete source authority rows as part of this
+Slice.
 
 ## Completion
 

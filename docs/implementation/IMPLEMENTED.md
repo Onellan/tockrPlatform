@@ -16,8 +16,9 @@
   and a capability-local validation seam. Snapshot persistence, feed routes
   and consumer cutover remain outside this Slice.
 - No CTRL/IMS production code, data, migration, product role, billing fact,
-  shared database or authority cutover was changed. PF-B11-S02 is the next
-  dependency-ready Slice.
+  shared database or authority cutover was changed. PF-B11-S02 is currently
+  **BLOCKED / NOT RUN** by the unresolved Product source-provenance conflict;
+  no snapshot, feed or consumer cutover was started.
 
 The following Platform Foundation Slices are terminally recorded:
 

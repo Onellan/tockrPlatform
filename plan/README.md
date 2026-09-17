@@ -47,8 +47,9 @@ Lane 1 preparation → Lane 2 sequential implementation → Lane 3 certification
 PF-B1 through PF-B10 remain terminal historical Foundation scope. PF-B11 is a
 new explicitly authorised forward Batch that supplies the missing versioned,
 bounded and fail-closed Platform read-authority contract required before CTRL
-or IMS may start PD-D5-S01. PF-B11-S01 is now terminal; S02 is the next Ready
-Slice. The Batch and remaining Slice plans are:
+or IMS may start PD-D5-S01. PF-B11-S01 is now terminal; S02 is
+**BLOCKED / NOT RUN** by the Product source-provenance authority conflict.
+S03–S04 remain unrun. The Batch and remaining Slice plans are:
 
 - [`pf-b11-shared-read-authority.md`](pf-b11-shared-read-authority.md)
 - [`completed/pf-b11-s01-read-authority-contract.md`](completed/pf-b11-s01-read-authority-contract.md)
