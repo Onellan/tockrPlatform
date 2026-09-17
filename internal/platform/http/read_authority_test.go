@@ -197,14 +197,24 @@ func TestReadAuthorityHTTPRejectsOversizedBodyAndRetiredKey(t *testing.T) {
 	if retiredResponse.Code != http.StatusUnauthorized {
 		t.Fatalf("retired key = %d/%q", retiredResponse.Code, retiredResponse.Body.String())
 	}
+	extreme := signedReadAuthorityRequestAt(t, http.MethodGet, "/api/v1/read-authority/status", "", nil, readauthority.ConsumerCTRL, "current", fixture.privateKey[readauthority.ConsumerCTRL], "nonce-extreme", "9223372036854775807")
+	extremeResponse := httptest.NewRecorder()
+	fixture.handler.ServeHTTP(extremeResponse, extreme)
+	if extremeResponse.Code != http.StatusUnauthorized {
+		t.Fatalf("extreme timestamp = %d/%q", extremeResponse.Code, extremeResponse.Body.String())
+	}
 }
 
 func signedReadAuthorityRequest(t *testing.T, method, path, query string, body []byte, consumer, keyID string, privateKey ed25519.PrivateKey, nonce string) *http.Request {
 	t.Helper()
+	return signedReadAuthorityRequestAt(t, method, path, query, body, consumer, keyID, privateKey, nonce, strconv.FormatInt(time.Now().UTC().Unix(), 10))
+}
+
+func signedReadAuthorityRequestAt(t *testing.T, method, path, query string, body []byte, consumer, keyID string, privateKey ed25519.PrivateKey, nonce, timestamp string) *http.Request {
+	t.Helper()
 	if body == nil {
 		body = []byte{}
 	}
-	timestamp := strconv.FormatInt(time.Now().UTC().Unix(), 10)
 	values, err := url.ParseQuery(query)
 	if err != nil {
 		t.Fatal(err)

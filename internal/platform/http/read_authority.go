@@ -149,11 +149,8 @@ func validReadAuthorityTimestamp(value string) bool {
 	if err != nil {
 		return false
 	}
-	difference := time.Now().UTC().Unix() - parsed
-	if difference < 0 {
-		difference = -difference
-	}
-	return difference <= readauthority.SignatureMaxClockSkewSecs
+	now := time.Now().UTC().Unix()
+	return parsed >= now-readauthority.SignatureMaxClockSkewSecs && parsed <= now+readauthority.SignatureMaxClockSkewSecs
 }
 
 func canonicalReadAuthorityPath(r *http.Request) (string, error) {
