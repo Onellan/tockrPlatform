@@ -11,6 +11,9 @@ func TestContractVersionAndConsumerMatrixAreIndependentOfAssertions(t *testing.T
 	if err := ValidateVersion(Version); err != nil {
 		t.Fatal(err)
 	}
+	if err := ValidateVersion(VersionV1); err != nil {
+		t.Fatal(err)
+	}
 	if !errors.Is(ValidateVersion("platform.v1"), ErrUnsupportedVersion) {
 		t.Fatal("assertion version was accepted as read-authority version")
 	}
@@ -48,6 +51,7 @@ func TestContractRejectsForbiddenRecordFields(t *testing.T) {
 		EntityKind:          EntityUser,
 		ID:                  "usr_example",
 		Status:              StatusActive,
+		ProvenanceKind:      ProvenanceEvent,
 		SourceEventID:       "evt_example",
 		SourceSequence:      1,
 		SourceSchemaVersion: SourceSchemaVersion,
@@ -65,6 +69,7 @@ func TestContractRejectsForbiddenRecordFields(t *testing.T) {
 		Status:              StatusActive,
 		OrganisationID:      "org_example",
 		ProductKey:          ProductCTRL,
+		ProvenanceKind:      ProvenanceEvent,
 		SourceEventID:       "evt_example",
 		SourceSequence:      1,
 		SourceSchemaVersion: SourceSchemaVersion,
@@ -75,6 +80,55 @@ func TestContractRejectsForbiddenRecordFields(t *testing.T) {
 	base.ProductKey = "product.unknown"
 	if !errors.Is(ValidateRecord(base), ErrInvalidRecord) {
 		t.Fatal("unknown product key was accepted")
+	}
+}
+
+func TestV2AcceptsMigrationSeedAndRejectsMixedOrFabricatedProvenance(t *testing.T) {
+	seed := Record{
+		EntityKind:        EntityProduct,
+		ID:                ProductCTRL,
+		Status:            StatusActive,
+		ProvenanceKind:    ProvenanceMigrationSeed,
+		MigrationVersion:  6,
+		MigrationName:     "product-catalogue-organisation-entitlements",
+		MigrationChecksum: strings.Repeat("a", 64),
+	}
+	if err := ValidateRecordVersion(VersionV2, seed); err != nil {
+		t.Fatalf("migration seed rejected: %v", err)
+	}
+	seed.SourceEventID = "evt_fabricated"
+	if !errors.Is(ValidateRecordVersion(VersionV2, seed), ErrInvalidRecord) {
+		t.Fatal("migration seed accepted fabricated event identity")
+	}
+	seed.SourceEventID = ""
+	seed.MigrationChecksum = "not-a-checksum"
+	if !errors.Is(ValidateRecordVersion(VersionV2, seed), ErrInvalidRecord) {
+		t.Fatal("migration seed accepted malformed migration checksum")
+	}
+}
+
+func TestV1RemainsEventOnly(t *testing.T) {
+	event := Record{
+		EntityKind:          EntityProduct,
+		ID:                  ProductCTRL,
+		Status:              StatusActive,
+		SourceEventID:       "evt_example",
+		SourceSequence:      1,
+		SourceSchemaVersion: SourceSchemaVersion,
+	}
+	if err := ValidateRecordVersion(VersionV1, event); err != nil {
+		t.Fatalf("v1 event record rejected: %v", err)
+	}
+	seed := event
+	seed.ProvenanceKind = ProvenanceMigrationSeed
+	seed.SourceEventID = ""
+	seed.SourceSequence = 0
+	seed.SourceSchemaVersion = 0
+	seed.MigrationVersion = 6
+	seed.MigrationName = "product-catalogue-organisation-entitlements"
+	seed.MigrationChecksum = strings.Repeat("b", 64)
+	if !errors.Is(ValidateRecordVersion(VersionV1, seed), ErrInvalidRecord) {
+		t.Fatal("v1 accepted migration-seed provenance")
 	}
 }
 

@@ -16,7 +16,9 @@ import (
 )
 
 const (
-	Version                   = "platform.read-authority.v1"
+	VersionV1                 = "platform.read-authority.v1"
+	VersionV2                 = "platform.read-authority.v2"
+	Version                   = VersionV2
 	VersionHeader             = "X-Tockr-Platform-Read-Authority-Version"
 	ConsumerHeader            = "X-Tockr-Platform-Consumer"
 	KeyIDHeader               = "X-Tockr-Platform-Key-ID"
@@ -79,6 +81,18 @@ var allowedEntityKinds = [...]EntityKind{
 }
 
 const SourceSchemaVersion = 1
+
+// ProvenanceKind identifies how a Platform record entered authoritative
+// history. Event provenance is the only kind supported by read-authority v1.
+// Migration seeds are explicit bootstrap facts for rows created by an ordered
+// schema migration before the outbox existed; they must never be represented
+// as synthetic events.
+type ProvenanceKind string
+
+const (
+	ProvenanceEvent         ProvenanceKind = "event"
+	ProvenanceMigrationSeed ProvenanceKind = "migration_seed"
+)
 
 // AllowedEntityKinds returns a defensive copy of the complete allow-list in
 // canonical snapshot order.
@@ -153,21 +167,25 @@ type SnapshotMetadata struct {
 
 // Record is the bounded shared projection representation. Optional
 // relationship fields are populated only for the entity kinds whose table in
-// the wire contract permits them. Source provenance is mandatory for every
-// record.
+// the wire contract permits them. V2 requires explicit provenance kind and
+// validates exactly one of event or migration-seed provenance.
 type Record struct {
-	EntityKind          EntityKind   `json:"entity_kind"`
-	ID                  string       `json:"id"`
-	Status              RecordStatus `json:"status"`
-	UserID              string       `json:"user_id,omitempty"`
-	OrganisationID      string       `json:"organisation_id,omitempty"`
-	WorkspaceID         string       `json:"workspace_id,omitempty"`
-	ProductKey          string       `json:"product_key,omitempty"`
-	Role                string       `json:"role,omitempty"`
-	Name                string       `json:"name,omitempty"`
-	SourceEventID       string       `json:"source_event_id"`
-	SourceSequence      int64        `json:"source_sequence"`
-	SourceSchemaVersion int          `json:"source_schema_version"`
+	EntityKind          EntityKind     `json:"entity_kind"`
+	ID                  string         `json:"id"`
+	Status              RecordStatus   `json:"status"`
+	UserID              string         `json:"user_id,omitempty"`
+	OrganisationID      string         `json:"organisation_id,omitempty"`
+	WorkspaceID         string         `json:"workspace_id,omitempty"`
+	ProductKey          string         `json:"product_key,omitempty"`
+	Role                string         `json:"role,omitempty"`
+	Name                string         `json:"name,omitempty"`
+	ProvenanceKind      ProvenanceKind `json:"provenance_kind,omitempty"`
+	SourceEventID       string         `json:"source_event_id,omitempty"`
+	SourceSequence      int64          `json:"source_sequence,omitempty"`
+	SourceSchemaVersion int            `json:"source_schema_version,omitempty"`
+	MigrationVersion    int            `json:"migration_version,omitempty"`
+	MigrationName       string         `json:"migration_name,omitempty"`
+	MigrationChecksum   string         `json:"migration_checksum,omitempty"`
 }
 
 // Change is a committed outbox event with a separate opaque global cursor.
@@ -201,10 +219,12 @@ func ProductForConsumer(consumer string) (string, bool) {
 }
 
 func ValidateVersion(value string) error {
-	if strings.TrimSpace(value) != Version {
+	switch strings.TrimSpace(value) {
+	case VersionV1, VersionV2:
+		return nil
+	default:
 		return ErrUnsupportedVersion
 	}
-	return nil
 }
 
 func ValidateConsumer(value string) error {
@@ -258,11 +278,21 @@ func ValidateSnapshotRequest(request SnapshotRequest) error {
 // the contract seam. Later snapshot materialization must call this before a
 // record can be persisted or returned.
 func ValidateRecord(record Record) error {
+	return ValidateRecordVersion(Version, record)
+}
+
+// ValidateRecordVersion preserves the terminal v1 event-only semantics while
+// making the v2 migration-seed extension explicit and fail closed. Callers
+// handling a versioned wire response must pass the response contract version.
+func ValidateRecordVersion(version string, record Record) error {
+	if err := ValidateVersion(version); err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidRecord, err)
+	}
 	if err := ValidateEntityKind(record.EntityKind); err != nil {
 		return fmt.Errorf("%w: entity kind: %v", ErrInvalidRecord, err)
 	}
-	if record.SourceEventID == "" || !strings.HasPrefix(record.SourceEventID, "evt_") || record.SourceSequence <= 0 || record.SourceSchemaVersion != SourceSchemaVersion {
-		return fmt.Errorf("%w: missing or invalid source provenance", ErrInvalidRecord)
+	if err := validateProvenance(version, record); err != nil {
+		return err
 	}
 	if record.Status != StatusActive && record.Status != StatusArchived && record.Status != StatusRevoked && record.Status != StatusRetired {
 		return fmt.Errorf("%w: invalid status", ErrInvalidRecord)
@@ -305,6 +335,58 @@ func ValidateRecord(record Record) error {
 		}
 	}
 	return nil
+}
+
+func validateProvenance(version string, record Record) error {
+	if version == VersionV1 {
+		if record.ProvenanceKind != "" && record.ProvenanceKind != ProvenanceEvent {
+			return fmt.Errorf("%w: v1 only permits event provenance", ErrInvalidRecord)
+		}
+		if err := validateEventProvenance(record); err != nil {
+			return err
+		}
+		if hasMigrationProvenance(record) {
+			return fmt.Errorf("%w: v1 cannot carry migration provenance", ErrInvalidRecord)
+		}
+		return nil
+	}
+
+	switch record.ProvenanceKind {
+	case ProvenanceEvent:
+		if hasMigrationProvenance(record) {
+			return fmt.Errorf("%w: event provenance cannot carry migration identity", ErrInvalidRecord)
+		}
+		return validateEventProvenance(record)
+	case ProvenanceMigrationSeed:
+		if record.SourceEventID != "" || record.SourceSequence != 0 || record.SourceSchemaVersion != 0 {
+			return fmt.Errorf("%w: migration seed cannot carry event identity", ErrInvalidRecord)
+		}
+		if record.MigrationVersion <= 0 || strings.TrimSpace(record.MigrationName) == "" || len(record.MigrationName) > 200 || !isSHA256(record.MigrationChecksum) {
+			return fmt.Errorf("%w: missing or invalid migration provenance", ErrInvalidRecord)
+		}
+		return nil
+	default:
+		return fmt.Errorf("%w: missing or unknown provenance kind", ErrInvalidRecord)
+	}
+}
+
+func validateEventProvenance(record Record) error {
+	if record.SourceEventID == "" || !strings.HasPrefix(record.SourceEventID, "evt_") || record.SourceSequence <= 0 || record.SourceSchemaVersion != SourceSchemaVersion {
+		return fmt.Errorf("%w: missing or invalid source event provenance", ErrInvalidRecord)
+	}
+	return nil
+}
+
+func hasMigrationProvenance(record Record) bool {
+	return record.MigrationVersion != 0 || strings.TrimSpace(record.MigrationName) != "" || record.MigrationChecksum != ""
+}
+
+func isSHA256(value string) bool {
+	if len(value) != sha256.Size*2 {
+		return false
+	}
+	_, err := hex.DecodeString(value)
+	return err == nil
 }
 
 func (r Record) hasAny(fields ...string) bool {
