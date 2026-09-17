@@ -41,8 +41,7 @@ Validated Batch certification candidate: `6da51a24b281549e5c8084f6c109bd86056015
 
 ## Certification conclusion
 
-PF-B11 is **PASS / terminal** and ready for publication to Platform `main`.
-Publication makes the versioned Platform read-authority source available for
-consumer re-evaluation; it does not authorize CTRL/IMS cutover or complete
-their product implementation.
-
+PF-B11 is **PASS / terminal** and was published to Platform `main` at
+`737167fbbb2bb0c6746ec7d333ab9e6baf714c1f`. Publication makes the versioned
+Platform read-authority source available for consumer re-evaluation; it does
+not authorize CTRL/IMS cutover or complete their product implementation.

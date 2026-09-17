@@ -120,6 +120,7 @@ The engineering review is recorded in
 [`docs/implementation/audits/pf-b11-s04-engineering-review.md`](../../docs/implementation/audits/pf-b11-s04-engineering-review.md)
 and independent tester acceptance is recorded in
 [`docs/implementation/audits/pf-b11-s04-tester-acceptance.md`](../../docs/implementation/audits/pf-b11-s04-tester-acceptance.md).
-PF-B11 Batch certification passed and publication is authorized. The published
-handoff makes CTRL/IMS PD-D5-S01 eligible for re-evaluation only; it does not
-implement either consumer or authorize cutover.
+PF-B11 Batch certification passed and was published to Platform `main` at
+`737167fbbb2bb0c6746ec7d333ab9e6baf714c1f`. The published handoff makes
+CTRL/IMS PD-D5-S01 eligible for re-evaluation only; it does not implement
+either consumer or authorize cutover.

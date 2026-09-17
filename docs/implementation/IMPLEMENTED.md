@@ -75,6 +75,7 @@
 - Status: **Implemented / terminal**
 - Completed plan: [`plan/completed/pf-b11-s04-certification.md`](../../plan/completed/pf-b11-s04-certification.md)
 - Certification candidate: `6da51a24b281549e5c8084f6c109bd860560154d`
+- Published Platform `main` handoff: `737167fbbb2bb0c6746ec7d333ab9e6baf714c1f`
 - Evidence: [`audits/pf-b11-s04-engineering-review.md`](audits/pf-b11-s04-engineering-review.md),
   [`audits/pf-b11-s04-tester-acceptance.md`](audits/pf-b11-s04-tester-acceptance.md)
   and [`audits/pf-b11-batch-certification.md`](audits/pf-b11-batch-certification.md).

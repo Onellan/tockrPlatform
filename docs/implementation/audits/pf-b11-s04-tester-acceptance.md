@@ -12,7 +12,7 @@ implementation code was changed during this gate.
 | --- | --- | --- |
 | S04-AC01 — every B11 and S01–S03 acceptance row is final-candidate bound | E01 completed plans and linked reviews/acceptance; E02 exact local profiles; S03 candidate `bfc111ad…` explicitly retained as the accepted implementation candidate | PASS |
 | S04-AC02 — no blocked or unavailable gate is misclassified as PASS | E03 `full/local` composite: all code/document/runtime children PASS; Docker build children are explicitly `ENV_FAIL` / `BLOCKED / NOT RUN`, and are not required because no Dockerfile/image/Compose/runtime-asset surface changed | PASS |
-| S04-AC03 — published SHA, contract version, plan paths, validation and handoff reconcile | E01–E04 exact plan/index/ledger inspection; v2 route and handoff references are present; publication remains pending final closeout | PASS |
+| S04-AC03 — published SHA, contract version, plan paths, validation and handoff reconcile | E01–E04 exact plan/index/ledger inspection; v2 route and handoff references are present; published Platform `main` handoff is `737167fbbb2bb0c6746ec7d333ab9e6baf714c1f` | PASS |
 | S04-AC04 — CTRL and IMS still require their own PD-D5-S01 delivery and acceptance | E01 PF-B11 plan boundary and handoff inspection; no consumer runtime or authority cutover is claimed | PASS |
 
 ## Evidence ledger
@@ -35,4 +35,3 @@ No required S04 acceptance row is blocked. The unavailable Docker daemon is a
 non-required conditional container gate because the final PF-B11 scope changed
 no container deployment surface; it remains truthfully recorded as
 `BLOCKED / NOT RUN`.
-
