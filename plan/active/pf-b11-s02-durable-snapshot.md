@@ -1,14 +1,14 @@
 # PF-B11-S02 — Durable snapshot and source cursor
 
-**Status:** BLOCKED / NOT RUN
+**Status:** Ready
 **Priority:** PF — Platform consumer read-authority extension
 **Batch:** PF-B11
-**Depends on:** PF-B11-S01 terminal
+**Depends on:** PF-B11-S01-R1 terminal
 
 ## Objective
 
 Implement the Platform-side immutable bootstrap snapshot and source-cursor
-seam defined by `platform.read-authority.v1`, using capability-local domain,
+seam defined by `platform.read-authority.v2`, using capability-local domain,
 store and SQLite modules without exposing SQLite representation to callers.
 
 ## Current-state evidence
@@ -18,23 +18,16 @@ projection support stores inbox/checkpoint state only. There is no durable,
 consistent snapshot that a consumer can verify and page through while source
 mutations continue.
 
-## Blocking authority evidence
+## Resolved authority evidence
 
-S02 cannot safely begin implementation under the frozen S01 contract. Every
-snapshot record must carry an `evt_*` source event identity, positive aggregate
-sequence and source schema version. The fresh Platform migration history seeds
-the two active Product rows in migration 6, while the `platform_outbox` is
-introduced only in migration 8. The existing v1 event allow-list contains
-`platform.product.retired` but no `platform.product.created` event. Therefore
-an active seeded Product has no committed source event from which S02 can
-derive the mandatory provenance.
+PF-B11-S01-R1 terminally publishes `platform.read-authority.v2`, which keeps
+v1 event provenance unchanged and adds an explicit `migration_seed` form. The
+two active Product rows seeded by migration 6 must carry the recorded
+migration version, name and checksum; they must not receive synthetic `evt_*`
+identities, omitted records or fabricated Product-created events. Later Product
+mutations remain committed `platform-events-v1` changes. S02 may now proceed
+against the v2 contract without changing the terminal event allow-list.
 
-Creating a synthetic `evt_*`, silently omitting Product records, or treating a
-retirement event as creation would fabricate or misstate source history.
-Adding a product-created event would materially change the terminal
-`platform-events-v1` payload contract, while this Slice explicitly requires
-the existing event payload allow-list to remain unchanged. This is an
-unresolved source/contract conflict, not an implementation or test failure.
 
 ## Affected surfaces
 
@@ -89,7 +82,8 @@ tables may be copied into Platform.
 ## Acceptance criteria
 
 - **S02-AC01:** snapshot rows contain only the S01 allow-list and preserve
-  canonical IDs, relationship integrity and source provenance.
+  canonical IDs, relationship integrity and v2 event or migration-seed
+  provenance.
 - **S02-AC02:** a snapshot is atomically complete, checksum-bound,
   deterministic and bound to a source cursor; partial/expired/corrupt data is
   never served as current.
@@ -125,12 +119,9 @@ product failure.
 
 ## Stop/go and rollback
 
-**BLOCKED / NOT RUN:** stop because source provenance cannot be proven for
-fresh/upgrade databases without fabricating history or changing the terminal
-event payload contract. No S02 production code, migration, snapshot table or
-test fixture was implemented. Retain the S01 contract and prior terminal
-outbox/projection behavior; never delete source authority rows as part of this
-Slice.
+**Ready:** the provenance authority conflict is resolved by the terminal R1 v2
+contract. Implement only the S02 snapshot/source-cursor scope; do not change
+the terminal v1 event payload contract or delete source authority rows.
 
 ## Completion
 

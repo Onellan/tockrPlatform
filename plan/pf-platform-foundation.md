@@ -172,9 +172,9 @@ independent tester acceptance remain separate gates.
 | PF-B8 | Platform administration UI | S01–S02 | **Terminal** |
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
 | PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
-| PF-B11 | Shared read authority and consumer projection source | S01–S04 | **BLOCKED / NOT RUN at S02** |
+| PF-B11 | Shared read authority and consumer projection source | S01, S01-R1, S02–S04 | **Active at S02** |
 
-Total: **11 Batches, 26 Slices including the authorised S01-R1 repair and PF-B11 extension**. PF-B1 has three foundation Slices because
+Total: **11 Batches, 27 Slices including the authorised PF-B11-S01-R1 correction and PF-B11 extension**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
 runtime implementation; collapsing it would hide an implementation authority
 decision.
@@ -192,7 +192,7 @@ PF-B5-S02 → PF-B7-S01 → PF-B7-S02
 PF-B6-S02 + PF-B7-S02 → PF-B8-S01 → PF-B8-S02
 PF-B6-S02 + PF-B7-S02 → PF-B9-S01 → PF-B9-S02
 PF-B8-S02 + PF-B9-S02 → PF-B10-S01 → PF-B10-S01-R1 → PF-B10-S02
-PF-B10-S02 → PF-B11-S01 → PF-B11-S02 → PF-B11-S03 → PF-B11-S04
+PF-B10-S02 → PF-B11-S01 → PF-B11-S01-R1 → PF-B11-S02 → PF-B11-S03 → PF-B11-S04
 ```
 
 The three authority branches after B1-S03 are sequential within each branch;
@@ -226,17 +226,18 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B10-S01-R1 | [Runtime asset packaging repair — terminal](completed/pf-b10-s01-r1-runtime-assets.md) |
 | PF-B10-S02 | [Final local certification — terminal](completed/pf-b10-s02-final-certification.md) |
 | PF-B11-S01 | [Read-authority contract and consumer compatibility — terminal](completed/pf-b11-s01-read-authority-contract.md) |
-| PF-B11-S02 | [Durable snapshot and source cursor — planned](active/pf-b11-s02-durable-snapshot.md) |
+| PF-B11-S01-R1 | [Seed provenance contract correction — terminal](completed/pf-b11-s01-r1-seed-provenance-v2.md) |
+| PF-B11-S02 | [Durable snapshot and source cursor — Ready](active/pf-b11-s02-durable-snapshot.md) |
 | PF-B11-S03 | [Authenticated feed and resynchronisation API — planned](active/pf-b11-s03-feed-and-api.md) |
 | PF-B11-S04 | [Security, operability and consumer-readiness certification — planned](active/pf-b11-s04-certification.md) |
 
 PF-B11-S01 is terminally accepted at implementation candidate
 `b79b9321a06dd1c0e25381127dc61e861bae520d`; its exact contract and
 compatibility evidence are recorded in the completed plan and linked audits.
-PF-B11-S02 is currently **BLOCKED / NOT RUN**: fresh Product rows are seeded
-before the outbox exists and have no committed `platform-events-v1` source
-event, while S02 cannot fabricate provenance or change the terminal event
-payload allow-list. No PF-B11 runtime snapshot, feed, consumer projection or
+PF-B11-S01-R1 is terminally accepted at implementation candidate
+`25c2502298b030f77e38aa246822611f875ad57a`; it publishes v2 migration-seed
+provenance without changing terminal v1 or the event allow-list. PF-B11-S02 is
+now **Ready**. No PF-B11 runtime snapshot, feed, consumer projection or
 authority cutover is claimed by this closeout. S03 and S04 remain unrun.
 
 ## Programme work packages

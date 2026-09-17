@@ -9,7 +9,8 @@ reviews complete
 ## Objective
 
 Independently certify that the complete PF-B11 candidate meets the strict
-Platform read-authority contract and is safe to hand to CTRL and IMS for their
+Platform `platform.read-authority.v2` contract, preserves terminal v1 and
+`platform-events-v1` semantics, and is safe to hand to CTRL and IMS for their
 separate PD-D5-S01 implementation plans.
 
 ## Required review scope
@@ -17,7 +18,8 @@ separate PD-D5-S01 implementation plans.
 The Staff Engineer and independent tester must review the exact candidate for:
 
 - contract completeness and version compatibility;
-- canonical identity, relationship and access invariants;
+- canonical identity, relationship, access and event/migration-seed provenance
+  invariants;
 - snapshot atomicity, checksum and cursor continuity;
 - key rotation, nonce replay protection, authorization and redaction;
 - bounded resource behavior, rate limits, retention and cleanup;

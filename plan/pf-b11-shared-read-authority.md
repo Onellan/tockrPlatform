@@ -1,6 +1,6 @@
 # PF-B11 — Shared read authority and consumer projection source
 
-**Status:** BLOCKED / NOT RUN at PF-B11-S02; PF-B1 through PF-B10 remain terminal historical
+**Status:** Active at PF-B11-S02; PF-B1 through PF-B10 remain terminal historical
 scope. PF-B11 is a separately authorised forward extension for the gated
 CTRL/IMS PD-D5-S01 dependency.
 
@@ -45,10 +45,12 @@ authority.
 3. Consumers bootstrap from an immutable bounded Platform snapshot and then
    consume an ordered change feed. They do not query Platform on every product
    request and never open the Platform SQLite database.
-4. The read contract has its own version, `platform.read-authority.v1`,
-   separate from the assertion contract `platform.v1`. Unknown versions,
-   invalid signatures, cursor gaps, expired snapshots and non-current source
-   state fail closed.
+4. The terminal v1 read contract remains event-provenance-only. The current
+   snapshot contract is the superseding `platform.read-authority.v2`, separate
+   from the assertion contract `platform.v1`; v2 adds explicit migration-seed
+   provenance without changing the v1 event feed. Unknown versions, invalid
+   signatures, cursor gaps, expired snapshots and non-current source state fail
+   closed.
 5. The change cursor is opaque and monotonic at the Platform outbox boundary.
    Aggregate sequence remains part of the event contract; consumers must
    validate both the global cursor and per-aggregate ordering.
@@ -66,22 +68,23 @@ authority.
 | Order | Slice | Plan | State | Depends on |
 | ---: | --- | --- | --- | --- |
 | 1 | PF-B11-S01 — Read-authority contract and compatibility | [completed plan](completed/pf-b11-s01-read-authority-contract.md) | **Terminal** | PF-B10-S02 terminal; CTRL/IMS PD-D5 gate evidence |
-| 2 | PF-B11-S02 — Durable snapshot and source cursor | [active plan](active/pf-b11-s02-durable-snapshot.md) | **BLOCKED / NOT RUN** | PF-B11-S01 terminal; Product source provenance conflict unresolved |
-| 3 | PF-B11-S03 — Authenticated feed and resynchronisation API | [active plan](active/pf-b11-s03-feed-and-api.md) | Planned | PF-B11-S02 terminal |
-| 4 | PF-B11-S04 — Security, operability and consumer-readiness certification | [active plan](active/pf-b11-s04-certification.md) | Planned | PF-B11-S01–S03 terminal; CTRL/IMS plan review |
+| 2 | PF-B11-S01-R1 — Seed provenance contract correction | [completed plan](completed/pf-b11-s01-r1-seed-provenance-v2.md) | **Terminal** | PF-B11-S01 terminal; explicit provenance authority decision |
+| 3 | PF-B11-S02 — Durable snapshot and source cursor | [active plan](active/pf-b11-s02-durable-snapshot.md) | **Ready** | PF-B11-S01-R1 terminal; v2 provenance contract |
+| 4 | PF-B11-S03 — Authenticated feed and resynchronisation API | [active plan](active/pf-b11-s03-feed-and-api.md) | Planned | PF-B11-S02 terminal |
+| 5 | PF-B11-S04 — Security, operability and consumer-readiness certification | [active plan](active/pf-b11-s04-certification.md) | Planned | PF-B11-S01–S03 terminal; CTRL/IMS plan review |
 
-Slices are strictly sequential. PF-B11-S01 freezes the contract before any
-runtime/API implementation and is terminal. S02 is currently blocked because
-fresh seeded Product rows have no committed v1 source event and resolving that
-requires either fabricated provenance or an unauthorised event-contract change.
-S03 and S04 therefore remain unrun.
+Slices are strictly sequential. PF-B11-S01 freezes the terminal v1 contract;
+PF-B11-S01-R1 supersedes the unresolved provenance decision with v2 and is
+terminal. PF-B11-S02 is now **Ready** and must use v2 migration-seed
+provenance for the two migration 6 Product rows. S03 and S04 remain unrun.
 
 ## Batch acceptance contract
 
-- **B11-AC01:** `platform-read-authority.v1` defines canonical records,
+- **B11-AC01:** `platform-read-authority.v2` defines canonical records,
   field allow-lists, relationship invariants, snapshot identity, cursor
-  semantics, freshness states, bounded limits, error taxonomy and rollback /
-  resynchronisation behavior.
+  semantics, freshness states, bounded limits, error taxonomy, rollback /
+  resynchronisation behavior and the event/migration-seed provenance union;
+  terminal v1 event semantics remain unchanged.
 - **B11-AC02:** a bootstrap snapshot is immutable, deterministic,
   checksum-bound, source-cursor-bound, expiry-bound and transactionally
   consistent across User, Organisation, Workspace, membership and access
@@ -122,5 +125,5 @@ handoff requires synchronous Platform reads.
 PF-B11 publication makes the versioned Platform contract and implementation
 available. It does not promote CTRL or IMS PD-D5-S01 automatically. After the
 published candidate is independently verified, both consumer repositories
-must update their gated plans with the exact Platform contract version and
+must update their gated plans with the exact Platform v2 contract version and
 published SHA before either product promotes PD-D5-S01 to Ready.

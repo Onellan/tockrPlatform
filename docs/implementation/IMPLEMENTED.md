@@ -16,9 +16,24 @@
   and a capability-local validation seam. Snapshot persistence, feed routes
   and consumer cutover remain outside this Slice.
 - No CTRL/IMS production code, data, migration, product role, billing fact,
-  shared database or authority cutover was changed. PF-B11-S02 is currently
-  **BLOCKED / NOT RUN** by the unresolved Product source-provenance conflict;
-  no snapshot, feed or consumer cutover was started.
+  shared database or authority cutover was changed. PF-B11-S02 was initially
+  **BLOCKED / NOT RUN** by the Product source-provenance conflict; the
+  superseding S01-R1 correction below resolves that authority conflict and
+  promotes S02 to Ready. No snapshot, feed or consumer cutover was started.
+
+## PF-B11-S01-R1 — Seed provenance contract correction
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s01-r1-seed-provenance-v2.md`](../../plan/completed/pf-b11-s01-r1-seed-provenance-v2.md)
+- Accepted implementation candidate: `25c2502298b030f77e38aa246822611f875ad57a`
+- Evidence: [`audits/pf-b11-s01-r1-implementation.md`](audits/pf-b11-s01-r1-implementation.md),
+  [`audits/pf-b11-s01-r1-independent-review.md`](audits/pf-b11-s01-r1-independent-review.md),
+  [`audits/pf-b11-s01-r1-independent-acceptance.md`](audits/pf-b11-s01-r1-independent-acceptance.md).
+- The superseding `platform.read-authority.v2` contract adds explicit
+  `migration_seed` version/name/checksum provenance for rows created before the
+  outbox, while v1 and `platform-events-v1` remain unchanged.
+- PF-B11-S02 is now **Ready**. This correction did not implement snapshot
+  persistence, feed routes or CTRL/IMS runtime behavior.
 
 The following Platform Foundation Slices are terminally recorded:
 

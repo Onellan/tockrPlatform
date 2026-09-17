@@ -7,7 +7,7 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **1 open execution plan** across **11 Batches**. PF-B1
+Current inventory: **1 open execution Batch** across **11 Batches**. PF-B1
 through PF-B10 are terminal at the original Foundation scope. PF-B11 is a
 separately authorised forward consumer-read-authority extension; its runtime
 implementation evidence is not yet terminal.
@@ -46,12 +46,13 @@ shared identity, tenancy and product-access authority for future CTRL and IMS
 consumers. It does not implement CTRL/IMS operational screens, billing,
 production-data import or authority cutover.
 
-The first executable item is now PF-B11-S02. PF-B11-S01 is terminally closed
-below after its exact contract, independent gates and local validation passed:
+The first executable item is now PF-B11-S02. PF-B11-S01 and its superseding
+PF-B11-S01-R1 correction are terminally closed below after their exact
+contracts, independent gates and local validation passed:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| PF-B11 | PF-B11-S02 — Durable snapshot and source cursor | **BLOCKED / NOT RUN** | S01 terminal, but Product source provenance conflict unresolved | [active plan](active/pf-b11-s02-durable-snapshot.md) |
+| PF-B11 | PF-B11-S02 — Durable snapshot and source cursor | **Ready** | S01-R1 terminal; v2 event or migration-seed provenance contract | [active plan](active/pf-b11-s02-durable-snapshot.md) |
 
 All later Slices remain dependency-bound. The complete inventory is:
 
@@ -67,7 +68,7 @@ All later Slices remain dependency-bound. The complete inventory is:
 | PF-B8 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B9 | S01, S02 | **Terminal** | PF-B6-S02 + PF-B7-S02; S01 → S02 |
 | PF-B10 | S01, S01-R1, S02 | **Terminal** | PF-B8-S02 + PF-B9-S02; S01 → S01-R1 → S02 |
-| PF-B11 | S01 terminal, S02 blocked, S03/S04 not run | **BLOCKED / NOT RUN** | S02 source provenance authority conflict; S01 → S02 → S03 → S04 |
+| PF-B11 | S01 and S01-R1 terminal, S02 Ready, S03/S04 not run | **Active at S02** | S01 → S01-R1 → S02 → S03 → S04 |
 
 The three authority branches after PF-B1-S03 are sequential within each
 branch; they are not parallel implementation permission. Lane 1 prepares every
@@ -110,7 +111,8 @@ programme plan.
 > linked active Slice plans. Execute S01 through S04 strictly in order. This
 > forward extension provides the versioned Platform read-authority contract
 > required by CTRL and IMS; it does not implement either consumer's PD-D5-S01,
-> cutover or product-domain authority.
+> cutover or product-domain authority. S02 must use the published v2 contract
+> and preserve event or migration-seed provenance.
 
 ## Closeout update
 
@@ -139,10 +141,12 @@ PF-B10 is terminally certified; final evidence is recorded in
 [`docs/implementation/audits/pf-b10-batch-certification.md`](../docs/implementation/audits/pf-b10-batch-certification.md).
 PF-B11-S01 is now terminally implemented and reconciled in
 [`plan/completed/pf-b11-s01-read-authority-contract.md`](completed/pf-b11-s01-read-authority-contract.md),
-with independent review and acceptance in the linked audit files. PF-B11-S02
-is now recorded **BLOCKED / NOT RUN** because fresh Product rows have no
-committed v1 source event and the existing plans do not authorize fabricated
-provenance or an event-contract change. S03 and S04 were not started.
+with independent review and acceptance in the linked audit files. PF-B11-S01-R1
+is now terminally implemented and reconciled in
+[`plan/completed/pf-b11-s01-r1-seed-provenance-v2.md`](completed/pf-b11-s01-r1-seed-provenance-v2.md),
+with independent review and acceptance recorded in the linked audit files.
+PF-B11-S02 is now **Ready** under `platform.read-authority.v2`; S03 and S04
+were not started.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:

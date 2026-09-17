@@ -19,7 +19,7 @@ Batch, PF-B7-S01/S02, PF-B8-S01/S02, PF-B9-S01/S02 and PF-B10-S01; PF-B7,
 PF-B8 and PF-B9 are certified; PF-B10-S01-R1 is terminal and PF-B10-S02 is
 PF-B10-S02 is terminal and the original PF Foundation queue has no remaining
 open item. PF-B11 is the separately authorised forward extension described
-below.
+below; its S01-R1 provenance correction is terminal and S02 is now Ready.
 PF-B7 Batch certification is recorded in
 [`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
 PF-B6 Batch certification is recorded in
@@ -47,12 +47,13 @@ Lane 1 preparation → Lane 2 sequential implementation → Lane 3 certification
 PF-B1 through PF-B10 remain terminal historical Foundation scope. PF-B11 is a
 new explicitly authorised forward Batch that supplies the missing versioned,
 bounded and fail-closed Platform read-authority contract required before CTRL
-or IMS may start PD-D5-S01. PF-B11-S01 is now terminal; S02 is
-**BLOCKED / NOT RUN** by the Product source-provenance authority conflict.
-S03–S04 remain unrun. The Batch and remaining Slice plans are:
+or IMS may start PD-D5-S01. PF-B11-S01 and PF-B11-S01-R1 are terminal; S02 is
+now **Ready** under `platform.read-authority.v2`. S03–S04 remain unrun. The
+Batch and remaining Slice plans are:
 
 - [`pf-b11-shared-read-authority.md`](pf-b11-shared-read-authority.md)
 - [`completed/pf-b11-s01-read-authority-contract.md`](completed/pf-b11-s01-read-authority-contract.md)
+- [`completed/pf-b11-s01-r1-seed-provenance-v2.md`](completed/pf-b11-s01-r1-seed-provenance-v2.md)
 - [`active/pf-b11-s02-durable-snapshot.md`](active/pf-b11-s02-durable-snapshot.md)
 - [`active/pf-b11-s03-feed-and-api.md`](active/pf-b11-s03-feed-and-api.md)
 - [`active/pf-b11-s04-certification.md`](active/pf-b11-s04-certification.md)

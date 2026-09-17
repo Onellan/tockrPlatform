@@ -7,8 +7,8 @@
 
 ## Objective
 
-Expose the bounded machine-to-machine read-authority transport defined by S01
-and backed by S02. The API supplies a verified bootstrap snapshot, ordered
+Expose the bounded machine-to-machine read-authority transport defined by
+S01/S01-R1 v2 and backed by S02. The API supplies a verified bootstrap snapshot, ordered
 committed changes and explicit resynchronisation/status outcomes; it never
 becomes a synchronous product request dependency.
 
@@ -27,7 +27,9 @@ The implementation must provide the S01 wire contract for:
   freshness state without returning sensitive records.
 
 The exact JSON schemas, headers, limits and error classes are authoritative in
-the S01 contract. These endpoints are not browser-session routes and do not
+the v2 contract. Snapshot records must preserve event or migration-seed
+provenance; the incremental feed remains `platform-events-v1`. These endpoints
+are not browser-session routes and do not
 grant product access.
 
 ## Ordered work
@@ -77,9 +79,10 @@ provenance continuity. There is no UI scope.
 - **S03-AC02:** key rotation accepts the documented overlap and rejects
   retired/unknown keys, malformed signatures, replays and cross-consumer
   product keys.
-- **S03-AC03:** snapshots and changes are bounded, deterministic, committed,
-  redacted and version-checked; partial, stale, blocked, unavailable or gapped
-  state cannot be returned as authoritative.
+- **S03-AC03:** v2 snapshots and `platform-events-v1` changes are bounded,
+  deterministic, committed, redacted and version-checked; event or
+  migration-seed provenance is preserved and partial, stale, blocked,
+  unavailable or gapped state cannot be returned as authoritative.
 - **S03-AC04:** cursor expiry, source retention loss and ordering gaps return
   `resync_required` rather than an inferred continuation.
 - **S03-AC05:** the endpoints have no browser-session fallback, no per-request
