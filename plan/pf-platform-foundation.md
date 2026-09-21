@@ -1,8 +1,8 @@
 # Priority PF — Tockr Platform Foundation
 
 **Status:** PF-B1 through PF-B11 are terminal at their authorised scopes.
-PF-B11 is a separately authorised forward consumer-read-authority extension;
-it does not reopen PF-B1–PF-B10.
+PF-B12 is a separately authorised forward membership-command extension; it
+does not reopen any terminal Batch.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -173,8 +173,9 @@ independent tester acceptance remain separate gates.
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
 | PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
 | PF-B11 | Shared read authority and consumer projection source | S01, S01-R1, S02–S04 | **Terminal** |
+| PF-B12 | Machine-authenticated shared membership commands | S01 | **Active** |
 
-Total: **11 Batches, 27 Slices including the authorised PF-B11-S01-R1 correction and PF-B11 extension**. PF-B1 has three foundation Slices because
+Total: **12 Batches, 28 Slices including the authorised PF-B11-S01-R1 correction, PF-B11 extension and PF-B12 extension**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
 runtime implementation; collapsing it would hide an implementation authority
 decision.
@@ -193,6 +194,7 @@ PF-B6-S02 + PF-B7-S02 → PF-B8-S01 → PF-B8-S02
 PF-B6-S02 + PF-B7-S02 → PF-B9-S01 → PF-B9-S02
 PF-B8-S02 + PF-B9-S02 → PF-B10-S01 → PF-B10-S01-R1 → PF-B10-S02
 PF-B10-S02 → PF-B11-S01 → PF-B11-S01-R1 → PF-B11-S02 → PF-B11-S03 → PF-B11-S04
+PF-B11-S04 → PF-B12-S01 (separate forward command extension)
 ```
 
 The three authority branches after B1-S03 are sequential within each branch;
@@ -230,6 +232,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B11-S02 | [Durable snapshot and source cursor — terminal](completed/pf-b11-s02-durable-snapshot.md) |
 | PF-B11-S03 | [Authenticated feed and resynchronisation API — terminal](completed/pf-b11-s03-feed-and-api.md) |
 | PF-B11-S04 | [Security, operability and consumer-readiness certification — terminal](completed/pf-b11-s04-certification.md) |
+| PF-B12-S01 | [Versioned shared membership command API — active](active/pf-b12-s01-membership-command-api.md) |
 
 PF-B11-S01 is terminally accepted at implementation candidate
 `b79b9321a06dd1c0e25381127dc61e861bae520d`; its exact contract and
@@ -283,6 +286,7 @@ replacement for the Slice-level acceptance detail.
 | PF-B9 | CTRL/IMS reconciliation, mapping, dry-run/import and rollback are explicit without guessed identity | PF-B9-S01–S02 plans and Batch certification |
 | PF-B10 | Security hardening, runtime controls and final exact-candidate certification are complete | PF-B10-S01–S02 plans and final certification |
 | PF-B11 | Versioned, bounded and fail-closed Platform read authority is available to CTRL and IMS without synchronous per-request dependency | PF-B11-S01–S04 plans and Batch certification |
+| PF-B12 | Platform provides a versioned machine-authenticated command boundary for approved shared membership writes while preserving actor authority and local product roles | PF-B12-S01 plan and Batch certification |
 
 ## Standard PF Batch execution prompt
 

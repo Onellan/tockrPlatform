@@ -15,11 +15,9 @@ The completed ledger currently contains the terminal PF-B1 foundation Slices,
 the PF-B2 identity/authentication Batch, the complete PF-B3 Organisation
 authority Batch, the complete PF-B4 Workspace authority Batch, the complete
 PF-B5 product-access Batch, the complete PF-B6 product assertion/consumer
-Batch, PF-B7-S01/S02, PF-B8-S01/S02, PF-B9-S01/S02 and PF-B10-S01; PF-B7,
-PF-B8 and PF-B9 are certified; PF-B10-S01-R1 is terminal and PF-B10-S02 is
-PF-B10-S02 is terminal and the original PF Foundation queue has no remaining
-open item. PF-B11 is the separately authorised forward extension described
-below; its S01, S01-R1 and S02 slices are terminal and S03 is now Ready.
+Batch, PF-B7-S01/S02, PF-B8-S01/S02, PF-B9-S01/S02 and PF-B10. PF-B7, PF-B8,
+PF-B9, PF-B10 and PF-B11 are terminally certified. PF-B12 is the active,
+separately authorised forward extension described below.
 PF-B7 Batch certification is recorded in
 [`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
 PF-B6 Batch certification is recorded in
@@ -59,3 +57,15 @@ are terminal. The Batch and completed Slice plans are:
 
 PF-B11 does not reopen terminal plans, implement CTRL/IMS cutover or move
 product roles, billing or product data into Platform.
+
+## Forward PF-B12 — Shared membership command authority
+
+PF-B12 is a separately authorised forward extension for the user-approved
+OrganisationMembership and generic WorkspaceMembership writer scope. Its
+Platform-owned command contract and API must be delivered before CTRL/IMS
+replace their local membership writers. PF-B12 does not authorize production
+consumer cutover, migration/import, product-role changes, entitlement or
+assignment writes.
+
+- [PF-B12 Batch plan](pf-b12-shared-membership-commands.md)
+- [PF-B12-S01 — Versioned shared membership command API](active/pf-b12-s01-membership-command-api.md)
