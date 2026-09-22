@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
@@ -12,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Onellan/tockrplatform/internal/domain"
 	"github.com/Onellan/tockrplatform/internal/platform/assertion"
 	"github.com/Onellan/tockrplatform/internal/platform/membershipcommand"
 	"github.com/Onellan/tockrplatform/internal/platform/readauthority"
@@ -96,6 +98,125 @@ func TestMembershipCommandHTTPAuthenticatesActorAndReplaysIdempotently(t *testin
 	if staleResponse.Code != http.StatusConflict {
 		t.Fatalf("stale command = %d/%s", staleResponse.Code, staleResponse.Body.String())
 	}
+	var payload string
+	if err := f.store.DB().QueryRowContext(context.Background(), `SELECT payload FROM platform_outbox WHERE aggregate_id=? ORDER BY sequence DESC LIMIT 1`, f.organisation.ID).Scan(&payload); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(payload, "approved command") || strings.Contains(payload, "approved promotion") {
+		t.Fatalf("membership command reason leaked into outbox payload: %s", payload)
+	}
+}
+
+func TestMembershipCommandHTTPSupportsIMSWorkspaceAndFailsClosedAcrossScopes(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	workspace, _, err := f.store.CreateWorkspace(context.Background(), f.users[0].ID, f.organisation.ID, domain.Workspace{Name: "Command Workspace", Status: domain.WorkspaceActive}, "create command workspace", time.Now().UTC())
+	if err != nil {
+		t.Fatal(err)
+	}
+	servicePublic, servicePrivate, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issuer := testHTTPAssertionIssuer(t)
+	server := NewServer(f.store, Config{AllowInsecureCookies: true, AssertionIssuer: issuer, MembershipCommandKeys: readauthority.PublicKeySet{readauthority.ConsumerIMS: {"current": servicePublic}}})
+	h := server.Handler()
+	now := time.Now().UTC()
+	actor := func(at time.Time) string {
+		token, _, issueErr := issuer.Issue(assertion.IssueRequest{Audience: "tockrims", PlatformUserID: f.users[0].ID, OrganisationID: f.organisation.ID, WorkspaceID: workspace.ID}, at)
+		if issueErr != nil {
+			t.Fatal(issueErr)
+		}
+		return token
+	}
+	addBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeWorkspace, "operation": membershipcommand.OperationAdd, "workspace_id": workspace.ID, "user_id": f.users[2].ID, "role": "member", "reason": "IMS workspace add", "idempotency_key": "ims-workspace-add-1", "expected_version": 0})
+	addResponse := httptest.NewRecorder()
+	h.ServeHTTP(addResponse, signedMembershipCommandTestRequestForConsumer(t, addBody, actor(now), servicePrivate, "ims-workspace-add-nonce", membershipcommand.ConsumerIMS))
+	if addResponse.Code != http.StatusOK || !strings.Contains(addResponse.Body.String(), `"membership_version":1`) {
+		t.Fatalf("IMS workspace add = %d/%s", addResponse.Code, addResponse.Body.String())
+	}
+	alteredBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeWorkspace, "operation": membershipcommand.OperationAdd, "workspace_id": workspace.ID, "user_id": f.users[2].ID, "role": "viewer", "reason": "altered replay", "idempotency_key": "ims-workspace-add-1", "expected_version": 0})
+	alteredResponse := httptest.NewRecorder()
+	h.ServeHTTP(alteredResponse, signedMembershipCommandTestRequestForConsumer(t, alteredBody, actor(now.Add(time.Second)), servicePrivate, "ims-workspace-altered-nonce", membershipcommand.ConsumerIMS))
+	if alteredResponse.Code != http.StatusConflict {
+		t.Fatalf("altered idempotency replay = %d/%s", alteredResponse.Code, alteredResponse.Body.String())
+	}
+	roleBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeWorkspace, "operation": membershipcommand.OperationRole, "workspace_id": workspace.ID, "user_id": f.users[2].ID, "role": "admin", "reason": "IMS workspace role", "idempotency_key": "ims-workspace-role-1", "expected_version": 1})
+	roleResponse := httptest.NewRecorder()
+	h.ServeHTTP(roleResponse, signedMembershipCommandTestRequestForConsumer(t, roleBody, actor(now.Add(2*time.Second)), servicePrivate, "ims-workspace-role-nonce", membershipcommand.ConsumerIMS))
+	if roleResponse.Code != http.StatusOK || !strings.Contains(roleResponse.Body.String(), `"membership_version":2`) {
+		t.Fatalf("IMS workspace role change = %d/%s", roleResponse.Code, roleResponse.Body.String())
+	}
+	deactivateBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeWorkspace, "operation": membershipcommand.OperationRemove, "workspace_id": workspace.ID, "user_id": f.users[2].ID, "reason": "IMS workspace deactivate", "idempotency_key": "ims-workspace-remove-1", "expected_version": 2})
+	deactivateResponse := httptest.NewRecorder()
+	h.ServeHTTP(deactivateResponse, signedMembershipCommandTestRequestForConsumer(t, deactivateBody, actor(now.Add(3*time.Second)), servicePrivate, "ims-workspace-remove-nonce", membershipcommand.ConsumerIMS))
+	if deactivateResponse.Code != http.StatusOK || !strings.Contains(deactivateResponse.Body.String(), `"active":false`) {
+		t.Fatalf("IMS workspace deactivate = %d/%s", deactivateResponse.Code, deactivateResponse.Body.String())
+	}
+	if _, err := f.store.AddWorkspaceMember(context.Background(), f.users[0].ID, workspace.ID, f.users[1].ID, domain.WorkspaceMember, "guarded workspace member", now); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.store.DeactivateOrganisationMember(context.Background(), f.users[0].ID, f.organisation.ID, f.users[1].ID, "remove parent membership", now.Add(time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	guardedBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeWorkspace, "operation": membershipcommand.OperationRole, "workspace_id": workspace.ID, "user_id": f.users[1].ID, "role": "admin", "reason": "cross scope role", "idempotency_key": "ims-workspace-guarded-1", "expected_version": 1})
+	guardedResponse := httptest.NewRecorder()
+	h.ServeHTTP(guardedResponse, signedMembershipCommandTestRequestForConsumer(t, guardedBody, actor(now.Add(4*time.Second)), servicePrivate, "ims-workspace-guarded-nonce", membershipcommand.ConsumerIMS))
+	if guardedResponse.Code != http.StatusForbidden {
+		t.Fatalf("cross-scope workspace role change = %d/%s", guardedResponse.Code, guardedResponse.Body.String())
+	}
+	var active int
+	if err := f.store.DB().QueryRowContext(context.Background(), `SELECT active FROM workspace_memberships WHERE workspace_id=(SELECT id FROM workspaces WHERE public_id=?) AND user_id=(SELECT id FROM users WHERE public_id=?) ORDER BY id DESC LIMIT 1`, workspace.ID, f.users[1].ID).Scan(&active); err != nil {
+		t.Fatal(err)
+	}
+	if active != 1 {
+		t.Fatalf("cross-scope rejection changed workspace membership active state: %d", active)
+	}
+	outOfScopeBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": "assign_product", "organisation_id": f.organisation.ID, "user_id": f.users[3].ID, "reason": "out of scope", "idempotency_key": "ims-out-of-scope-1", "expected_version": 0})
+	outOfScopeResponse := httptest.NewRecorder()
+	h.ServeHTTP(outOfScopeResponse, signedMembershipCommandTestRequestForConsumer(t, outOfScopeBody, actor(now.Add(5*time.Second)), servicePrivate, "ims-out-of-scope-nonce", membershipcommand.ConsumerIMS))
+	if outOfScopeResponse.Code != http.StatusBadRequest {
+		t.Fatalf("out-of-scope command = %d/%s", outOfScopeResponse.Code, outOfScopeResponse.Body.String())
+	}
+}
+
+func TestMembershipCommandHTTPRollsBackWhenOutboxAppendFails(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	servicePublic, servicePrivate, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issuer := testHTTPAssertionIssuer(t)
+	server := NewServer(f.store, Config{AllowInsecureCookies: true, AssertionIssuer: issuer, MembershipCommandKeys: readauthority.PublicKeySet{readauthority.ConsumerCTRL: {"current": servicePublic}}})
+	now := time.Now().UTC()
+	actor, _, err := issuer.Issue(assertion.IssueRequest{Audience: "tockrctrl", PlatformUserID: f.users[0].ID, OrganisationID: f.organisation.ID, WorkspaceID: "wsp_command_scope"}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.store.DB().ExecContext(context.Background(), `CREATE TRIGGER reject_command_platform_events BEFORE INSERT ON platform_outbox BEGIN SELECT RAISE(ABORT,'reject command event'); END`); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_, _ = f.store.DB().ExecContext(context.Background(), `DROP TRIGGER IF EXISTS reject_command_platform_events`)
+	})
+	body := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": membershipcommand.OperationAdd, "organisation_id": f.organisation.ID, "user_id": f.users[3].ID, "role": "member", "reason": "rollback command", "idempotency_key": "rollback-command-1", "expected_version": 0})
+	response := httptest.NewRecorder()
+	server.Handler().ServeHTTP(response, signedMembershipCommandTestRequest(t, body, actor, servicePrivate, "rollback-command-nonce"))
+	if response.Code != http.StatusServiceUnavailable {
+		t.Fatalf("outbox failure response = %d/%s", response.Code, response.Body.String())
+	}
+	var active, audit, results int
+	if err := f.store.DB().QueryRowContext(context.Background(), `SELECT COUNT(*) FROM organisation_memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=(SELECT id FROM organisations WHERE public_id=?) AND u.public_id=? AND m.active=1`, f.organisation.ID, f.users[3].ID).Scan(&active); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.store.DB().QueryRowContext(context.Background(), `SELECT COUNT(*) FROM audit_events WHERE aggregate_id=? AND event='organisation_membership_added' AND details LIKE ?`, f.organisation.ID, "%"+f.users[3].ID+"%").Scan(&audit); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.store.DB().QueryRowContext(context.Background(), `SELECT COUNT(*) FROM platform_membership_command_results WHERE idempotency_key=?`, "rollback-command-1").Scan(&results); err != nil {
+		t.Fatal(err)
+	}
+	if active != 0 || audit != 0 || results != 0 {
+		t.Fatalf("outbox rollback left active=%d audit=%d result=%d", active, audit, results)
+	}
 }
 
 func membershipCommandTestBody(t *testing.T, value map[string]any) []byte {
@@ -108,16 +229,20 @@ func membershipCommandTestBody(t *testing.T, value map[string]any) []byte {
 }
 
 func signedMembershipCommandTestRequest(t *testing.T, body []byte, actor string, privateKey ed25519.PrivateKey, nonce string) *http.Request {
+	return signedMembershipCommandTestRequestForConsumer(t, body, actor, privateKey, nonce, membershipcommand.ConsumerCTRL)
+}
+
+func signedMembershipCommandTestRequestForConsumer(t *testing.T, body []byte, actor string, privateKey ed25519.PrivateKey, nonce, consumer string) *http.Request {
 	t.Helper()
 	timestamp := strconv.FormatInt(time.Now().UTC().Unix(), 10)
-	canonical, err := membershipcommand.CanonicalRequestWithActor(http.MethodPost, "/api/v1/membership-commands", membershipcommand.BodyDigest(body), membershipcommand.BodyDigest([]byte(actor)), membershipcommand.ConsumerCTRL, "current", timestamp, nonce)
+	canonical, err := membershipcommand.CanonicalRequestWithActor(http.MethodPost, "/api/v1/membership-commands", membershipcommand.BodyDigest(body), membershipcommand.BodyDigest([]byte(actor)), consumer, "current", timestamp, nonce)
 	if err != nil {
 		t.Fatal(err)
 	}
 	signature := ed25519.Sign(privateKey, []byte(canonical))
 	request := httptest.NewRequest(http.MethodPost, "/api/v1/membership-commands", strings.NewReader(string(body)))
 	request.Header.Set(membershipcommand.VersionHeader, membershipcommand.Version)
-	request.Header.Set(membershipcommand.ConsumerHeader, membershipcommand.ConsumerCTRL)
+	request.Header.Set(membershipcommand.ConsumerHeader, consumer)
 	request.Header.Set(membershipcommand.KeyIDHeader, "current")
 	request.Header.Set(membershipcommand.TimestampHeader, timestamp)
 	request.Header.Set(membershipcommand.NonceHeader, nonce)

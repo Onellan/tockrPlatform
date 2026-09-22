@@ -41,4 +41,5 @@ type MembershipCommandResult struct {
 
 type MembershipCommandStore interface {
 	ExecuteMembershipCommand(context.Context, MembershipCommandRequest) (MembershipCommandResult, error)
+	CleanupMembershipCommandResults(context.Context, time.Time, int) (int64, error)
 }

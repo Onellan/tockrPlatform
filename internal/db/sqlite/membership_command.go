@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Onellan/tockrplatform/internal/domain"
 	"github.com/Onellan/tockrplatform/internal/store"
@@ -68,6 +69,23 @@ func (s *Store) ExecuteMembershipCommand(ctx context.Context, request store.Memb
 	return result, nil
 }
 
+func (s *Store) CleanupMembershipCommandResults(ctx context.Context, before time.Time, limit int) (int64, error) {
+	if before.IsZero() || limit < 1 || limit > 1000 {
+		return 0, store.ErrInvalidReadAuthorityRequest
+	}
+	result, err := s.db.ExecContext(ctx, `DELETE FROM platform_membership_command_results
+		WHERE id IN (SELECT id FROM platform_membership_command_results
+		WHERE created_at<=? ORDER BY created_at,id LIMIT ?)`, formatTime(before.UTC()), limit)
+	if err != nil {
+		return 0, fmt.Errorf("cleanup membership command results: %w", err)
+	}
+	removed, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("count cleaned membership command results: %w", err)
+	}
+	return removed, nil
+}
+
 func validateMembershipCommandActorTx(ctx context.Context, tx *sql.Tx, request store.MembershipCommandRequest) error {
 	switch request.Scope {
 	case "organisation_membership":
@@ -82,209 +100,49 @@ func validateMembershipCommandActorTx(ctx context.Context, tx *sql.Tx, request s
 }
 
 func (s *Store) executeOrganisationMembershipCommandTx(ctx context.Context, tx *sql.Tx, request store.MembershipCommandRequest) (store.MembershipCommandResult, error) {
-	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, request.ActorUserID, request.OrganisationID)
-	if err != nil {
-		return store.MembershipCommandResult{}, err
-	}
 	role := domain.OrganisationRole(request.Role)
+	var membership domain.OrganisationMembership
+	var err error
+	version := request.ExpectedVersion
 	switch request.Operation {
 	case "add":
-		if role != domain.OrganisationAdmin && role != domain.OrganisationMember {
-			return store.MembershipCommandResult{}, domain.ErrInvalidOrganisationRole
-		}
-		if !systemAdmin && actorRole == domain.OrganisationAdmin && role == domain.OrganisationAdmin {
-			return store.MembershipCommandResult{}, ErrUnauthorisedOrganisationAction
-		}
-		targetID, err := activeUserIDTx(ctx, tx, request.UserID)
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		var exists int
-		if err := tx.QueryRowContext(ctx, `SELECT COUNT(*) FROM organisation_memberships WHERE organisation_id=? AND user_id=? AND active=1`, organisationInternalID, targetID).Scan(&exists); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if exists != 0 {
-			return store.MembershipCommandResult{}, ErrDuplicateOrganisationMember
-		}
-		membershipID, err := domain.NewOrganisationMembershipID()
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO organisation_memberships(public_id,organisation_id,user_id,role,active,assigned_by,assigned_at,membership_version) VALUES(?,?,?,?,1,?,?,1)`, membershipID, organisationInternalID, targetID, string(role), actorInternalID, formatTime(request.OccurredAt)); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		details := organisationMutationDetails{OrganisationID: request.OrganisationID, MembershipID: membershipID, UserID: request.UserID, Role: string(role), Reason: request.Reason}
-		if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, request.OrganisationID, eventMembershipAdded, details, request.OccurredAt); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		return store.MembershipCommandResult{MembershipID: membershipID, OrganisationID: request.OrganisationID, UserID: request.UserID, Role: string(role), Active: true, MembershipVersion: 1}, nil
+		membership, err = s.addOrganisationMemberTx(ctx, tx, request.ActorUserID, request.OrganisationID, request.UserID, role, request.Reason, request.OccurredAt)
+		version = 1
 	case "change_role":
-		if role != domain.OrganisationAdmin && role != domain.OrganisationMember {
-			return store.MembershipCommandResult{}, domain.ErrInvalidOrganisationRole
-		}
-		var currentID, currentVersion int64
-		var currentPublicID, currentRole string
-		if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.membership_version,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, request.UserID).Scan(&currentID, &currentPublicID, &currentVersion, &currentRole); errors.Is(err, sql.ErrNoRows) {
-			return store.MembershipCommandResult{}, ErrMembershipNotFound
-		} else if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if request.ExpectedVersion != currentVersion {
-			return store.MembershipCommandResult{}, store.ErrMembershipCommandConflict
-		}
-		if currentRole == string(domain.OrganisationOwner) {
-			return store.MembershipCommandResult{}, ErrOwnerMutationNotAuthorised
-		}
-		if !systemAdmin && actorRole == domain.OrganisationAdmin && currentRole != string(domain.OrganisationMember) {
-			return store.MembershipCommandResult{}, ErrUnauthorisedOrganisationAction
-		}
-		if currentRole == string(role) {
-			return store.MembershipCommandResult{}, ErrDuplicateOrganisationMember
-		}
-		targetID, err := activeUserIDTx(ctx, tx, request.UserID)
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		membershipID, err := domain.NewOrganisationMembershipID()
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if _, err := tx.ExecContext(ctx, `UPDATE organisation_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(request.OccurredAt), request.Reason, currentID); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO organisation_memberships(public_id,organisation_id,user_id,role,active,assigned_by,assigned_at,membership_version) VALUES(?,?,?,?,1,?,?,?)`, membershipID, organisationInternalID, targetID, string(role), actorInternalID, formatTime(request.OccurredAt), currentVersion+1); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		details := organisationMutationDetails{OrganisationID: request.OrganisationID, MembershipID: membershipID, UserID: request.UserID, Role: string(role), Reason: request.Reason}
-		if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, request.OrganisationID, eventMembershipRoleChanged, details, request.OccurredAt); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		return store.MembershipCommandResult{MembershipID: membershipID, OrganisationID: request.OrganisationID, UserID: request.UserID, Role: string(role), Active: true, MembershipVersion: currentVersion + 1}, nil
+		membership, err = s.changeOrganisationMemberRoleTx(ctx, tx, request.ActorUserID, request.OrganisationID, request.UserID, role, request.Reason, request.OccurredAt, &request.ExpectedVersion)
+		version = request.ExpectedVersion + 1
 	case "deactivate":
-		var currentID, currentVersion int64
-		var currentPublicID, currentRole string
-		if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.membership_version,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, request.UserID).Scan(&currentID, &currentPublicID, &currentVersion, &currentRole); errors.Is(err, sql.ErrNoRows) {
-			return store.MembershipCommandResult{}, ErrMembershipNotFound
-		} else if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if request.ExpectedVersion != currentVersion {
-			return store.MembershipCommandResult{}, store.ErrMembershipCommandConflict
-		}
-		if currentRole == string(domain.OrganisationOwner) {
-			return store.MembershipCommandResult{}, ErrOwnerMutationNotAuthorised
-		}
-		if !systemAdmin && actorRole == domain.OrganisationAdmin && currentRole != string(domain.OrganisationMember) {
-			return store.MembershipCommandResult{}, ErrUnauthorisedOrganisationAction
-		}
-		if _, err := tx.ExecContext(ctx, `UPDATE organisation_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(request.OccurredAt), request.Reason, currentID); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		details := organisationMutationDetails{OrganisationID: request.OrganisationID, MembershipID: currentPublicID, UserID: request.UserID, Role: currentRole, Reason: request.Reason}
-		if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, request.OrganisationID, eventMembershipDeactivated, details, request.OccurredAt); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		return store.MembershipCommandResult{MembershipID: currentPublicID, OrganisationID: request.OrganisationID, UserID: request.UserID, Role: currentRole, Active: false, MembershipVersion: currentVersion}, nil
+		membership, err = s.deactivateOrganisationMemberTx(ctx, tx, request.ActorUserID, request.OrganisationID, request.UserID, request.Reason, request.OccurredAt, &request.ExpectedVersion)
 	default:
 		return store.MembershipCommandResult{}, store.ErrMembershipCommandUnsupported
 	}
+	if err != nil {
+		return store.MembershipCommandResult{}, err
+	}
+	return store.MembershipCommandResult{MembershipID: membership.ID, OrganisationID: membership.OrganisationID, UserID: membership.UserID, Role: string(membership.Role), Active: membership.Active, MembershipVersion: version}, nil
 }
 
 func (s *Store) executeWorkspaceMembershipCommandTx(ctx context.Context, tx *sql.Tx, request store.MembershipCommandRequest) (store.MembershipCommandResult, error) {
-	actorInternalID, _, workspaceInternalID, _, err := authorisedWorkspaceMutationTx(ctx, tx, request.ActorUserID, request.WorkspaceID, true)
-	if err != nil {
-		return store.MembershipCommandResult{}, err
-	}
 	role := domain.WorkspaceRole(request.Role)
+	var membership domain.WorkspaceMembership
+	var err error
+	version := request.ExpectedVersion
 	switch request.Operation {
 	case "add":
-		if !role.Valid() {
-			return store.MembershipCommandResult{}, domain.ErrInvalidWorkspaceRole
-		}
-		if err := activeWorkspaceTargetUserTx(ctx, tx, workspaceInternalID, request.UserID); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		var active int
-		if err := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM workspace_memberships wm JOIN users u ON u.id=wm.user_id AND u.active=1 WHERE wm.workspace_id=? AND u.public_id=? AND wm.active=1)`, workspaceInternalID, request.UserID).Scan(&active); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if active == 1 {
-			return store.MembershipCommandResult{}, ErrDuplicateWorkspaceMember
-		}
-		targetID, err := targetUserIDInternal(ctx, tx, request.UserID)
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		membershipID, err := domain.NewWorkspaceMembershipID()
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO workspace_memberships(public_id,workspace_id,user_id,role,active,assigned_by,assigned_at,membership_version) VALUES(?,?,?,?,1,?,?,1)`, membershipID, workspaceInternalID, targetID, string(role), actorInternalID, formatTime(request.OccurredAt)); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		details := workspaceMutationDetails{WorkspaceID: request.WorkspaceID, MembershipID: membershipID, UserID: request.UserID, Role: string(role), Reason: request.Reason}
-		if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, request.WorkspaceID, eventWorkspaceMembershipAdded, details, request.OccurredAt); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		return store.MembershipCommandResult{MembershipID: membershipID, WorkspaceID: request.WorkspaceID, UserID: request.UserID, Role: string(role), Active: true, MembershipVersion: 1}, nil
+		membership, err = s.addWorkspaceMemberTx(ctx, tx, request.ActorUserID, request.WorkspaceID, request.UserID, role, request.Reason, request.OccurredAt)
+		version = 1
 	case "change_role":
-		if !role.Valid() {
-			return store.MembershipCommandResult{}, domain.ErrInvalidWorkspaceRole
-		}
-		var currentID, currentVersion int64
-		var currentPublicID, currentRole string
-		if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.membership_version,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, request.UserID).Scan(&currentID, &currentPublicID, &currentVersion, &currentRole); errors.Is(err, sql.ErrNoRows) {
-			return store.MembershipCommandResult{}, ErrWorkspaceMembershipNotFound
-		} else if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if request.ExpectedVersion != currentVersion {
-			return store.MembershipCommandResult{}, store.ErrMembershipCommandConflict
-		}
-		if currentRole == string(role) {
-			return store.MembershipCommandResult{}, ErrDuplicateWorkspaceMember
-		}
-		targetID, err := targetUserIDInternal(ctx, tx, request.UserID)
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		membershipID, err := domain.NewWorkspaceMembershipID()
-		if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if _, err := tx.ExecContext(ctx, `UPDATE workspace_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(request.OccurredAt), request.Reason, currentID); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if _, err := tx.ExecContext(ctx, `INSERT INTO workspace_memberships(public_id,workspace_id,user_id,role,active,assigned_by,assigned_at,membership_version) VALUES(?,?,?,?,1,?,?,?)`, membershipID, workspaceInternalID, targetID, string(role), actorInternalID, formatTime(request.OccurredAt), currentVersion+1); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		details := workspaceMutationDetails{WorkspaceID: request.WorkspaceID, MembershipID: membershipID, UserID: request.UserID, Role: string(role), Reason: request.Reason}
-		if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, request.WorkspaceID, eventWorkspaceRoleChanged, details, request.OccurredAt); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		return store.MembershipCommandResult{MembershipID: membershipID, WorkspaceID: request.WorkspaceID, UserID: request.UserID, Role: string(role), Active: true, MembershipVersion: currentVersion + 1}, nil
+		membership, err = s.changeWorkspaceMemberRoleTx(ctx, tx, request.ActorUserID, request.WorkspaceID, request.UserID, role, request.Reason, request.OccurredAt, &request.ExpectedVersion)
+		version = request.ExpectedVersion + 1
 	case "deactivate":
-		var currentID, currentVersion int64
-		var currentPublicID, currentRole string
-		if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.membership_version,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, request.UserID).Scan(&currentID, &currentPublicID, &currentVersion, &currentRole); errors.Is(err, sql.ErrNoRows) {
-			return store.MembershipCommandResult{}, ErrWorkspaceMembershipNotFound
-		} else if err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		if request.ExpectedVersion != currentVersion {
-			return store.MembershipCommandResult{}, store.ErrMembershipCommandConflict
-		}
-		if _, err := tx.ExecContext(ctx, `UPDATE workspace_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(request.OccurredAt), request.Reason, currentID); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		details := workspaceMutationDetails{WorkspaceID: request.WorkspaceID, MembershipID: currentPublicID, UserID: request.UserID, Role: currentRole, Reason: request.Reason}
-		if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, request.WorkspaceID, eventWorkspaceMemberRemoved, details, request.OccurredAt); err != nil {
-			return store.MembershipCommandResult{}, err
-		}
-		return store.MembershipCommandResult{MembershipID: currentPublicID, WorkspaceID: request.WorkspaceID, UserID: request.UserID, Role: currentRole, Active: false, MembershipVersion: currentVersion}, nil
+		membership, err = s.deactivateWorkspaceMemberTx(ctx, tx, request.ActorUserID, request.WorkspaceID, request.UserID, request.Reason, request.OccurredAt, &request.ExpectedVersion)
 	default:
 		return store.MembershipCommandResult{}, store.ErrMembershipCommandUnsupported
 	}
+	if err != nil {
+		return store.MembershipCommandResult{}, err
+	}
+	return store.MembershipCommandResult{MembershipID: membership.ID, WorkspaceID: membership.WorkspaceID, UserID: membership.UserID, Role: string(membership.Role), Active: membership.Active, MembershipVersion: version}, nil
 }
 
 var _ store.MembershipCommandStore = (*Store)(nil)

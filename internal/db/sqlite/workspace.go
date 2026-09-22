@@ -202,15 +202,35 @@ func (s *Store) AddWorkspaceMember(ctx context.Context, actorUserID, workspaceID
 	if at.IsZero() {
 		return domain.WorkspaceMembership{}, errors.New("workspace membership assignment time is required")
 	}
-	membershipID, err := domain.NewWorkspaceMembershipID()
-	if err != nil {
-		return domain.WorkspaceMembership{}, err
-	}
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return domain.WorkspaceMembership{}, fmt.Errorf("begin workspace membership assignment: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	membership, err := s.addWorkspaceMemberTx(ctx, tx, actorUserID, workspaceID, targetUserID, role, reason, at)
+	if err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return domain.WorkspaceMembership{}, fmt.Errorf("commit workspace membership assignment: %w", err)
+	}
+	return membership, nil
+}
+
+func (s *Store) addWorkspaceMemberTx(ctx context.Context, tx *sql.Tx, actorUserID, workspaceID, targetUserID string, role domain.WorkspaceRole, reason string, at time.Time) (domain.WorkspaceMembership, error) {
+	if !role.Valid() {
+		return domain.WorkspaceMembership{}, domain.ErrInvalidWorkspaceRole
+	}
+	if err := validateMutationReason(reason); err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	if at.IsZero() {
+		return domain.WorkspaceMembership{}, errors.New("workspace membership assignment time is required")
+	}
+	membershipID, err := domain.NewWorkspaceMembershipID()
+	if err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
 	actorInternalID, _, workspaceInternalID, _, err := authorisedWorkspaceMutationTx(ctx, tx, actorUserID, workspaceID, true)
 	if err != nil {
 		return domain.WorkspaceMembership{}, err
@@ -235,9 +255,6 @@ func (s *Store) AddWorkspaceMember(ctx context.Context, actorUserID, workspaceID
 	if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, workspaceID, eventWorkspaceMembershipAdded, workspaceMutationDetails{WorkspaceID: workspaceID, MembershipID: membershipID, UserID: targetUserID, Role: string(role), Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return domain.WorkspaceMembership{}, err
 	}
-	if err := tx.Commit(); err != nil {
-		return domain.WorkspaceMembership{}, fmt.Errorf("commit workspace membership assignment: %w", err)
-	}
 	return domain.WorkspaceMembership{ID: membershipID, WorkspaceID: workspaceID, UserID: targetUserID, Role: role, Active: true, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
 }
 
@@ -251,15 +268,35 @@ func (s *Store) ChangeWorkspaceMemberRole(ctx context.Context, actorUserID, work
 	if at.IsZero() {
 		return domain.WorkspaceMembership{}, errors.New("workspace membership role-change time is required")
 	}
-	membershipID, err := domain.NewWorkspaceMembershipID()
-	if err != nil {
-		return domain.WorkspaceMembership{}, err
-	}
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return domain.WorkspaceMembership{}, fmt.Errorf("begin workspace membership role change: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	membership, err := s.changeWorkspaceMemberRoleTx(ctx, tx, actorUserID, workspaceID, targetUserID, role, reason, at, nil)
+	if err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return domain.WorkspaceMembership{}, fmt.Errorf("commit workspace membership role change: %w", err)
+	}
+	return membership, nil
+}
+
+func (s *Store) changeWorkspaceMemberRoleTx(ctx context.Context, tx *sql.Tx, actorUserID, workspaceID, targetUserID string, role domain.WorkspaceRole, reason string, at time.Time, expectedVersion *int64) (domain.WorkspaceMembership, error) {
+	if !role.Valid() {
+		return domain.WorkspaceMembership{}, domain.ErrInvalidWorkspaceRole
+	}
+	if err := validateMutationReason(reason); err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	if at.IsZero() {
+		return domain.WorkspaceMembership{}, errors.New("workspace membership role-change time is required")
+	}
+	membershipID, err := domain.NewWorkspaceMembershipID()
+	if err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
 	actorInternalID, _, workspaceInternalID, _, err := authorisedWorkspaceMutationTx(ctx, tx, actorUserID, workspaceID, true)
 	if err != nil {
 		return domain.WorkspaceMembership{}, err
@@ -273,6 +310,9 @@ func (s *Store) ChangeWorkspaceMemberRole(ctx context.Context, actorUserID, work
 		return domain.WorkspaceMembership{}, ErrWorkspaceMembershipNotFound
 	} else if err != nil {
 		return domain.WorkspaceMembership{}, fmt.Errorf("read workspace membership role: %w", err)
+	}
+	if expectedVersion != nil && *expectedVersion != currentVersion {
+		return domain.WorkspaceMembership{}, store.ErrMembershipCommandConflict
 	}
 	if currentRole == string(role) {
 		return domain.WorkspaceMembership{}, ErrDuplicateWorkspaceMember
@@ -290,9 +330,6 @@ func (s *Store) ChangeWorkspaceMemberRole(ctx context.Context, actorUserID, work
 	if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, workspaceID, eventWorkspaceRoleChanged, workspaceMutationDetails{WorkspaceID: workspaceID, MembershipID: membershipID, UserID: targetUserID, Role: string(role), Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return domain.WorkspaceMembership{}, err
 	}
-	if err := tx.Commit(); err != nil {
-		return domain.WorkspaceMembership{}, fmt.Errorf("commit workspace membership role change: %w", err)
-	}
 	return domain.WorkspaceMembership{ID: membershipID, WorkspaceID: workspaceID, UserID: targetUserID, Role: role, Active: true, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
 }
 
@@ -308,34 +345,52 @@ func (s *Store) DeactivateWorkspaceMember(ctx context.Context, actorUserID, work
 		return fmt.Errorf("begin workspace membership deactivation: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	actorInternalID, _, workspaceInternalID, _, err := authorisedWorkspaceMutationTx(ctx, tx, actorUserID, workspaceID, true)
-	if err != nil {
-		return err
-	}
-	var membershipID int64
-	var membershipPublicID string
-	var targetRole string
-	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, targetUserID).Scan(&membershipID, &membershipPublicID, &targetRole); errors.Is(err, sql.ErrNoRows) {
-		return ErrWorkspaceMembershipNotFound
-	} else if err != nil {
-		return fmt.Errorf("read workspace membership for deactivation: %w", err)
-	}
-	result, err := tx.ExecContext(ctx, `UPDATE workspace_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(at.UTC()), strings.TrimSpace(reason), membershipID)
-	if err != nil {
-		return fmt.Errorf("deactivate workspace membership: %w", err)
-	}
-	if rows, err := result.RowsAffected(); err != nil {
-		return fmt.Errorf("check workspace membership deactivation: %w", err)
-	} else if rows != 1 {
-		return ErrWorkspaceMembershipNotFound
-	}
-	if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, workspaceID, eventWorkspaceMemberRemoved, workspaceMutationDetails{WorkspaceID: workspaceID, MembershipID: membershipPublicID, UserID: targetUserID, Role: targetRole, Reason: strings.TrimSpace(reason)}, at); err != nil {
+	if _, err := s.deactivateWorkspaceMemberTx(ctx, tx, actorUserID, workspaceID, targetUserID, reason, at, nil); err != nil {
 		return err
 	}
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("commit workspace membership deactivation: %w", err)
 	}
 	return nil
+}
+
+func (s *Store) deactivateWorkspaceMemberTx(ctx context.Context, tx *sql.Tx, actorUserID, workspaceID, targetUserID, reason string, at time.Time, expectedVersion *int64) (domain.WorkspaceMembership, error) {
+	if err := validateMutationReason(reason); err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	if at.IsZero() {
+		return domain.WorkspaceMembership{}, errors.New("workspace membership deactivation time is required")
+	}
+	actorInternalID, _, workspaceInternalID, _, err := authorisedWorkspaceMutationTx(ctx, tx, actorUserID, workspaceID, true)
+	if err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	if err := activeWorkspaceTargetUserTx(ctx, tx, workspaceInternalID, targetUserID); err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	var membershipID, currentVersion int64
+	var membershipPublicID, targetRole string
+	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.membership_version,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, targetUserID).Scan(&membershipID, &membershipPublicID, &currentVersion, &targetRole); errors.Is(err, sql.ErrNoRows) {
+		return domain.WorkspaceMembership{}, ErrWorkspaceMembershipNotFound
+	} else if err != nil {
+		return domain.WorkspaceMembership{}, fmt.Errorf("read workspace membership for deactivation: %w", err)
+	}
+	if expectedVersion != nil && *expectedVersion != currentVersion {
+		return domain.WorkspaceMembership{}, store.ErrMembershipCommandConflict
+	}
+	result, err := tx.ExecContext(ctx, `UPDATE workspace_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(at.UTC()), strings.TrimSpace(reason), membershipID)
+	if err != nil {
+		return domain.WorkspaceMembership{}, fmt.Errorf("deactivate workspace membership: %w", err)
+	}
+	if rows, err := result.RowsAffected(); err != nil {
+		return domain.WorkspaceMembership{}, fmt.Errorf("check workspace membership deactivation: %w", err)
+	} else if rows != 1 {
+		return domain.WorkspaceMembership{}, ErrWorkspaceMembershipNotFound
+	}
+	if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, workspaceID, eventWorkspaceMemberRemoved, workspaceMutationDetails{WorkspaceID: workspaceID, MembershipID: membershipPublicID, UserID: targetUserID, Role: targetRole, Reason: strings.TrimSpace(reason)}, at); err != nil {
+		return domain.WorkspaceMembership{}, err
+	}
+	return domain.WorkspaceMembership{ID: membershipPublicID, WorkspaceID: workspaceID, UserID: targetUserID, Role: domain.WorkspaceRole(targetRole), Active: false, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
 }
 
 func (s *Store) ArchiveWorkspace(ctx context.Context, actorUserID, workspaceID, reason string, at time.Time) error {

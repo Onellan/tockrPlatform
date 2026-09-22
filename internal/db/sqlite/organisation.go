@@ -209,15 +209,35 @@ func (s *Store) AddOrganisationMember(ctx context.Context, actorUserID, organisa
 	if at.IsZero() {
 		return domain.OrganisationMembership{}, errors.New("membership assignment time is required")
 	}
-	membershipID, err := domain.NewOrganisationMembershipID()
-	if err != nil {
-		return domain.OrganisationMembership{}, err
-	}
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return domain.OrganisationMembership{}, fmt.Errorf("begin membership addition: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	membership, err := s.addOrganisationMemberTx(ctx, tx, actorUserID, organisationID, targetUserID, role, reason, at)
+	if err != nil {
+		return domain.OrganisationMembership{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return domain.OrganisationMembership{}, fmt.Errorf("commit membership addition: %w", err)
+	}
+	return membership, nil
+}
+
+func (s *Store) addOrganisationMemberTx(ctx context.Context, tx *sql.Tx, actorUserID, organisationID, targetUserID string, role domain.OrganisationRole, reason string, at time.Time) (domain.OrganisationMembership, error) {
+	if role != domain.OrganisationAdmin && role != domain.OrganisationMember {
+		return domain.OrganisationMembership{}, domain.ErrInvalidOrganisationRole
+	}
+	if err := validateMutationReason(reason); err != nil {
+		return domain.OrganisationMembership{}, err
+	}
+	if at.IsZero() {
+		return domain.OrganisationMembership{}, errors.New("membership assignment time is required")
+	}
+	membershipID, err := domain.NewOrganisationMembershipID()
+	if err != nil {
+		return domain.OrganisationMembership{}, err
+	}
 	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
 	if err != nil {
 		return domain.OrganisationMembership{}, err
@@ -242,9 +262,6 @@ func (s *Store) AddOrganisationMember(ctx context.Context, actorUserID, organisa
 	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventMembershipAdded, organisationMutationDetails{OrganisationID: organisationID, MembershipID: membershipID, UserID: targetUserID, Role: string(role), Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return domain.OrganisationMembership{}, err
 	}
-	if err := tx.Commit(); err != nil {
-		return domain.OrganisationMembership{}, fmt.Errorf("commit membership addition: %w", err)
-	}
 	return domain.OrganisationMembership{ID: membershipID, OrganisationID: organisationID, UserID: targetUserID, Role: role, Active: true, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
 }
 
@@ -258,15 +275,35 @@ func (s *Store) ChangeOrganisationMemberRole(ctx context.Context, actorUserID, o
 	if at.IsZero() {
 		return domain.OrganisationMembership{}, errors.New("membership role change time is required")
 	}
-	membershipID, err := domain.NewOrganisationMembershipID()
-	if err != nil {
-		return domain.OrganisationMembership{}, err
-	}
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return domain.OrganisationMembership{}, fmt.Errorf("begin membership role change: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	membership, err := s.changeOrganisationMemberRoleTx(ctx, tx, actorUserID, organisationID, targetUserID, role, reason, at, nil)
+	if err != nil {
+		return domain.OrganisationMembership{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return domain.OrganisationMembership{}, fmt.Errorf("commit membership role change: %w", err)
+	}
+	return membership, nil
+}
+
+func (s *Store) changeOrganisationMemberRoleTx(ctx context.Context, tx *sql.Tx, actorUserID, organisationID, targetUserID string, role domain.OrganisationRole, reason string, at time.Time, expectedVersion *int64) (domain.OrganisationMembership, error) {
+	if role != domain.OrganisationAdmin && role != domain.OrganisationMember {
+		return domain.OrganisationMembership{}, domain.ErrInvalidOrganisationRole
+	}
+	if err := validateMutationReason(reason); err != nil {
+		return domain.OrganisationMembership{}, err
+	}
+	if at.IsZero() {
+		return domain.OrganisationMembership{}, errors.New("membership role change time is required")
+	}
+	membershipID, err := domain.NewOrganisationMembershipID()
+	if err != nil {
+		return domain.OrganisationMembership{}, err
+	}
 	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
 	if err != nil {
 		return domain.OrganisationMembership{}, err
@@ -277,6 +314,9 @@ func (s *Store) ChangeOrganisationMemberRole(ctx context.Context, actorUserID, o
 		return domain.OrganisationMembership{}, ErrMembershipNotFound
 	} else if err != nil {
 		return domain.OrganisationMembership{}, fmt.Errorf("read membership role: %w", err)
+	}
+	if expectedVersion != nil && *expectedVersion != currentVersion {
+		return domain.OrganisationMembership{}, store.ErrMembershipCommandConflict
 	}
 	if currentRole == string(domain.OrganisationOwner) {
 		return domain.OrganisationMembership{}, ErrOwnerMutationNotAuthorised
@@ -300,9 +340,6 @@ func (s *Store) ChangeOrganisationMemberRole(ctx context.Context, actorUserID, o
 	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventMembershipRoleChanged, organisationMutationDetails{OrganisationID: organisationID, MembershipID: membershipID, UserID: targetUserID, Role: string(role), Reason: strings.TrimSpace(reason)}, at); err != nil {
 		return domain.OrganisationMembership{}, err
 	}
-	if err := tx.Commit(); err != nil {
-		return domain.OrganisationMembership{}, fmt.Errorf("commit membership role change: %w", err)
-	}
 	return domain.OrganisationMembership{ID: membershipID, OrganisationID: organisationID, UserID: targetUserID, Role: role, Active: true, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
 }
 
@@ -318,40 +355,55 @@ func (s *Store) DeactivateOrganisationMember(ctx context.Context, actorUserID, o
 		return fmt.Errorf("begin membership deactivation: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
-	if err != nil {
-		return err
-	}
-	var membershipID int64
-	var membershipPublicID string
-	var targetRole string
-	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, targetUserID).Scan(&membershipID, &membershipPublicID, &targetRole); errors.Is(err, sql.ErrNoRows) {
-		return ErrMembershipNotFound
-	} else if err != nil {
-		return fmt.Errorf("read membership for deactivation: %w", err)
-	}
-	if targetRole == string(domain.OrganisationOwner) {
-		return ErrOwnerMutationNotAuthorised
-	}
-	if !systemAdmin && actorRole == domain.OrganisationAdmin && targetRole != string(domain.OrganisationMember) {
-		return ErrUnauthorisedOrganisationAction
-	}
-	result, err := tx.ExecContext(ctx, `UPDATE organisation_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(at.UTC()), strings.TrimSpace(reason), membershipID)
-	if err != nil {
-		return fmt.Errorf("deactivate organisation member: %w", err)
-	}
-	if rows, err := result.RowsAffected(); err != nil {
-		return fmt.Errorf("check membership deactivation: %w", err)
-	} else if rows != 1 {
-		return ErrMembershipNotFound
-	}
-	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventMembershipDeactivated, organisationMutationDetails{OrganisationID: organisationID, MembershipID: membershipPublicID, UserID: targetUserID, Role: targetRole, Reason: strings.TrimSpace(reason)}, at); err != nil {
+	if _, err := s.deactivateOrganisationMemberTx(ctx, tx, actorUserID, organisationID, targetUserID, reason, at, nil); err != nil {
 		return err
 	}
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("commit membership deactivation: %w", err)
 	}
 	return nil
+}
+
+func (s *Store) deactivateOrganisationMemberTx(ctx context.Context, tx *sql.Tx, actorUserID, organisationID, targetUserID, reason string, at time.Time, expectedVersion *int64) (domain.OrganisationMembership, error) {
+	if err := validateMutationReason(reason); err != nil {
+		return domain.OrganisationMembership{}, err
+	}
+	if at.IsZero() {
+		return domain.OrganisationMembership{}, errors.New("membership deactivation time is required")
+	}
+	actorInternalID, actorRole, organisationInternalID, systemAdmin, err := authorisedOrganisationMutationTx(ctx, tx, actorUserID, organisationID)
+	if err != nil {
+		return domain.OrganisationMembership{}, err
+	}
+	var membershipID, currentVersion int64
+	var membershipPublicID, targetRole string
+	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.public_id,m.membership_version,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, targetUserID).Scan(&membershipID, &membershipPublicID, &currentVersion, &targetRole); errors.Is(err, sql.ErrNoRows) {
+		return domain.OrganisationMembership{}, ErrMembershipNotFound
+	} else if err != nil {
+		return domain.OrganisationMembership{}, fmt.Errorf("read membership for deactivation: %w", err)
+	}
+	if expectedVersion != nil && *expectedVersion != currentVersion {
+		return domain.OrganisationMembership{}, store.ErrMembershipCommandConflict
+	}
+	if targetRole == string(domain.OrganisationOwner) {
+		return domain.OrganisationMembership{}, ErrOwnerMutationNotAuthorised
+	}
+	if !systemAdmin && actorRole == domain.OrganisationAdmin && targetRole != string(domain.OrganisationMember) {
+		return domain.OrganisationMembership{}, ErrUnauthorisedOrganisationAction
+	}
+	result, err := tx.ExecContext(ctx, `UPDATE organisation_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(at.UTC()), strings.TrimSpace(reason), membershipID)
+	if err != nil {
+		return domain.OrganisationMembership{}, fmt.Errorf("deactivate organisation member: %w", err)
+	}
+	if rows, err := result.RowsAffected(); err != nil {
+		return domain.OrganisationMembership{}, fmt.Errorf("check membership deactivation: %w", err)
+	} else if rows != 1 {
+		return domain.OrganisationMembership{}, ErrMembershipNotFound
+	}
+	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventMembershipDeactivated, organisationMutationDetails{OrganisationID: organisationID, MembershipID: membershipPublicID, UserID: targetUserID, Role: targetRole, Reason: strings.TrimSpace(reason)}, at); err != nil {
+		return domain.OrganisationMembership{}, err
+	}
+	return domain.OrganisationMembership{ID: membershipPublicID, OrganisationID: organisationID, UserID: targetUserID, Role: domain.OrganisationRole(targetRole), Active: false, AssignedBy: actorUserID, AssignedAt: at.UTC()}, nil
 }
 
 func (s *Store) ArchiveOrganisation(ctx context.Context, actorUserID, organisationID, reason string, at time.Time) error {
