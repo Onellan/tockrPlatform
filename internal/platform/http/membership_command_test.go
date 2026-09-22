@@ -267,27 +267,11 @@ func TestMembershipCommandHTTPRejectsInactiveStaleAndCrossOrganisationActors(t *
 	if membershipCount != 0 {
 		t.Fatalf("cross-organisation denial changed membership count=%d", membershipCount)
 	}
-}
-
-func TestMembershipCommandHTTPMapsArchivedScopeToNonRetryableForbidden(t *testing.T) {
-	f := newOrganisationHTTPFixture(t)
-	servicePublic, servicePrivate, err := ed25519.GenerateKey(rand.Reader)
-	if err != nil {
-		t.Fatal(err)
-	}
-	issuer := testHTTPAssertionIssuer(t)
-	server := NewServer(f.store, Config{AllowInsecureCookies: true, AssertionIssuer: issuer, MembershipCommandKeys: readauthority.PublicKeySet{readauthority.ConsumerCTRL: {"current": servicePublic}}})
-	now := time.Now().UTC()
-	actor, _, err := issuer.Issue(assertion.IssueRequest{Audience: "tockrctrl", PlatformUserID: f.users[0].ID, OrganisationID: f.organisation.ID, WorkspaceID: "wsp_command_scope"}, now)
-	if err != nil {
-		t.Fatal(err)
-	}
 	if err := f.store.ArchiveOrganisation(context.Background(), f.users[0].ID, f.organisation.ID, "archive scope", now); err != nil {
 		t.Fatal(err)
 	}
-	body := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": membershipcommand.OperationAdd, "organisation_id": f.organisation.ID, "user_id": f.users[3].ID, "role": "member", "reason": "archived scope", "idempotency_key": "archived-scope-1", "expected_version": 0})
-	response := httptest.NewRecorder()
-	server.Handler().ServeHTTP(response, signedMembershipCommandTestRequest(t, body, actor, servicePrivate, "archived-scope-nonce"))
+	archivedBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": membershipcommand.OperationAdd, "organisation_id": f.organisation.ID, "user_id": f.users[3].ID, "role": "member", "reason": "archived scope", "idempotency_key": "archived-scope-1", "expected_version": 0})
+	response := request(archivedBody, issue(f.users[0].ID, f.organisation.ID, now), "archived-scope-nonce")
 	if response.Code != http.StatusForbidden || strings.Contains(response.Body.String(), `"retryable":true`) {
 		t.Fatalf("archived scope response = %d/%s", response.Code, response.Body.String())
 	}
