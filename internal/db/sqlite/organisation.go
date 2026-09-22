@@ -271,9 +271,9 @@ func (s *Store) ChangeOrganisationMemberRole(ctx context.Context, actorUserID, o
 	if err != nil {
 		return domain.OrganisationMembership{}, err
 	}
-	var currentID int64
+	var currentID, currentVersion int64
 	var currentRole string
-	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, targetUserID).Scan(&currentID, &currentRole); errors.Is(err, sql.ErrNoRows) {
+	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.membership_version,m.role FROM organisation_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.organisation_id=? AND u.public_id=? AND m.active=1`, organisationInternalID, targetUserID).Scan(&currentID, &currentVersion, &currentRole); errors.Is(err, sql.ErrNoRows) {
 		return domain.OrganisationMembership{}, ErrMembershipNotFound
 	} else if err != nil {
 		return domain.OrganisationMembership{}, fmt.Errorf("read membership role: %w", err)
@@ -294,7 +294,7 @@ func (s *Store) ChangeOrganisationMemberRole(ctx context.Context, actorUserID, o
 	if _, err := tx.ExecContext(ctx, `UPDATE organisation_memberships SET active=0,removed_by=?,removed_at=?,removal_reason=? WHERE id=? AND active=1`, actorInternalID, formatTime(at.UTC()), strings.TrimSpace(reason), currentID); err != nil {
 		return domain.OrganisationMembership{}, fmt.Errorf("retire membership role: %w", err)
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO organisation_memberships(public_id,organisation_id,user_id,role,active,assigned_by,assigned_at) VALUES(?,?,?,?,1,?,?)`, membershipID, organisationInternalID, targetInternalID, string(role), actorInternalID, formatTime(at.UTC())); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO organisation_memberships(public_id,organisation_id,user_id,role,active,assigned_by,assigned_at,membership_version) VALUES(?,?,?,?,1,?,?,?)`, membershipID, organisationInternalID, targetInternalID, string(role), actorInternalID, formatTime(at.UTC()), currentVersion+1); err != nil {
 		return domain.OrganisationMembership{}, fmt.Errorf("write membership role: %w", err)
 	}
 	if err := recordOrganisationAuditTx(ctx, tx, actorInternalID, organisationID, eventMembershipRoleChanged, organisationMutationDetails{OrganisationID: organisationID, MembershipID: membershipID, UserID: targetUserID, Role: string(role), Reason: strings.TrimSpace(reason)}, at); err != nil {

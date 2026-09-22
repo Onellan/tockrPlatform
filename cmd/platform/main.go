@@ -47,11 +47,12 @@ func runWithListener(parent context.Context, getenv func(string) string, listen 
 	defer store.Close()
 
 	server := httpserver.NewServer(store, httpserver.Config{
-		AllowInsecureCookies: cfg.AllowInsecureCookie,
-		RateLimitEnabled:     true,
-		AssertionIssuer:      assertionIssuer,
-		ReadinessCheck:       store.DB().PingContext,
-		ReadAuthorityKeys:    cfg.ReadAuthorityKeys,
+		AllowInsecureCookies:  cfg.AllowInsecureCookie,
+		RateLimitEnabled:      true,
+		AssertionIssuer:       assertionIssuer,
+		ReadinessCheck:        store.DB().PingContext,
+		ReadAuthorityKeys:     cfg.ReadAuthorityKeys,
+		MembershipCommandKeys: cfg.ReadAuthorityKeys,
 	})
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,

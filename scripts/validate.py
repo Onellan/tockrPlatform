@@ -166,7 +166,7 @@ def run_one(profile: str) -> dict[str, object]:
         # PF-B11-S01-R1 is an explicitly authorised superseding slice. Keep
         # the count exact so an accidental untracked plan cannot disappear
         # behind a minimum-count check.
-        expected_plan_count = 27
+        expected_plan_count = 28
         return {
             "profile": profile,
             "status": "PASS" if len(plans) == expected_plan_count and routes >= 81 and not route_failures else "FAIL",

@@ -200,8 +200,8 @@ func assertReadAuthorityTables(t *testing.T, persistence *Store) {
 	if err := persistence.DB().QueryRow(`SELECT MAX(version) FROM schema_migrations`).Scan(&version); err != nil {
 		t.Fatal(err)
 	}
-	if version != 11 {
-		t.Fatalf("read-authority migration version = %d, want 11", version)
+	if version != 12 {
+		t.Fatalf("read-authority migration version = %d, want 12", version)
 	}
 	for _, table := range []string{"platform_read_authority_snapshots", "platform_read_authority_snapshot_records"} {
 		var count int

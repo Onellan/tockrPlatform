@@ -30,24 +30,26 @@ const (
 )
 
 type Config struct {
-	CookieSecure         bool
-	AllowInsecureCookies bool
-	SessionTTL           time.Duration
-	RateLimitEnabled     bool
-	StaticDir            string
-	LoginLimiter         auth.LoginLimiterConfig
-	AssertionIssuer      *assertion.Issuer
-	ReadinessCheck       func(context.Context) error
-	MaxRequestBodyBytes  int64
-	ReadAuthorityKeys    readauthority.PublicKeySet
+	CookieSecure          bool
+	AllowInsecureCookies  bool
+	SessionTTL            time.Duration
+	RateLimitEnabled      bool
+	StaticDir             string
+	LoginLimiter          auth.LoginLimiterConfig
+	AssertionIssuer       *assertion.Issuer
+	ReadinessCheck        func(context.Context) error
+	MaxRequestBodyBytes   int64
+	ReadAuthorityKeys     readauthority.PublicKeySet
+	MembershipCommandKeys readauthority.PublicKeySet
 }
 
 type Server struct {
-	store             store.PlatformStore
-	cfg               Config
-	limiter           *auth.LoginLimiter
-	readAuthorityKeys readauthority.PublicKeySet
-	readAuthorityRate *readAuthorityRateLimiter
+	store                 store.PlatformStore
+	cfg                   Config
+	limiter               *auth.LoginLimiter
+	readAuthorityKeys     readauthority.PublicKeySet
+	membershipCommandKeys readauthority.PublicKeySet
+	readAuthorityRate     *readAuthorityRateLimiter
 }
 
 type sessionContextKey struct{}
@@ -66,7 +68,11 @@ func NewServer(persistence store.PlatformStore, cfg Config) *Server {
 	if cfg.MaxRequestBodyBytes <= 0 {
 		cfg.MaxRequestBodyBytes = defaultRequestBodyLimit
 	}
-	return &Server{store: persistence, cfg: cfg, limiter: auth.NewLoginLimiter(cfg.LoginLimiter), readAuthorityKeys: cloneReadAuthorityKeys(cfg.ReadAuthorityKeys), readAuthorityRate: newReadAuthorityRateLimiter()}
+	commandKeys := cfg.MembershipCommandKeys
+	if len(commandKeys) == 0 {
+		commandKeys = cfg.ReadAuthorityKeys
+	}
+	return &Server{store: persistence, cfg: cfg, limiter: auth.NewLoginLimiter(cfg.LoginLimiter), readAuthorityKeys: cloneReadAuthorityKeys(cfg.ReadAuthorityKeys), membershipCommandKeys: cloneReadAuthorityKeys(commandKeys), readAuthorityRate: newReadAuthorityRateLimiter()}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -83,6 +89,7 @@ func (s *Server) Handler() http.Handler {
 	readAuthority.Get("/api/v1/read-authority/snapshots/{snapshotID}/records", s.listReadAuthoritySnapshotRecords)
 	readAuthority.Get("/api/v1/read-authority/changes", s.listReadAuthorityChanges)
 	readAuthority.Get("/api/v1/read-authority/status", s.readAuthorityStatus)
+	r.Post("/api/v1/membership-commands", s.membershipCommand)
 	r.Get("/login", s.loginPage)
 	r.Post("/login", s.login)
 	r.Group(func(protected chi.Router) {

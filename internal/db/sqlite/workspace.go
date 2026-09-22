@@ -267,9 +267,9 @@ func (s *Store) ChangeWorkspaceMemberRole(ctx context.Context, actorUserID, work
 	if err := activeWorkspaceTargetUserTx(ctx, tx, workspaceInternalID, targetUserID); err != nil {
 		return domain.WorkspaceMembership{}, err
 	}
-	var currentID int64
+	var currentID, currentVersion int64
 	var currentRole string
-	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, targetUserID).Scan(&currentID, &currentRole); errors.Is(err, sql.ErrNoRows) {
+	if err := tx.QueryRowContext(ctx, `SELECT m.id,m.membership_version,m.role FROM workspace_memberships m JOIN users u ON u.id=m.user_id AND u.active=1 WHERE m.workspace_id=? AND u.public_id=? AND m.active=1`, workspaceInternalID, targetUserID).Scan(&currentID, &currentVersion, &currentRole); errors.Is(err, sql.ErrNoRows) {
 		return domain.WorkspaceMembership{}, ErrWorkspaceMembershipNotFound
 	} else if err != nil {
 		return domain.WorkspaceMembership{}, fmt.Errorf("read workspace membership role: %w", err)
@@ -284,7 +284,7 @@ func (s *Store) ChangeWorkspaceMemberRole(ctx context.Context, actorUserID, work
 	if err != nil {
 		return domain.WorkspaceMembership{}, err
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO workspace_memberships(public_id,workspace_id,user_id,role,active,assigned_by,assigned_at) VALUES(?,?,?,?,1,?,?)`, membershipID, workspaceInternalID, targetInternalID, string(role), actorInternalID, formatTime(at.UTC())); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO workspace_memberships(public_id,workspace_id,user_id,role,active,assigned_by,assigned_at,membership_version) VALUES(?,?,?,?,1,?,?,?)`, membershipID, workspaceInternalID, targetInternalID, string(role), actorInternalID, formatTime(at.UTC()), currentVersion+1); err != nil {
 		return domain.WorkspaceMembership{}, fmt.Errorf("write workspace membership role: %w", err)
 	}
 	if err := recordWorkspaceAuditTx(ctx, tx, actorInternalID, workspaceID, eventWorkspaceRoleChanged, workspaceMutationDetails{WorkspaceID: workspaceID, MembershipID: membershipID, UserID: targetUserID, Role: string(role), Reason: strings.TrimSpace(reason)}, at); err != nil {

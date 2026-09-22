@@ -441,6 +441,24 @@ func supportedMigrations() []migration {
 				`CREATE INDEX platform_read_authority_nonces_expiry_idx ON platform_read_authority_nonces(expires_at)`,
 			},
 		},
+		{
+			version: 12,
+			name:    "membership-command-idempotency-and-versions",
+			statements: []string{
+				`ALTER TABLE organisation_memberships ADD COLUMN membership_version INTEGER NOT NULL DEFAULT 1 CHECK(membership_version>0)`,
+				`ALTER TABLE workspace_memberships ADD COLUMN membership_version INTEGER NOT NULL DEFAULT 1 CHECK(membership_version>0)`,
+				`CREATE TABLE platform_membership_command_results (
+					id INTEGER PRIMARY KEY,
+					consumer_key TEXT NOT NULL CHECK(length(trim(consumer_key))>0 AND length(consumer_key)<=100),
+					idempotency_key TEXT NOT NULL CHECK(length(trim(idempotency_key))>0 AND length(idempotency_key)<=128),
+					request_hash TEXT NOT NULL CHECK(length(request_hash)=64),
+					result_json TEXT NOT NULL CHECK(length(result_json)>1 AND length(result_json)<=4096),
+					created_at TEXT NOT NULL,
+					UNIQUE(consumer_key,idempotency_key)
+				)`,
+				`CREATE INDEX platform_membership_command_results_created_idx ON platform_membership_command_results(created_at)`,
+			},
+		},
 	}
 }
 

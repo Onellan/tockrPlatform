@@ -66,4 +66,5 @@ type PlatformStore interface {
 	ProjectionStore
 	ReadAuthoritySnapshotStore
 	ReadAuthorityNonceStore
+	MembershipCommandStore
 }
