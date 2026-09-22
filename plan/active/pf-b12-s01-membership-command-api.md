@@ -124,10 +124,11 @@ preflight=PASS before behavioral interpretation
 
 ## Current implementation candidate
 
-Candidate `main@675b8cb2aef8ed1cecc7dc940e4ab7f6f349f7ba` implements WP01–WP04
-and publishes `docs/contracts/platform-membership-command-v1.md`. Focused HTTP
-evidence covers separate product and actor authentication, actor-proof
-signature binding, idempotent replay authorization and stale-version conflict
+Candidate `main@d246968b0a18e14883106283092998574e9a7e10` implements WP01–WP04
+and publishes `docs/contracts/platform-membership-command-v1.md`. Focused
+HTTP/store evidence covers separate product and actor authentication, actor-
+proof signature binding, inactive and stale actor rejection, cross-organisation
+denial, idempotent replay authorization, stale-version and concurrent conflict
 handling, IMS Workspace compatibility, cross-scope rejection, outbox rollback,
 reason redaction and bounded idempotency cleanup. Repository `unit`,
 `integration`, `migration`, `format`, `architecture`, `security` and `quality`
