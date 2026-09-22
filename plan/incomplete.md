@@ -52,7 +52,7 @@ contracts, independent gates and local validation passed:
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
 | PF-B11 | PF-B11-S04 — Security, operability and consumer-readiness certification | **Terminal** | S03 terminal; authenticated v2 feed and resynchronisation API | [completed plan](completed/pf-b11-s04-certification.md) |
-| PF-B12 | PF-B12-S01 — Versioned shared membership command API | **Review** | Candidate `904157f736a8057789968d33352115815cb0eda8`; independent engineering review and tester acceptance pending | [active plan](active/pf-b12-s01-membership-command-api.md) |
+| PF-B12 | PF-B12-S01 — Versioned shared membership command API | **Review** | Candidate `675b8cb2aef8ed1cecc7dc940e4ab7f6f349f7ba`; independent engineering review and tester acceptance pending | [active plan](active/pf-b12-s01-membership-command-api.md) |
 
 PF-B1 through PF-B11 form the complete terminal inventory:
 

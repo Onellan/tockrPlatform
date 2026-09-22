@@ -124,15 +124,16 @@ preflight=PASS before behavioral interpretation
 
 ## Current implementation candidate
 
-Candidate `main@904157f736a8057789968d33352115815cb0eda8` implements WP01–WP04
+Candidate `main@675b8cb2aef8ed1cecc7dc940e4ab7f6f349f7ba` implements WP01–WP04
 and publishes `docs/contracts/platform-membership-command-v1.md`. Focused HTTP
 evidence covers separate product and actor authentication, actor-proof
 signature binding, idempotent replay authorization and stale-version conflict
-handling. Repository `unit`, `integration`, `migration`, `format`,
-`architecture`, `security`, `quality` and plan-routing checks pass on this
-candidate. The repository-wide `race` profile remains a `TEST_FAIL` in the
-existing MFA HTTP test `TestMFASetupRequiresCSRFAndEnablesProtectedLogin` and
-is not attributed to this slice without independent diagnosis.
+handling, IMS Workspace compatibility, cross-scope rejection, outbox rollback,
+reason redaction and bounded idempotency cleanup. Repository `unit`,
+`integration`, `migration`, `format`, `architecture`, `security` and `quality`
+checks pass on this candidate. The existing MFA race fixture was repaired to
+generate its TOTP immediately before confirmation; the repository-wide `race`
+profile remains required for final exact-candidate acceptance.
 
 Independent engineering review, independent tester acceptance and any required
 repair loop remain open before this plan can move to `plan/completed/`.
