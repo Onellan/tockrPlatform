@@ -1,6 +1,6 @@
 # PF-B12-S01 — Versioned shared membership command API
 
-**Status:** Ready
+**Status:** Implementation candidate — pending independent engineering review and tester acceptance
 **Priority:** PF — shared-authority command extension
 **Batch:** PF-B12
 **Dependencies:** PF-B11-S04 terminal; CTRL and IMS PD-D5-S01 terminal; bounded
@@ -121,6 +121,21 @@ profile=format,unit,integration,security,architecture,migration,race
 command_source=scripts/validation_registry.py and scripts/validate.py
 preflight=PASS before behavioral interpretation
 ```
+
+## Current implementation candidate
+
+Candidate `main@904157f736a8057789968d33352115815cb0eda8` implements WP01–WP04
+and publishes `docs/contracts/platform-membership-command-v1.md`. Focused HTTP
+evidence covers separate product and actor authentication, actor-proof
+signature binding, idempotent replay authorization and stale-version conflict
+handling. Repository `unit`, `integration`, `migration`, `format`,
+`architecture`, `security`, `quality` and plan-routing checks pass on this
+candidate. The repository-wide `race` profile remains a `TEST_FAIL` in the
+existing MFA HTTP test `TestMFASetupRequiresCSRFAndEnablesProtectedLogin` and
+is not attributed to this slice without independent diagnosis.
+
+Independent engineering review, independent tester acceptance and any required
+repair loop remain open before this plan can move to `plan/completed/`.
 
 ## Dependencies and stop/go
 
