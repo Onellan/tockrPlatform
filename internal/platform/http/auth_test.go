@@ -261,7 +261,9 @@ func TestMFASetupRequiresCSRFAndEnablesProtectedLogin(t *testing.T) {
 	if len(secretMatch) != 2 || len(tokenMatch) != 2 {
 		t.Fatalf("MFA setup did not render enrollment material: %s", response.Body.String())
 	}
-	code, err := auth.TOTPCode(secretMatch[1], time.Now().UTC())
+	// Generate one step ahead so the request remains valid under the repository
+	// race profile, where handler execution can cross a 30-second TOTP window.
+	code, err := auth.TOTPCode(secretMatch[1], time.Now().UTC().Add(30*time.Second))
 	if err != nil {
 		t.Fatal(err)
 	}

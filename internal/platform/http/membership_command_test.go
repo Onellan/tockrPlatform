@@ -219,6 +219,80 @@ func TestMembershipCommandHTTPRollsBackWhenOutboxAppendFails(t *testing.T) {
 	}
 }
 
+func TestMembershipCommandHTTPRejectsInactiveStaleAndCrossOrganisationActors(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	servicePublic, servicePrivate, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issuer := testHTTPAssertionIssuer(t)
+	server := NewServer(f.store, Config{AllowInsecureCookies: true, AssertionIssuer: issuer, MembershipCommandKeys: readauthority.PublicKeySet{readauthority.ConsumerCTRL: {"current": servicePublic}}})
+	h := server.Handler()
+	now := time.Now().UTC()
+	issue := func(userID, organisationID string, at time.Time) string {
+		token, _, issueErr := issuer.Issue(assertion.IssueRequest{Audience: "tockrctrl", PlatformUserID: userID, OrganisationID: organisationID, WorkspaceID: "wsp_command_scope"}, at)
+		if issueErr != nil {
+			t.Fatal(issueErr)
+		}
+		return token
+	}
+	request := func(body []byte, actor, nonce string) *httptest.ResponseRecorder {
+		response := httptest.NewRecorder()
+		h.ServeHTTP(response, signedMembershipCommandTestRequest(t, body, actor, servicePrivate, nonce))
+		return response
+	}
+	if err := f.store.SetUserActive(context.Background(), f.users[1].ID, false); err != nil {
+		t.Fatal(err)
+	}
+	inactiveBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": membershipcommand.OperationAdd, "organisation_id": f.organisation.ID, "user_id": f.users[3].ID, "role": "member", "reason": "inactive actor", "idempotency_key": "inactive-actor-1", "expected_version": 0})
+	if response := request(inactiveBody, issue(f.users[1].ID, f.organisation.ID, now), "inactive-actor-nonce"); response.Code != http.StatusForbidden {
+		t.Fatalf("inactive actor response = %d/%s", response.Code, response.Body.String())
+	}
+	staleBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": membershipcommand.OperationAdd, "organisation_id": f.organisation.ID, "user_id": f.users[3].ID, "role": "member", "reason": "stale actor", "idempotency_key": "stale-actor-1", "expected_version": 0})
+	if response := request(staleBody, issue(f.users[0].ID, f.organisation.ID, now.Add(-10*time.Minute)), "stale-actor-nonce"); response.Code != http.StatusConflict {
+		t.Fatalf("stale actor response = %d/%s", response.Code, response.Body.String())
+	}
+	other, _, err := f.store.CreateOrganisation(context.Background(), f.users[3].ID, domain.Organisation{Name: "Other command organisation", Status: domain.OrganisationActive}, "create other command organisation", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	crossBody := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": membershipcommand.OperationAdd, "organisation_id": other.ID, "user_id": f.users[2].ID, "role": "member", "reason": "cross organisation", "idempotency_key": "cross-organisation-1", "expected_version": 0})
+	if response := request(crossBody, issue(f.users[0].ID, f.organisation.ID, now), "cross-organisation-nonce"); response.Code != http.StatusForbidden {
+		t.Fatalf("cross-organisation actor response = %d/%s", response.Code, response.Body.String())
+	}
+	var membershipCount int
+	if err := f.store.DB().QueryRowContext(context.Background(), `SELECT COUNT(*) FROM organisation_memberships WHERE organisation_id=(SELECT id FROM organisations WHERE public_id=?) AND user_id=(SELECT id FROM users WHERE public_id=?) AND active=1`, other.ID, f.users[2].ID).Scan(&membershipCount); err != nil {
+		t.Fatal(err)
+	}
+	if membershipCount != 0 {
+		t.Fatalf("cross-organisation denial changed membership count=%d", membershipCount)
+	}
+}
+
+func TestMembershipCommandHTTPMapsArchivedScopeToNonRetryableForbidden(t *testing.T) {
+	f := newOrganisationHTTPFixture(t)
+	servicePublic, servicePrivate, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	issuer := testHTTPAssertionIssuer(t)
+	server := NewServer(f.store, Config{AllowInsecureCookies: true, AssertionIssuer: issuer, MembershipCommandKeys: readauthority.PublicKeySet{readauthority.ConsumerCTRL: {"current": servicePublic}}})
+	now := time.Now().UTC()
+	actor, _, err := issuer.Issue(assertion.IssueRequest{Audience: "tockrctrl", PlatformUserID: f.users[0].ID, OrganisationID: f.organisation.ID, WorkspaceID: "wsp_command_scope"}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := f.store.ArchiveOrganisation(context.Background(), f.users[0].ID, f.organisation.ID, "archive scope", now); err != nil {
+		t.Fatal(err)
+	}
+	body := membershipCommandTestBody(t, map[string]any{"scope": membershipcommand.ScopeOrganisation, "operation": membershipcommand.OperationAdd, "organisation_id": f.organisation.ID, "user_id": f.users[3].ID, "role": "member", "reason": "archived scope", "idempotency_key": "archived-scope-1", "expected_version": 0})
+	response := httptest.NewRecorder()
+	server.Handler().ServeHTTP(response, signedMembershipCommandTestRequest(t, body, actor, servicePrivate, "archived-scope-nonce"))
+	if response.Code != http.StatusForbidden || strings.Contains(response.Body.String(), `"retryable":true`) {
+		t.Fatalf("archived scope response = %d/%s", response.Code, response.Body.String())
+	}
+}
+
 func membershipCommandTestBody(t *testing.T, value map[string]any) []byte {
 	t.Helper()
 	body, err := json.Marshal(value)
