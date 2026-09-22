@@ -13,6 +13,8 @@ import (
 	"github.com/Onellan/tockrplatform/internal/store"
 )
 
+const membershipCommandResultRetention = 24 * time.Hour
+
 func (s *Store) ExecuteMembershipCommand(ctx context.Context, request store.MembershipCommandRequest) (store.MembershipCommandResult, error) {
 	if strings.TrimSpace(request.Consumer) == "" || strings.TrimSpace(request.RequestHash) == "" || strings.TrimSpace(request.IdempotencyKey) == "" || request.OccurredAt.IsZero() {
 		return store.MembershipCommandResult{}, store.ErrMembershipCommandConflict
@@ -70,7 +72,8 @@ func (s *Store) ExecuteMembershipCommand(ctx context.Context, request store.Memb
 }
 
 func (s *Store) CleanupMembershipCommandResults(ctx context.Context, before time.Time, limit int) (int64, error) {
-	if before.IsZero() || limit < 1 || limit > 1000 {
+	minimumAge := time.Now().UTC().Add(-membershipCommandResultRetention)
+	if before.IsZero() || before.After(minimumAge) || limit < 1 || limit > 1000 {
 		return 0, store.ErrInvalidReadAuthorityRequest
 	}
 	result, err := s.db.ExecContext(ctx, `DELETE FROM platform_membership_command_results

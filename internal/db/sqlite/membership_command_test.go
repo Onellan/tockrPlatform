@@ -31,4 +31,7 @@ func TestMembershipCommandResultCleanupIsBounded(t *testing.T) {
 	if _, err := persistence.CleanupMembershipCommandResults(ctx, old, 0); err != store.ErrInvalidReadAuthorityRequest {
 		t.Fatalf("invalid cleanup limit=%v, want invalid request", err)
 	}
+	if _, err := persistence.CleanupMembershipCommandResults(ctx, time.Now().UTC().Add(-time.Hour), 10); err != store.ErrInvalidReadAuthorityRequest {
+		t.Fatalf("recent cleanup cutoff=%v, want invalid request", err)
+	}
 }

@@ -55,11 +55,12 @@ func TestMFAEnrollmentVerificationAndOneTimeRecovery(t *testing.T) {
 		}
 		hashes = append(hashes, hash)
 	}
-	code, err := auth.TOTPCode(secret, now)
+	verificationAt := time.Now().UTC()
+	code, err := auth.TOTPCode(secret, verificationAt)
 	if err != nil {
 		t.Fatal(err)
 	}
-	complete, err := store.CompleteMFAEnrollment(ctx, user.ID, token, code, hashes, now)
+	complete, err := store.CompleteMFAEnrollment(ctx, user.ID, token, code, hashes, verificationAt)
 	if err != nil || !complete {
 		t.Fatalf("complete MFA = %v, err=%v", complete, err)
 	}

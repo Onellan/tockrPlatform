@@ -37,6 +37,10 @@ version returns `409 conflict` without changing state. Membership, audit and
 the existing allow-listed outbox event commit atomically. Reasons remain in
 private audit details and are never added to the consumer feed.
 
+Platform retains successful idempotency results for at least 24 hours. Cleanup
+is bounded and rejects a cutoff newer than that retention horizon, so a retry
+within the contract window cannot execute a second mutation.
+
 The browser session and CSRF administration routes remain unchanged. This API
 does not authorize Organisation or Workspace lifecycle, product entitlement or
 assignment, product-role, migration, authentication or production cutover

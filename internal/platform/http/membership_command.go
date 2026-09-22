@@ -175,7 +175,7 @@ func writeMembershipCommandStoreError(w http.ResponseWriter, err error) {
 	switch {
 	case errors.Is(err, store.ErrMembershipCommandConflict), errors.Is(err, store.ErrMembershipCommandReplayMismatch), errors.Is(err, store.ErrDuplicateOrganisationMember), errors.Is(err, store.ErrDuplicateWorkspaceMember):
 		code, retryable = "conflict", false
-	case errors.Is(err, store.ErrUnauthorisedOrganisationAction), errors.Is(err, store.ErrUnauthorisedWorkspaceAction), errors.Is(err, store.ErrOwnerMutationNotAuthorised), errors.Is(err, store.ErrOrganisationNotFound), errors.Is(err, store.ErrWorkspaceNotFound), errors.Is(err, store.ErrMembershipNotFound), errors.Is(err, store.ErrWorkspaceMembershipNotFound):
+	case errors.Is(err, store.ErrUnauthorisedOrganisationAction), errors.Is(err, store.ErrUnauthorisedWorkspaceAction), errors.Is(err, store.ErrOwnerMutationNotAuthorised), errors.Is(err, store.ErrOrganisationNotFound), errors.Is(err, store.ErrOrganisationArchived), errors.Is(err, store.ErrWorkspaceNotFound), errors.Is(err, store.ErrWorkspaceArchived), errors.Is(err, store.ErrMembershipNotFound), errors.Is(err, store.ErrWorkspaceMembershipNotFound):
 		code, retryable = "forbidden", false
 	case errors.Is(err, domain.ErrInvalidOrganisationRole), errors.Is(err, domain.ErrInvalidWorkspaceRole), errors.Is(err, domain.ErrInvalidReason), errors.Is(err, store.ErrMembershipCommandUnsupported):
 		code, retryable = "invalid_request", false
