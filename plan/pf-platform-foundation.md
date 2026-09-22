@@ -1,8 +1,7 @@
 # Priority PF — Tockr Platform Foundation
 
-**Status:** PF-B1 through PF-B11 are terminal at their authorised scopes.
-PF-B12 is a separately authorised forward membership-command extension; it
-does not reopen any terminal Batch.
+**Status:** PF-B1 through PF-B12 are terminal at their authorised Platform
+scopes. PF-B12's downstream CTRL/IMS consumer work remains separately governed.
 **Authority:** [Platform architecture](../architecture.md), [Platform
 ownership and boundaries](../docs/architecture/platform-ownership-and-boundaries.md),
 [Platform contract v1](../docs/contracts/platform-contract-v1.md), and the
@@ -173,7 +172,7 @@ independent tester acceptance remain separate gates.
 | PF-B9 | CTRL/IMS reconciliation and migration tooling | S01–S02 | **Terminal** |
 | PF-B10 | Security, runtime and final certification | S01, S01-R1, S02 | **Terminal** |
 | PF-B11 | Shared read authority and consumer projection source | S01, S01-R1, S02–S04 | **Terminal** |
-| PF-B12 | Machine-authenticated shared membership commands | S01 | **Active** |
+| PF-B12 | Machine-authenticated shared membership commands | S01 | **Terminal** |
 
 Total: **12 Batches, 28 Slices including the authorised PF-B11-S01-R1 correction, PF-B11 extension and PF-B12 extension**. PF-B1 has three foundation Slices because
 the current CTRL/IMS SQLite pool policy conflict must be resolved before
@@ -232,7 +231,7 @@ Batch, Lane 2 implements one Slice at a time, and Lane 3 certifies the Batch.
 | PF-B11-S02 | [Durable snapshot and source cursor — terminal](completed/pf-b11-s02-durable-snapshot.md) |
 | PF-B11-S03 | [Authenticated feed and resynchronisation API — terminal](completed/pf-b11-s03-feed-and-api.md) |
 | PF-B11-S04 | [Security, operability and consumer-readiness certification — terminal](completed/pf-b11-s04-certification.md) |
-| PF-B12-S01 | [Versioned shared membership command API — active](active/pf-b12-s01-membership-command-api.md) |
+| PF-B12-S01 | [Versioned shared membership command API — terminal](completed/pf-b12-s01-membership-command-api.md) |
 
 PF-B11-S01 is terminally accepted at implementation candidate
 `b79b9321a06dd1c0e25381127dc61e861bae520d`; its exact contract and

@@ -1,5 +1,22 @@
 # Implemented delivery ledger
 
+## PF-B12-S01 — Versioned shared membership command API
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b12-s01-membership-command-api.md`](../../plan/completed/pf-b12-s01-membership-command-api.md)
+- Implementation candidate: `d246968b0a18e14883106283092998574e9a7e10`
+- Certification candidate: `87872417600a750a6cad0a81d2106c0f56ce78e6`
+- Evidence: [`audits/pf-b12-s01-engineering-review.md`](audits/pf-b12-s01-engineering-review.md),
+  [`audits/pf-b12-s01-tester-acceptance.md`](audits/pf-b12-s01-tester-acceptance.md)
+  and [`audits/pf-b12-batch-certification.md`](audits/pf-b12-batch-certification.md).
+- Platform now publishes `platform.membership-command.v1` for authenticated
+  OrganisationMembership and generic WorkspaceMembership add, role-change and
+  deactivate commands with live actor authorization, idempotency, expected
+  versions, atomic audit/outbox writes and safe redaction.
+- CTRL and IMS consumer command seams remain disabled/local-mode. D6-S01 may
+  proceed before D5-S02; production writer activation remains gated by each
+  product's D7 reconciliation and cutover plans.
+
 ## PF-B11-S01 — Read-authority contract and consumer compatibility
 
 - Status: **Implemented / terminal**

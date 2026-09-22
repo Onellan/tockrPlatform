@@ -1,8 +1,9 @@
 # PF-B12 — Machine-authenticated shared membership commands
 
-**Status:** Active forward extension, separately authorised by the 2026-09-21
-request to unblock PD-D5-S02. PF-B1 through PF-B11 remain terminal at their
-accepted scopes.
+**Status:** Implemented / terminal Platform command capability, separately
+authorised by the 2026-09-21 request to unblock PD-D5-S02. PF-B1 through PF-B11
+remain terminal at their accepted scopes; CTRL/IMS D5-S02 remains downstream
+consumer work.
 **Priority:** PF — shared-authority command extension
 **Baseline:** Platform `main` `81752c66b5677b4e964332b65a3bc1247b6124ff`,
 CTRL `main` `89d430cb9c8768fa0da675b379a9ce542636935a`, and IMS `main`
@@ -139,3 +140,12 @@ The new command route is independently disableable. Disabling it must not
 change browser administration, canonical membership state, committed audit
 history or outbox events. Consumer adapters remain disabled until their
 separate D5-S02 and D7 rollout gates pass.
+
+## Completion
+
+PF-B12-S01 passed independent review, independent tester acceptance and all
+required exact-candidate Platform validation. The terminal Slice plan and
+certification evidence are recorded in `plan/completed/` and
+`docs/implementation/audits/`. This Platform closeout publishes the command
+contract and leaves consumer writers disabled pending D6-S01, D5-S02 and D7
+gates.

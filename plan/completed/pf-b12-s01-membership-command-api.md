@@ -1,6 +1,6 @@
 # PF-B12-S01 — Versioned shared membership command API
 
-**Status:** Implementation candidate — pending independent engineering review and tester acceptance
+**Status:** Implemented / terminal
 **Priority:** PF — shared-authority command extension
 **Batch:** PF-B12
 **Dependencies:** PF-B11-S04 terminal; CTRL and IMS PD-D5-S01 terminal; bounded
@@ -124,8 +124,10 @@ preflight=PASS before behavioral interpretation
 
 ## Current implementation candidate
 
-Candidate `main@d246968b0a18e14883106283092998574e9a7e10` implements WP01–WP04
-and publishes `docs/contracts/platform-membership-command-v1.md`. Focused
+Implementation candidate `main@d246968b0a18e14883106283092998574e9a7e10`
+implements WP01–WP04. Certification candidate
+`main@87872417600a750a6cad0a81d2106c0f56ce78e6` applies the race-stability
+test-fixture repair and publishes `docs/contracts/platform-membership-command-v1.md`. Focused
 HTTP/store evidence covers separate product and actor authentication, actor-
 proof signature binding, inactive and stale actor rejection, cross-organisation
 denial, idempotent replay authorization, stale-version and concurrent conflict
@@ -136,8 +138,9 @@ checks pass on this candidate. The existing MFA race fixture was repaired to
 generate its TOTP immediately before confirmation; the repository-wide `race`
 profile remains required for final exact-candidate acceptance.
 
-Independent engineering review, independent tester acceptance and any required
-repair loop remain open before this plan can move to `plan/completed/`.
+Independent engineering review and independent tester acceptance passed on the
+certification candidate. The terminal publication handoff is recorded in the
+PF-B12 Batch certification and implementation ledger.
 
 ## Dependencies and stop/go
 
@@ -150,7 +153,8 @@ cutover/rollback gates in each consumer.
 
 ## Completion
 
-After B12-AC01..AC08 pass, complete independent review and acceptance, run the
-selected exact-candidate local validation, publish the contract and endpoints,
-and record the exact Platform candidate. Then promote CTRL/IMS D5-S02 from
-Sequenced to Ready against that published endpoint version.
+After B12-AC01..AC08 passed, the contract and endpoints were published from
+the certification candidate. CTRL/IMS D5-S02 remains a consumer-local,
+disabled-mode implementation gate and is not activated by this Platform
+closeout. PD-D6-S01 may proceed before D5-S02; production writer activation
+remains behind PD-D7-S01 and PD-D7-S02.

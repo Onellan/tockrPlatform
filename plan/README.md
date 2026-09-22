@@ -16,8 +16,8 @@ the PF-B2 identity/authentication Batch, the complete PF-B3 Organisation
 authority Batch, the complete PF-B4 Workspace authority Batch, the complete
 PF-B5 product-access Batch, the complete PF-B6 product assertion/consumer
 Batch, PF-B7-S01/S02, PF-B8-S01/S02, PF-B9-S01/S02 and PF-B10. PF-B7, PF-B8,
-PF-B9, PF-B10 and PF-B11 are terminally certified. PF-B12 is the active,
-separately authorised forward extension described below.
+PF-B9, PF-B10, PF-B11 and PF-B12 are terminally certified at their authorised
+Platform scopes. PF-B12's downstream consumer work remains in CTRL and IMS.
 PF-B7 Batch certification is recorded in
 [`docs/implementation/audits/pf-b7-batch-certification.md`](../docs/implementation/audits/pf-b7-batch-certification.md).
 PF-B6 Batch certification is recorded in
@@ -60,7 +60,7 @@ product roles, billing or product data into Platform.
 
 ## Forward PF-B12 — Shared membership command authority
 
-PF-B12 is a separately authorised forward extension for the user-approved
+PF-B12 was a separately authorised forward extension for the user-approved
 OrganisationMembership and generic WorkspaceMembership writer scope. Its
 Platform-owned command contract and API must be delivered before CTRL/IMS
 replace their local membership writers. PF-B12 does not authorize production
@@ -68,4 +68,5 @@ consumer cutover, migration/import, product-role changes, entitlement or
 assignment writes.
 
 - [PF-B12 Batch plan](pf-b12-shared-membership-commands.md)
-- [PF-B12-S01 — Versioned shared membership command API](active/pf-b12-s01-membership-command-api.md)
+- [PF-B12-S01 — Versioned shared membership command API — terminal](completed/pf-b12-s01-membership-command-api.md)
+- [PF-B12 Batch certification](../docs/implementation/audits/pf-b12-batch-certification.md)

@@ -7,9 +7,9 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **1 open execution Batch** across **12 Batches**. PF-B1
-through PF-B11 are terminal at their accepted scopes. PF-B12 is the separately
-authorised shared-membership command extension.
+Current inventory: **0 open execution Batches** across **12 Batches**. PF-B1
+through PF-B12 are terminal at their accepted Platform scopes. CTRL and IMS
+retain separate downstream D5-S02 implementation plans.
 
 ## How to use this tracker
 
@@ -52,7 +52,7 @@ contracts, independent gates and local validation passed:
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
 | PF-B11 | PF-B11-S04 — Security, operability and consumer-readiness certification | **Terminal** | S03 terminal; authenticated v2 feed and resynchronisation API | [completed plan](completed/pf-b11-s04-certification.md) |
-| PF-B12 | PF-B12-S01 — Versioned shared membership command API | **Review** | Candidate `d246968b0a18e14883106283092998574e9a7e10`; independent engineering review and tester acceptance pending | [active plan](active/pf-b12-s01-membership-command-api.md) |
+| PF-B12 | PF-B12-S01 — Versioned shared membership command API | **Terminal** | Certification candidate `87872417600a750a6cad0a81d2106c0f56ce78e6`; review, acceptance and local validation passed | [completed plan](completed/pf-b12-s01-membership-command-api.md) |
 
 PF-B1 through PF-B11 form the complete terminal inventory:
 
@@ -107,12 +107,8 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> Deliver PF-B12-S01 from [the Batch plan](pf-b12-shared-membership-commands.md)
-> and [the active Slice plan](active/pf-b12-s01-membership-command-api.md).
-> Implement only the approved OrganisationMembership and generic
-> WorkspaceMembership commands. Authenticate the product and acting Platform
-> user independently, preserve current Platform role checks, audit and events,
-> and keep product roles and production cutover outside scope.
+> No open Platform Slice remains in PF-B12. The Platform command contract is
+> terminal; continue only with the separately governed CTRL/IMS consumer plans.
 
 ## Closeout update
 
@@ -157,9 +153,11 @@ with Batch certification in
 [`docs/implementation/audits/pf-b11-batch-certification.md`](../docs/implementation/audits/pf-b11-batch-certification.md).
 PF-B11 is terminal; no later Batch was started.
 On 2026-09-21 the user authorised the bounded shared-membership writer scope
-for CTRL and IMS. PF-B12-S01 is now Ready to provide the machine-authenticated
-Platform command contract and API; no implementation or consumer cutover has
-started.
+for CTRL and IMS. PF-B12-S01 is now terminally implemented and reconciled in
+[`completed/pf-b12-s01-membership-command-api.md`](completed/pf-b12-s01-membership-command-api.md),
+with independent review, tester acceptance and Batch certification in the
+linked audit files. Consumer D5-S02 remains disabled/local-mode work in the
+consumer repositories.
 PF-B6 has now been certified as a terminal Batch; its certification is
 recorded in [`docs/implementation/audits/pf-b6-batch-certification.md`](../docs/implementation/audits/pf-b6-batch-certification.md).
 For every terminal Slice:
