@@ -503,7 +503,7 @@ func applyImportedOrganisationTx(ctx context.Context, tx *sql.Tx, record reconci
 	if err != nil {
 		return productionImportOutcome{}, err
 	}
-	if currentName != p.Name || currentStatus != p.Status || currentCreated != p.CreatedAt || nullableValue(currentArchived) != nullableString(p.ArchivedAt) {
+	if currentName != p.Name || currentStatus != p.Status || currentCreated != p.CreatedAt || nullableValue(currentArchived) != optionalStringValue(p.ArchivedAt) {
 		return productionImportOutcome{}, ErrProductionImportRecord
 	}
 	return productionImportOutcome{Outcome: "reconciled", CanonicalID: p.ID}, nil
@@ -543,7 +543,7 @@ func applyImportedWorkspaceTx(ctx context.Context, tx *sql.Tx, record reconcilia
 	if err != nil {
 		return productionImportOutcome{}, err
 	}
-	if currentOrg != p.OrganisationID || currentName != p.Name || currentStatus != p.Status || currentCreated != p.CreatedAt || nullableValue(currentArchived) != nullableString(p.ArchivedAt) {
+	if currentOrg != p.OrganisationID || currentName != p.Name || currentStatus != p.Status || currentCreated != p.CreatedAt || nullableValue(currentArchived) != optionalStringValue(p.ArchivedAt) {
 		return productionImportOutcome{}, ErrProductionImportRecord
 	}
 	return productionImportOutcome{Outcome: "reconciled", CanonicalID: p.ID}, nil
@@ -678,7 +678,7 @@ func applyImportedProductTx(ctx context.Context, tx *sql.Tx, record reconciliati
 	if err != nil {
 		return productionImportOutcome{}, err
 	}
-	if name != p.DisplayName || status != p.Status || created != p.CreatedAt || nullableValue(retired) != nullableString(p.RetiredAt) {
+	if name != p.DisplayName || status != p.Status || created != p.CreatedAt || nullableValue(retired) != optionalStringValue(p.RetiredAt) {
 		return productionImportOutcome{}, ErrProductionImportRecord
 	}
 	return productionImportOutcome{Outcome: "reconciled", CanonicalID: p.Key}, nil

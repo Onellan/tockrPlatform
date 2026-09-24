@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Onellan/tockrplatform/internal/domain"
 	"github.com/Onellan/tockrplatform/internal/platform/reconciliation"
 )
 
@@ -81,5 +82,45 @@ func TestProductionImportRequiresMatchingExecutionAuthorization(t *testing.T) {
 	execution.OperatorID = "wrong-operator"
 	if _, err := store.DryRunProductionImport(ctx, signed, publicKey, execution); !errors.Is(err, reconciliation.ErrProductionExecution) {
 		t.Fatalf("execution error = %v, want authorization failure", err)
+	}
+}
+
+func TestProductionImportReconcilesExistingUserAndNeverRollsItBack(t *testing.T) {
+	ctx := context.Background()
+	store, err := OpenWithKey(ctx, ":memory:", []byte("01234567890123456789012345678901"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+	user, err := store.CreateUser(ctx, domain.User{ID: "usr_existing", Email: "existing@example.test", DisplayName: "Existing", Active: true}, "correct horse battery staple")
+	if err != nil {
+		t.Fatal(err)
+	}
+	reportSHA := strings.Repeat("e", 64)
+	manifest, err := reconciliation.NewProductionManifest(reportSHA, []reconciliation.ProductionSourceSnapshot{{Source: reconciliation.SourceCTRL, SourceSHA256: strings.Repeat("f", 40), ReportSHA256: reportSHA}}, []reconciliation.ProductionManifestRecord{{
+		Entity: reconciliation.ProductionEntityUser, PlatformID: user.ID, MatchKeySHA256: strings.Repeat("1", 64), CreatePolicy: "create_or_reconcile", SourceRefs: []reconciliation.SourceRef{{Source: reconciliation.SourceCTRL, SourceVersion: strings.Repeat("2", 40), SourceID: "ctrl-existing"}}, Payload: reconciliation.ProductionPayload{User: &reconciliation.UserImportPayload{ID: user.ID, Email: user.Email, DisplayName: user.DisplayName, Active: user.Active, CreatedAt: user.CreatedAt.Format(time.RFC3339Nano)}},
+	}}, reconciliation.ProductionApproval{ApprovalID: "approval-existing", OperatorID: "operator-1", ApprovedAt: "2026-09-24T12:00:00Z", Reason: "existing reconciliation", Scope: reconciliation.ProductionScope, KeyID: "key-1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	signed, err := reconciliation.SignProductionManifest(manifest, privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	execution := reconciliation.ProductionExecution{OperatorID: "operator-1", ApprovalID: "approval-existing", KeyID: "key-1"}
+	receipt, err := store.ApplyProductionImport(ctx, signed, publicKey, execution, time.Date(2026, 9, 24, 12, 1, 0, 0, time.UTC), 0)
+	if err != nil || receipt.Reconciled != 1 || receipt.Created != 0 {
+		t.Fatalf("existing reconciliation = %#v, err=%v", receipt, err)
+	}
+	if _, err := store.RollbackProductionImport(ctx, signed, publicKey, execution, time.Date(2026, 9, 24, 12, 2, 0, 0, time.UTC)); err != nil {
+		t.Fatal(err)
+	}
+	var count int
+	if err := store.DB().QueryRowContext(ctx, `SELECT COUNT(*) FROM users WHERE public_id=?`, user.ID).Scan(&count); err != nil || count != 1 {
+		t.Fatalf("existing user count = %d, err=%v", count, err)
 	}
 }
