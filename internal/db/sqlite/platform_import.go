@@ -328,6 +328,9 @@ func (s *Store) loadProductionRun(ctx context.Context, manifest reconciliation.P
 	if run.ManifestDigest != reconciliation.ProductionManifestDigest(manifest) || run.SourceReportSHA256 != manifest.SourceReportSHA256 || run.ApprovalID != execution.ApprovalID || run.OperatorID != execution.OperatorID || run.KeyID != execution.KeyID || !hmac.Equal([]byte(mac), []byte(s.productionCheckpointMAC(run.ManifestID, run.ManifestDigest, run.Status, run.NextIndex, run.Applied, run.Created, run.Reconciled, run.Conflicts))) {
 		return productionRunState{}, ErrProductionImportCheckpoint
 	}
+	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM platform_import_records WHERE manifest_id=? AND outcome='reconciled'`, manifest.ManifestID).Scan(&run.Skipped); err != nil {
+		return productionRunState{}, fmt.Errorf("count reconciled production import records: %w", err)
+	}
 	return run, nil
 }
 
