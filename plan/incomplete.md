@@ -1,15 +1,15 @@
 # Incomplete Plan Tracker
 
-This is the execution index for every Tockr Platform Foundation (PF) plan that
-is not terminally implemented. It is derived from the authoritative
+This is the execution index for every Tockr Platform Foundation (PF) plan and
+Platform-owned PD prerequisite that is not terminally implemented. It is derived from the authoritative
 [PF programme index](pf-platform-foundation.md) and its linked Slice plans.
 Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **0 open execution Batches** across **12 Batches**. PF-B1
-through PF-B12 are terminal at their accepted Platform scopes. CTRL and IMS
-retain separate downstream D5-S02 implementation plans.
+Current inventory: **1 open PD prerequisite** and **0 open PF execution Batches**.
+PF-B1 through PF-B12 are terminal at their accepted Platform scopes. CTRL and
+IMS retain separate downstream PD plans.
 
 ## How to use this tracker
 
@@ -33,12 +33,24 @@ Every prompt below inherits this contract:
   repairs;
 - bind all evidence to the exact candidate being accepted and preserve FAIL or
   BLOCKED / NOT RUN truthfully;
+- leave no blocker, bug, unresolved acceptance finding or required evidence row
+  open at completion; repair and rerun affected evidence on the exact candidate;
 - mark a Slice **Implemented**, move its plan to `completed/`, update
   `docs/implementation/IMPLEMENTED.md`, this tracker, the PF index and
   reconciliation evidence, and publish `main` only when the required gates
   pass.
 
 ## Fastest dependency-aware queue
+
+The Platform-owned prerequisite for consumer PD-D7-S01 is sequenced before
+consumer cutover. It is not a PF-B13 expansion of terminal foundation scope:
+
+| Queue | Slice | State | Dependency | Plan |
+| --- | --- | --- | --- | --- |
+| PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Ready** | Terminal PF-B9/PF-B11/PF-B12 contracts; matching consumer inventory adapters | [active plan](pd-d7-s01-platform-production-import.md) |
+
+Consumer authentication, membership-writer activation and D7-S02 remain
+gated until this prerequisite and both consumer D7-S01 plans are terminal.
 
 PF is the owner-authorised Platform Foundation programme. It establishes
 shared identity, tenancy and product-access authority for future CTRL and IMS
@@ -108,7 +120,10 @@ programme plan.
 ## Copy-ready first Slice prompt
 
 > No open Platform Slice remains in PF-B12. The Platform command contract is
-> terminal; continue only with the separately governed CTRL/IMS consumer plans.
+> terminal. Deliver the Platform-owned PD-D7-S01-PF prerequisite from
+> [`plan/pd-d7-s01-platform-production-import.md`](pd-d7-s01-platform-production-import.md)
+> before real CTRL/IMS import or consumer cutover. Then continue with the
+> separately governed CTRL/IMS consumer plans.
 
 ## Closeout update
 

@@ -70,3 +70,13 @@ assignment writes.
 - [PF-B12 Batch plan](pf-b12-shared-membership-commands.md)
 - [PF-B12-S01 — Versioned shared membership command API — terminal](completed/pf-b12-s01-membership-command-api.md)
 - [PF-B12 Batch certification](../docs/implementation/audits/pf-b12-batch-certification.md)
+
+## Forward PD prerequisite — Durable production reconciliation/import
+
+The Platform Foundation remains terminal at PF-B12. The separately governed
+PD programme now has one Platform-owned prerequisite before CTRL/IMS D7-S01:
+[`pd-d7-s01-platform-production-import.md`](pd-d7-s01-platform-production-import.md).
+It replaces the fixture-only PF-B9 rehearsal with a versioned production
+manifest, durable import ledger/checkpoints, transactional canonical apply,
+safe compensation and operator receipts. It does not authorize consumer
+authentication or membership-writer cutover.
