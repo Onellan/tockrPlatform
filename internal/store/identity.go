@@ -67,4 +67,5 @@ type PlatformStore interface {
 	ReadAuthoritySnapshotStore
 	ReadAuthorityNonceStore
 	MembershipCommandStore
+	ProductionImportStore
 }

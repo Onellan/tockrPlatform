@@ -1,7 +1,7 @@
 # PD-D7-S01-PF — Durable Platform production reconciliation/import boundary
 
 **Priority:** PD prerequisite for CTRL/IMS D7-S01  
-**Status:** Planned / Ready for implementation with consumer dry-run fixtures  
+**Status:** Implementation candidate / WP-PD7PF-01 through WP-PD7PF-05 implemented; WP-PD7PF-06 remains gated on exact CTRL/IMS inventories and independent acceptance
 **Planning baseline:** `d93aa6448fb953f2cd41766c3f70ccc0418f7660` (recheck `main` and the exact CTRL/IMS source candidates before implementation).  
 **Owner:** TockrPlatform  
 **Consumers:** `product.tockrctrl`, `product.tockrims`
@@ -105,6 +105,22 @@ Route: kind=migration; risk=H[AUTH,DATA,DEP,DEPLOY,OPS,GOV]
 ## Validation and publication
 
 Use repository-resolved focused targets for reconciliation, import, migration, security and HTTP/operator boundaries, then `ci-core`, `ci-architecture`, `ci-security`, `ci-migration`, `ci-race`, `ci-quality` and applicable build profiles. Each result requires a `TestContext` with exact candidate, AC, surface, registry profile, command source and preflight PASS. Independent review, independent acceptance and exact-candidate validation are separate gates. Production rehearsal uses disposable/restorable data only; real CTRL/IMS execution requires the explicit D7 operator authorization recorded by the consumer plans.
+
+## Implementation candidate
+
+The candidate adds the versioned `platform.reconciliation.import.v1` production
+manifest and Ed25519 approval/execution boundary, durable schema version 13
+import-run/checkpoint/record ledgers, transactional dependency-ordered
+canonical apply, checkpointed resume/idempotency, redacted status receipts,
+and compensating rollback limited to records created by the manifest. The
+terminal `platform.reconciliation.inventory.v1` fixture path remains unchanged
+and is rejected by the production verifier. Product data, consumer writer mode
+and authority cutover remain unchanged.
+
+WP-PD7PF-06 is intentionally not claimed complete until exact matched CTRL/IMS
+inventories are available, the disposable restored-database handoff converges
+both consumers through snapshot/feed state, and independent review and
+acceptance pass on the published candidate.
 
 ## Dependencies and stop/go
 

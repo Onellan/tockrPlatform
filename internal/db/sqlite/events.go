@@ -106,10 +106,14 @@ func appendWorkspaceEventTx(ctx context.Context, tx *sql.Tx, eventName string, d
 }
 
 func appendProductEventTx(ctx context.Context, tx *sql.Tx, eventName string, details productAuditDetails, at time.Time) error {
-	if eventName != eventProductRetired {
+	if eventName != eventProductRetired && eventName != eventProductCreated {
 		return fmt.Errorf("unsupported product audit event %q", eventName)
 	}
-	return appendPlatformEventTx(ctx, tx, events.EventProductRetired, details.ProductKey, at, map[string]any{
+	eventType := events.EventProductRetired
+	if eventName == eventProductCreated {
+		eventType = events.EventProductCreated
+	}
+	return appendPlatformEventTx(ctx, tx, eventType, details.ProductKey, at, map[string]any{
 		"product_key": details.ProductKey,
 		"status":      details.Status,
 	})

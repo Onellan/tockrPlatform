@@ -24,6 +24,7 @@ var (
 
 const (
 	auditProduct            = "Product"
+	eventProductCreated     = "product_created"
 	eventProductRetired     = "product_retired"
 	eventEntitlementGranted = "product_entitlement_granted"
 	eventEntitlementRevoked = "product_entitlement_revoked"

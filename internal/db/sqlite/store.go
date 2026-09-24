@@ -459,6 +459,62 @@ func supportedMigrations() []migration {
 				`CREATE INDEX platform_membership_command_results_created_idx ON platform_membership_command_results(created_at)`,
 			},
 		},
+		{
+			version: 13,
+			name:    "platform-production-import-ledger",
+			statements: []string{
+				`CREATE TABLE platform_import_runs (
+					id INTEGER PRIMARY KEY,
+					manifest_id TEXT NOT NULL UNIQUE CHECK(length(manifest_id)=64),
+					manifest_digest TEXT NOT NULL CHECK(length(manifest_digest)=64),
+					contract_version TEXT NOT NULL CHECK(contract_version='platform.reconciliation.import.v1'),
+					source_report_sha256 TEXT NOT NULL CHECK(length(source_report_sha256)=64),
+					source_snapshots_json TEXT NOT NULL CHECK(length(source_snapshots_json)>1 AND length(source_snapshots_json)<=4096),
+					approval_id TEXT NOT NULL CHECK(length(trim(approval_id))>0 AND length(approval_id)<=200),
+					operator_id TEXT NOT NULL CHECK(length(trim(operator_id))>0 AND length(operator_id)<=200),
+					key_id TEXT NOT NULL CHECK(length(trim(key_id))>0 AND length(key_id)<=200),
+					approved_at TEXT NOT NULL,
+					status TEXT NOT NULL CHECK(status IN ('running','paused','completed','rolled_back')),
+					next_index INTEGER NOT NULL CHECK(next_index>=0),
+					applied_count INTEGER NOT NULL CHECK(applied_count>=0),
+					created_count INTEGER NOT NULL CHECK(created_count>=0),
+					reconciled_count INTEGER NOT NULL CHECK(reconciled_count>=0),
+					conflict_count INTEGER NOT NULL CHECK(conflict_count>=0),
+					checkpoint_mac TEXT NOT NULL CHECK(length(checkpoint_mac)=64),
+					created_at TEXT NOT NULL,
+					updated_at TEXT NOT NULL,
+					receipt_json TEXT NOT NULL CHECK(length(receipt_json)>1 AND length(receipt_json)<=8192)
+				)`,
+				`CREATE TABLE platform_import_records (
+					id INTEGER PRIMARY KEY,
+					manifest_id TEXT NOT NULL REFERENCES platform_import_runs(manifest_id) ON DELETE CASCADE,
+					record_order INTEGER NOT NULL CHECK(record_order>=0),
+					entity_kind TEXT NOT NULL CHECK(length(trim(entity_kind))>0 AND length(entity_kind)<=100),
+					platform_id TEXT NOT NULL CHECK(length(trim(platform_id))>0 AND length(platform_id)<=200),
+					record_digest TEXT NOT NULL CHECK(length(record_digest)=64),
+					source_refs_json TEXT NOT NULL CHECK(length(source_refs_json)>1 AND length(source_refs_json)<=4096),
+					outcome TEXT NOT NULL CHECK(outcome IN ('created','reconciled','skipped','conflict','rolled_back')),
+					created_by_import INTEGER NOT NULL CHECK(created_by_import IN (0,1)),
+					compensated INTEGER NOT NULL DEFAULT 0 CHECK(compensated IN (0,1)),
+					applied_at TEXT NOT NULL,
+					UNIQUE(manifest_id,record_order),
+					UNIQUE(manifest_id,platform_id)
+				)`,
+				`CREATE INDEX platform_import_records_manifest_order_idx ON platform_import_records(manifest_id,record_order)`,
+				`CREATE INDEX platform_import_records_created_idx ON platform_import_records(manifest_id,created_by_import,compensated)`,
+				`CREATE TABLE platform_import_compensations (
+					id INTEGER PRIMARY KEY,
+					manifest_id TEXT NOT NULL REFERENCES platform_import_runs(manifest_id) ON DELETE CASCADE,
+					record_order INTEGER NOT NULL,
+					entity_kind TEXT NOT NULL,
+					platform_id TEXT NOT NULL,
+					status TEXT NOT NULL CHECK(status IN ('compensated','skipped','blocked')),
+					reason TEXT NOT NULL DEFAULT '' CHECK(length(reason)<=500),
+					occurred_at TEXT NOT NULL,
+					UNIQUE(manifest_id,record_order)
+				)`,
+			},
+		},
 	}
 }
 

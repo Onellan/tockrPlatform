@@ -142,8 +142,8 @@ func TestOrganisationFreshUpgradeReopenAndDivergenceMigration(t *testing.T) {
 	if err := store.DB().QueryRowContext(ctx, `SELECT MAX(version) FROM schema_migrations`).Scan(&version); err != nil {
 		t.Fatal(err)
 	}
-	if version != 12 {
-		t.Fatalf("fresh schema version = %d, want 12", version)
+	if version != 13 {
+		t.Fatalf("fresh schema version = %d, want 13", version)
 	}
 	if err := store.Close(); err != nil {
 		t.Fatal(err)
@@ -183,8 +183,8 @@ func TestOrganisationFreshUpgradeReopenAndDivergenceMigration(t *testing.T) {
 	if err := upgraded.DB().QueryRowContext(ctx, `SELECT MAX(version) FROM schema_migrations`).Scan(&version); err != nil {
 		t.Fatal(err)
 	}
-	if version != 12 {
-		t.Fatalf("upgraded schema version = %d, want 12", version)
+	if version != 13 {
+		t.Fatalf("upgraded schema version = %d, want 13", version)
 	}
 	if _, err := upgraded.DB().ExecContext(ctx, `UPDATE schema_migrations SET name='changed' WHERE version=3`); err != nil {
 		t.Fatal(err)

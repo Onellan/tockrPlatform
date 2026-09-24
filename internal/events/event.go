@@ -41,6 +41,7 @@ const (
 	EventWorkspaceMembershipRemoved    = "platform.workspace.membership_deactivated"
 	EventWorkspaceArchived             = "platform.workspace.archived"
 	EventProductRetired                = "platform.product.retired"
+	EventProductCreated                = "platform.product.created"
 	EventEntitlementGranted            = "platform.access.entitlement_granted"
 	EventEntitlementRevoked            = "platform.access.entitlement_revoked"
 	EventAssignmentGranted             = "platform.access.assignment_granted"
@@ -93,6 +94,7 @@ var specs = map[string]eventSpec{
 	EventWorkspaceMembershipRemoved:    {AggregateWorkspace, fields("workspace_id", fieldString, "membership_id", fieldString, "user_id", fieldString, "role", fieldString, "active", fieldBool)},
 	EventWorkspaceArchived:             {AggregateWorkspace, fields("workspace_id", fieldString, "active", fieldBool)},
 	EventProductRetired:                {AggregateProduct, fields("product_key", fieldString, "status", fieldString)},
+	EventProductCreated:                {AggregateProduct, fields("product_key", fieldString, "status", fieldString)},
 	EventEntitlementGranted:            {AggregateAccess, fields("entitlement_id", fieldString, "organisation_id", fieldString, "product_key", fieldString, "status", fieldString)},
 	EventEntitlementRevoked:            {AggregateAccess, fields("entitlement_id", fieldString, "organisation_id", fieldString, "product_key", fieldString, "status", fieldString)},
 	EventAssignmentGranted:             {AggregateAccess, fields("assignment_id", fieldString, "organisation_id", fieldString, "user_id", fieldString, "product_key", fieldString, "status", fieldString)},

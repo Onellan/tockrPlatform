@@ -47,7 +47,7 @@ consumer cutover. It is not a PF-B13 expansion of terminal foundation scope:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Ready** | Terminal PF-B9/PF-B11/PF-B12 contracts; matching consumer inventory adapters | [active plan](pd-d7-s01-platform-production-import.md) |
+| PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Implementation candidate** | WP-PD7PF-01..05 implemented; exact CTRL/IMS inventories and independent gates still required for WP-PD7PF-06 | [active plan](pd-d7-s01-platform-production-import.md) |
 
 Consumer authentication, membership-writer activation and D7-S02 remain
 gated until this prerequisite and both consumer D7-S01 plans are terminal.
