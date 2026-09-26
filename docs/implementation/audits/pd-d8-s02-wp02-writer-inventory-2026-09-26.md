@@ -1,7 +1,8 @@
 # PD-D8-S02 WP-PD8S02-02 — Sole shared-authority writer inventory
 
 **Date:** 2026-09-26  
-**Scope:** Platform, TockrCTRL and TockrIMS exact published `main` candidates  
+**Scope:** Platform, TockrCTRL and TockrIMS exact source code candidates; the
+evidence commits below publish this record on each clean `main`  
 **Decision:** Platform is the sole shared-authority writer whenever the
 Platform-authoritative runtime mode is selected. CTRL and IMS retain local
 compatibility writers only in the separately selected pre-cutover `local`
@@ -12,9 +13,12 @@ a production configuration change.
 
 | Repository | Published `main` | Evidence source |
 | --- | --- | --- |
-| Platform | `3115caad66b4086535720a03ccf08c2766666edd` | `git rev-parse HEAD`, clean `main` |
-| CTRL | `4710090b2d6019bc1686945828bc1e90eb7f6a8d` | `git rev-parse HEAD`, clean `main` |
-| IMS | `69344937bcb8e030976dd2c67447d7d2d41861a8` | `git rev-parse HEAD`, clean `main` |
+| Platform source code | `3115caad66b4086535720a03ccf08c2766666edd` | exact code candidate |
+| CTRL source code | `4710090b2d6019bc1686945828bc1e90eb7f6a8d` | exact code candidate |
+| IMS source code | `69344937bcb8e030976dd2c67447d7d2d41861a8` | exact code candidate |
+| Platform evidence publication | `19d4193524b1b2fe551b31059af244cb3b057329` | clean `main` / `origin/main` |
+| CTRL evidence publication | `55206a9f5092e00b71d2f0b9ffea4d9e18b26b32` | clean `main` / `origin/main` |
+| IMS evidence publication | `a839a211d48cc04b462f7e1916b1ccd35867c0f3` | clean `main` / `origin/main` |
 
 ## Writer inventory
 

@@ -6,6 +6,11 @@
     "ctrl": "4710090b2d6019bc1686945828bc1e90eb7f6a8d",
     "ims": "69344937bcb8e030976dd2c67447d7d2d41861a8"
   },
+  "evidence_publication_commits": {
+    "platform": "19d4193524b1b2fe551b31059af244cb3b057329",
+    "ctrl": "55206a9f5092e00b71d2f0b9ffea4d9e18b26b32",
+    "ims": "a839a211d48cc04b462f7e1916b1ccd35867c0f3"
+  },
   "decision": "platform_is_only_shared_authority_writer_in_platform_mode",
   "local_compatibility_mode": {
     "ctrl": "TOCKR_PLATFORM_MEMBERSHIP_WRITE_MODE=local",
