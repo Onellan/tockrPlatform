@@ -16,9 +16,9 @@ a production configuration change.
 | Platform source code | `3115caad66b4086535720a03ccf08c2766666edd` | exact code candidate |
 | CTRL source code | `677dd0dc5573b0bb7ac6c42d2d20c907505e6683` | exact code candidate |
 | IMS source code | `0a8750fbac24ff6ceca3b8fd13afd70b503f2e92` | exact code candidate |
-| Platform evidence publication | `952f5fae08609b082ddb5e9f46a31ceb4405c860` | clean `main` / `origin/main` |
-| CTRL evidence publication | `786ea76d769bdc59ea18718a39e0b8e7e85d1f57` | clean `main` / `origin/main` |
-| IMS evidence publication | `0ebafb8cfe949530c53e224beff6baa7a381d9e1` | clean `main` / `origin/main` |
+| Platform evidence publication | `8e6593200ba624566407b29c58448f4f9a68d139` | clean `main` / `origin/main` |
+| CTRL evidence publication | `be821c5c68097f36aac07104884ec05fa66b7d13` | clean `main` / `origin/main` |
+| IMS evidence publication | `817f3f0412a253b9eb0d4eed0f35e3ded3379736` | clean `main` / `origin/main` |
 
 ## Writer inventory
 

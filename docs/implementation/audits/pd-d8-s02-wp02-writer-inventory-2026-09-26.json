@@ -7,9 +7,9 @@
     "ims": "a6c73c1200d73885358056d378e4cff196f467f4"
   },
   "evidence_publication_commits": {
-    "platform": "952f5fae08609b082ddb5e9f46a31ceb4405c860",
-    "ctrl": "786ea76d769bdc59ea18718a39e0b8e7e85d1f57",
-    "ims": "0ebafb8cfe949530c53e224beff6baa7a381d9e1"
+    "platform": "8e6593200ba624566407b29c58448f4f9a68d139",
+    "ctrl": "be821c5c68097f36aac07104884ec05fa66b7d13",
+    "ims": "817f3f0412a253b9eb0d4eed0f35e3ded3379736"
   },
   "decision": "platform_is_only_shared_authority_writer_in_platform_mode",
   "local_compatibility_mode": {
