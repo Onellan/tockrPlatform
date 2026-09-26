@@ -1,8 +1,8 @@
 # PD-D8-S02 — Platform authority integration certification
 
-**Priority:** PD — Platform Authority & Product Access Integration  
-**Status:** Ready / next after terminal matched D8-S01  
-**Product:** TockrPlatform cross-repository authority  
+**Priority:** PD — Platform Authority & Product Access Integration
+**Status:** In progress; WP03 compatibility ledger and WP04 bounded retirement are terminal; cutover and final certification remain gated
+**Product:** TockrPlatform cross-repository authority
 **Dependencies:** Platform `cc78557d8048bac6392f837166cb101460f43c98`; terminal CTRL/IMS D8-S01 acceptance and published mains.
 
 ## Objective
@@ -33,6 +33,8 @@ Inventory legacy auth paths, local shared-membership writers, compatibility tabl
 
 ### WP-PD8S02-04 — Reversible retirement migration
 
+
+**Status:** Terminal for the bounded retirement candidate. Evidence: docs/implementation/audits/pd-d8-s02-wp04-retirement-2026-09-26.md and the updated compatibility ledger. Two IMS package-private aliases were removed after a repository-wide zero-reference scan; no database migration, ID, historical reference, audit record or rollback receipt was changed. All externally reachable compatibility paths remain retained.
 Remove only approved zero-use compatibility items in additive, reversible steps. Preserve local keys, historical actor references, audit/correlation and read-compatible migrations. Destructive schema or history changes require a separate authority decision.
 
 ### WP-PD8S02-05 — Cutover, rollback and outage rehearsal

@@ -5,9 +5,9 @@
   "exact_source_candidates": {
     "platform": "3115caad66b4086535720a03ccf08c2766666edd",
     "ctrl": "677dd0dc5573b0bb7ac6c42d2d20c907505e6683",
-    "ims": "a6c73c1200d73885358056d378e4cff196f467f4"
+    "ims": "5f163633c358c636376ebd5ade659a0e7bdf78ee"
   },
-  "evidence_policy": "Source-active means present in the exact source candidate and covered by repository tests; production counters were not supplied and zero use is not claimed.",
+  "evidence_policy": "Source-active means present in the exact source candidate and covered by repository tests; production counters were not supplied and zero use is not claimed unless a retirement row records a repository-wide zero-reference scan.",
   "entries": [
     {
       "id": "AUTH-CTRL-LOCAL",
@@ -269,8 +269,27 @@
       "owner": "Platform security/release owner",
       "rollback_dependency": "Assertion-key rotation procedure; consumer key overlap; restore point",
       "disposition": "Retain active. These are authority controls, not legacy compatibility flags; changes require the existing key-rotation and exact-candidate evidence."
+    },
+    {
+      "id": "RET-IMS-DISCOVERY-ALIASES",
+      "kind": "Retired compatibility aliases",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`workspaceMemberDiscoveryQueryFromRequest` and `programmeWorkspaceMemberDiscoveryURL` in `internal/platform/http/member_discovery.go`; repository-wide `rg` found no production or test references beyond the definitions before removal. Canonical Organisation-named helpers remain active.",
+      "owner": "IMS HTTP maintainers",
+      "rollback_dependency": "Revert `5f163633c358c636376ebd5ade659a0e7bdf78ee`; no database restore required",
+      "disposition": "Retired after zero-use scan and full IMS HTTP/repository suites passed. No route, writer, schema, ID, history, audit or receipt changed."
+    }
+  ],
+  "retirement_receipts": [
+    {
+      "id": "RET-IMS-DISCOVERY-ALIASES",
+      "repository": "IMS",
+      "commit": "5f163633c358c636376ebd5ade659a0e7bdf78ee",
+      "zero_use_evidence": "Repository-wide rg found no production or test references beyond the two definitions before removal.",
+      "tests": "go test ./internal/platform/http -count=1 -timeout=10m; go test ./... -count=1 -timeout=25m",
+      "reversible": "Git revert; no database migration"
     }
   ],
   "unresolved_removals": [],
-  "current_disposition": "All entries retained; no compatibility path, writer, table or flag removed."
+  "current_disposition": "One package-private IMS alias pair retired; all externally reachable paths, writers, tables, adapters and flags retained."
 }

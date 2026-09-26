@@ -2,9 +2,9 @@
 
 **Date:** 2026-09-26  
 **Scope:** Authority migration seams shared by TockrPlatform, TockrCTRL and
-TockrIMS. This is an inventory and retirement control record; it does not
-activate authentication or membership cutover and it does not remove a
-compatibility seam.
+TockrIMS. This is an inventory and retirement control record. It does not
+activate authentication or membership cutover; each retirement must satisfy
+the gates below.
 
 ## Decision and evidence rules
 
@@ -27,7 +27,7 @@ rollback rehearsal succeeds, and the named cutover owner accepts the change.
 | --- | --- | --- |
 | TockrPlatform | `3115caad66b4086535720a03ccf08c2766666edd` | `main` |
 | TockrCTRL | `677dd0dc5573b0bb7ac6c42d2d20c907505e6683` | `main` |
-| TockrIMS | `a6c73c1200d73885358056d378e4cff196f467f4` | `main` |
+| TockrIMS | `5f163633c358c636376ebd5ade659a0e7bdf78ee` | `main` |
 
 ## Ledger
 
@@ -63,6 +63,12 @@ rollback rehearsal succeeds, and the named cutover owner accepts the change.
 | FLAG-IMS-WRITE | Cutover feature flag | IMS | `TOCKRIMS_PLATFORM_MEMBERSHIP_WRITE_MODE` accepts `local` or `platform`; default is `local`. Platform command credentials are required for `platform`; guarded local writers fail closed when Platform authority is selected. | IMS release/operator owner | PD-D7-S02 writer rollback; command-key rotation and restore | Retain until shared-write cutover is terminal; never enable local and Platform writers together. |
 | FLAG-PLATFORM-KEYS | Platform authority configuration | Platform | `PLATFORM_ASSERTION_ISSUER`, `PLATFORM_ASSERTION_KEY_ID`, `PLATFORM_ASSERTION_PRIVATE_KEY`, `PLATFORM_ASSERTION_AUDIENCES` and `PLATFORM_READ_AUTHORITY_KEYS` select signing, audience and consumer verification material. Rotation retains verification overlap. | Platform security/release owner | Assertion-key rotation procedure; consumer key overlap; restore point | Retain active. These are authority controls, not legacy compatibility flags; changes require the existing key-rotation and exact-candidate evidence. |
 
+## Retired in this slice
+
+| ID | Kind | Repository | Item and zero-use evidence | Owner | Rollback dependency | Disposition |
+| --- | --- | --- | --- | --- | --- | --- |
+| RET-IMS-DISCOVERY-ALIASES | Retired compatibility aliases | IMS | `workspaceMemberDiscoveryQueryFromRequest` and `programmeWorkspaceMemberDiscoveryURL` in `internal/platform/http/member_discovery.go`; repository-wide `rg` found no production or test references beyond the definitions before removal. Canonical Organisation-named helpers remain active. | IMS HTTP maintainers | Revert `5f163633c358c636376ebd5ade659a0e7bdf78ee`; no database restore required | Retired after zero-use scan and full IMS HTTP/repository suites passed. No route, writer, schema, ID, history, audit or receipt changed. |
+
 ## Retirement gates
 
 1. Capture deployment counters/logs for every source-active legacy path and
@@ -82,7 +88,8 @@ rollback rehearsal succeeds, and the named cutover owner accepts the change.
    change. Preserve historical actor IDs, audit events, source references and
    rollback receipts.
 
-**Current disposition:** all rows are retained according to the dispositions
-above. No compatibility path, writer, table or flag was removed by this
-ledger.
+**Current disposition:** one package-private IMS alias pair is retired with
+receipt `5f163633c358c636376ebd5ade659a0e7bdf78ee`. All externally reachable
+paths, writers, tables, adapters and flags remain retained according to the
+dispositions above.
 

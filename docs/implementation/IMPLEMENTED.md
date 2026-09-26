@@ -1,10 +1,16 @@
 ## PD-D8-S02-WP-PD8S02-03 — Compatibility usage ledger
 
 - Status: **Implemented / terminal**
-- Exact source candidates: Platform `3115caad66b4086535720a03ccf08c2766666edd`; CTRL `677dd0dc5573b0bb7ac6c42d2d20c907505e6683`; IMS `a6c73c1200d73885358056d378e4cff196f467f4`.
+- Exact source candidates: Platform `3115caad66b4086535720a03ccf08c2766666edd`; CTRL `677dd0dc5573b0bb7ac6c42d2d20c907505e6683`; IMS `5f163633c358c636376ebd5ade659a0e7bdf78ee`.
 - Evidence: [compatibility usage ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md) and [machine-readable ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.json).
-- The ledger records legacy authentication paths, local shared-membership writers, compatibility tables/columns, adapters and feature flags with source usage evidence, owner, rollback dependency and disposition. All rows are retained; no cutover or compatibility removal was performed.
+- The ledger records legacy authentication paths, local shared-membership writers, compatibility tables/columns, adapters and feature flags with source usage evidence, owner, rollback dependency and disposition. One package-private IMS alias pair was retired after a zero-reference scan; all externally reachable paths, writers, tables, adapters and flags remain retained.
 - Retirement still requires current deployment usage evidence, rollback rehearsal, independent review and tester acceptance for the exact retirement candidate.
+
+## PD-D8-S02-WP-PD8S02-04 — Bounded compatibility retirement
+
+- Status: **Implemented / terminal for the bounded candidate**
+- Evidence: [retirement evidence](audits/pd-d8-s02-wp04-retirement-2026-09-26.md) and the updated [compatibility usage ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md).
+- IMS package-private `workspaceMemberDiscoveryQueryFromRequest` and `programmeWorkspaceMemberDiscoveryURL` had zero repository references beyond their definitions. They were removed with a Git-revert rollback receipt; no database migration, local ID, historical reference, audit record or active route was changed.
 
 # Implemented delivery ledger
 
