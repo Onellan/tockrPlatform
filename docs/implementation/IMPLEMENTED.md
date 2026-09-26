@@ -1,5 +1,15 @@
 # Implemented delivery ledger
 
+## PD-D7-S01-PF — Durable Platform production reconciliation/import boundary
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pd-d7-s01-platform-production-import.md`](../../plan/completed/pd-d7-s01-platform-production-import.md)
+- Published Platform main: `223f03197147157bf90e0ee6cb7d8d25a1a7592d`
+- Matched consumer main commits: CTRL `644dbb67ad6c685c343aa1ca51acc1985a9a9226`; IMS `69e2c7971ff12126acb564b1ce0a492dc592ab37`.
+- Acceptance: [`pd-d7-s01-platform-import-acceptance-2026-09-26.md`](pd-d7-s01-platform-import-acceptance-2026-09-26.md)
+- Platform now has the signed production import envelope, durable checkpointed apply/resume/idempotency, exact-manifest compensation, audit actor tombstone provenance, and operator receipts. WP-PD7PF-06 passed against the disposable restore point.
+- CTRL and IMS each passed source-scoped snapshot/feed convergence and mapping finalization at `cur_22`; product-owned state and local authority modes remained unchanged. Consumer authentication and membership-writer cutover remain D7-S02 work.
+
 ## PF-B12-S01 — Versioned shared membership command API
 
 - Status: **Implemented / terminal**

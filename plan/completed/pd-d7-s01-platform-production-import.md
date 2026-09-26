@@ -3,7 +3,7 @@
 **Priority:** PD prerequisite for CTRL/IMS D7-S01  
 **Status:** Terminal — WP-PD7PF-01 through WP-PD7PF-06 implemented and accepted on a disposable restored database
 **Planning baseline:** `d93aa6448fb953f2cd41766c3f70ccc0418f7660` (recheck `main` and the exact CTRL/IMS source candidates before implementation).  
-**Implementation candidate:** pending final publication of the audit-history rollback repair
+**Implementation candidate:** `223f03197147157bf90e0ee6cb7d8d25a1a7592d`
 **Owner:** TockrPlatform  
 **Consumers:** `product.tockrctrl`, `product.tockrims`
 
