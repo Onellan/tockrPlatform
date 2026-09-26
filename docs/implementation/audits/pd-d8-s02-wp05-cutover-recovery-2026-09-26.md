@@ -8,9 +8,9 @@
 
 | Component | Exact source SHA |
 | --- | --- |
-| Platform | `dd721cfdfcd0f680a8cfe070162105bfead4f917` |
-| CTRL | `217b210ee03a0a0b54f01fbe6ffb038917f14f37` |
-| IMS | `86068d15573cfe608007db64c6b7d6584eb5d99f` |
+| Platform | `ec9bb853c20308dc8d808c425b257d8099f611fd` |
+| CTRL | `7d5b23629aa0a3725eaa1ff15dddf4e298b077ea` |
+| IMS | `1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d` |
 
 All three repositories were clean at the start and each SHA matched `origin/main`. The accepted D7 handoff inputs remained bound: manifest `2b831b31cd5686ef91c4ac66824f1f1301254d26876ad7cfcfc0e56084f3d211`, manifest SHA256 `9c2f8adbd7831025137907dcb500626cfa438636afc0f5bd0e07ba4a5de78079`, receipt SHA256 `c5b3a5db9e2866c5fa20bdfa1fc3bade4bfa371cadc130ba8fae57b9ea3f453`, and restore point SHA256 `a4d931d8dca81236c8b67eb0e46d5f0bcb4c956833af838a8b4e76799eca1dd`.
 

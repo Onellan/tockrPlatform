@@ -1,8 +1,8 @@
 {
   "candidates": {
-    "ctrl": "217b210ee03a0a0b54f01fbe6ffb038917f14f37",
-    "ims": "86068d15573cfe608007db64c6b7d6584eb5d99f",
-    "platform": "dd721cfdfcd0f680a8cfe070162105bfead4f917"
+    "ctrl": "7d5b23629aa0a3725eaa1ff15dddf4e298b077ea",
+    "ims": "1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d",
+    "platform": "ec9bb853c20308dc8d808c425b257d8099f611fd"
   },
   "work_package": "WP-PD8S02-05",
   "handoff": {
@@ -75,5 +75,9 @@
     "ctrl_product_fingerprint_sha256": "45D4DFD4907D6D468A8F7814AD1DD3A2464D13C6BC6F0A429EE6D1950C353D1D",
     "ims_product_fingerprint_sha256": "3581D99361C6E8BCB7A4D4921E98D77332CA550C22794E6B3FD12895EDE54CF4",
     "directory": "C:\\Temp\\d8-s02-wp05-20260926"
+  },
+  "exact_runtime_logs": {
+    "ctrl": "C:\\Temp\\d8-s02-wp05-20260926\\ctrl-exact-cutover.log",
+    "ims": "C:\\Temp\\d8-s02-wp05-20260926\\ims-exact-cutover.log"
   }
 }
