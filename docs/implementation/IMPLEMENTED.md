@@ -1,4 +1,6 @@
-# Implemented delivery ledger`n`n## PD-D8-S01 — Product-access, tenant and outage certification
+# Implemented delivery ledger
+
+## PD-D8-S01 — Product-access, tenant and outage certification
 
 - Status: **Implemented / terminal in CTRL and IMS; Platform handoff recorded**
 - Platform candidate: `cc78557d8048bac6392f837166cb101460f43c98`
