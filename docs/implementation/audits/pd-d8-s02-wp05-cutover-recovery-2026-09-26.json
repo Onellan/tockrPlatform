@@ -1,0 +1,68 @@
+{
+  "candidates": {
+    "ctrl": "f3a4e10e48d3f7e9b64bf76a088fb74ae6b5265b",
+    "ims": "d1decaab799d13fdb480fa62498f4c20b6fb7884",
+    "platform": "f78e3dfb5a2ca76eabee464424c206889f9a7fea"
+  },
+  "work_package": "WP-PD8S02-05",
+  "handoff": {
+    "receipt_sha256": "c5b3a5db9e2866c5fa20bdfa1fc3bade4bfa371cadc130ba8fae57b9ea3f453",
+    "restore_point_sha256": "a4d931d8dca81236c8b67eb0e46d5f0bcb4c956833af838a8b4e76799eca1dd",
+    "manifest_id": "2b831b31cd5686ef91c4ac66824f1f1301254d26876ad7cfcfc0e56084f3d211",
+    "manifest_sha256": "9c2f8adbd7831025137907dcb500626cfa438636afc0f5bd0e07ba4a5de78079"
+  },
+  "logs": "C:\\Temp\\d8-s02-wp05-20260926",
+  "disposable_only": true,
+  "checks": [
+    {
+      "evidence": "CTRL backup/reopen test and accepted Platform restore point",
+      "id": "backup_restore",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Platform/CTRL/IMS snapshot, duplicate, gap, stale and recovery tests",
+      "id": "projection_resync",
+      "status": "PASS"
+    },
+    {
+      "evidence": "signed command, replay, outbox rollback and durable correlation tests",
+      "id": "membership_command_correlation",
+      "status": "PASS"
+    },
+    {
+      "evidence": "current-blocked-recovered read-authority policy",
+      "id": "platform_outage_recovery",
+      "status": "PASS"
+    },
+    {
+      "evidence": "CTRL and IMS platform-cutover CLI receipts",
+      "id": "cutover_c0_to_c4",
+      "status": "PASS"
+    },
+    {
+      "evidence": "bounded 60 second rollback with second freeze/drain",
+      "id": "rollback_c3_to_c2",
+      "status": "PASS"
+    },
+    {
+      "evidence": "C3 platform/platform and C2 platform/local modes; no local/platform",
+      "id": "no_dual_writer",
+      "status": "PASS"
+    },
+    {
+      "evidence": "WP02 call graph and local projection tests",
+      "id": "no_sync_dependency",
+      "status": "PASS"
+    },
+    {
+      "evidence": "fingerprint and denied-write no-drift tests",
+      "id": "product_data_unchanged",
+      "status": "PASS"
+    }
+  ],
+  "slice": "PD-D8-S02",
+  "verdict": "PASS",
+  "date": "2026-09-26",
+  "private_material": false
+}
+\n

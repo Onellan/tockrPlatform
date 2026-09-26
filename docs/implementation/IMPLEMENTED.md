@@ -636,3 +636,11 @@ The following Platform Foundation Slices are terminally recorded:
 - The Platform Foundation programme is terminal at the authorised scope. Future
   runtime upgrades or cross-repository authority changes require a new explicit
   plan and independent acceptance.
+
+## PD-D8-S02-WP-PD8S02-05 — Final cutover and recovery rehearsal
+
+- Status: **Implemented / terminal for the disposable rehearsal**
+- Exact candidates: Platform `f78e3dfb5a2ca76eabee464424c206889f9a7fea`, CTRL `f3a4e10e48d3f7e9b64bf76a088fb74ae6b5265b`, IMS `d1decaab799d13fdb480fa62498f4c20b6fb7884`.
+- Evidence: [cutover/recovery rehearsal](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md) and [machine-readable evidence](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.json).
+- Backup/restore, projection resynchronisation, membership command correlation, Platform outage/recovery, staged cutover, bounded rollback, sole-writer, local-request and unchanged product-data checks passed. Production activation remains separately gated by WP06.
+\n

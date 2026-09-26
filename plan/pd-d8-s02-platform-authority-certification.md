@@ -1,7 +1,7 @@
 # PD-D8-S02 — Platform authority integration certification
 
 **Priority:** PD — Platform Authority & Product Access Integration
-**Status:** In progress; WP03 compatibility ledger and WP04 bounded retirement are terminal; cutover and final certification remain gated
+**Status:** In progress; WP03 compatibility ledger, WP04 bounded retirement and WP05 rehearsal are terminal; WP06 final cross-repository record remains gated
 **Product:** TockrPlatform cross-repository authority
 **Dependencies:** Platform `cc78557d8048bac6392f837166cb101460f43c98`; terminal CTRL/IMS D8-S01 acceptance and published mains.
 
@@ -41,6 +41,8 @@ Remove only approved zero-use compatibility items in additive, reversible steps.
 
 Repeat D7 rollback and D6 outage/recovery on exact candidates after any retirement change. Prove backup restore, projection resync, command correlation, no dual writer, no ordinary-request synchronous dependency and unchanged product data.
 
+**Status:** Terminal. The disposable exact-candidate rehearsal passed backup/restore, projection resynchronisation, membership-command correlation, Platform outage/recovery, C0→C4 cutover, bounded C3→C2 rollback, sole-writer, local-request and product-fingerprint checks. Evidence: docs/implementation/audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md and its structured JSON companion.
+
 ### WP-PD8S02-06 — Terminal cross-repository record
 
 Publish matching Platform/CTRL/IMS implementation, independent review and tester acceptance records with exact candidate SHAs, validation IDs, ancestry, clean mains and reconciled queues. Move plans only after every gate passes.
@@ -58,4 +60,4 @@ Publish matching Platform/CTRL/IMS implementation, independent review and tester
 
 ## Stop/go and completion
 
-Stop on an unresolved semantic difference, enabled local shared writer, missing runtime usage evidence, incomplete restore/rollback, non-ancestor candidate, validation context failure or destructive migration without separate authority. Work is incomplete while any blocker, bug, unresolved acceptance finding or required evidence row remains open. Repair and rerun affected evidence on the exact candidate, then publish clean `main` in all three repositories before terminal closeout.
+Stop on an unresolved semantic difference, enabled local shared writer, missing runtime usage evidence, incomplete restore/rollback, non-ancestor candidate, validation context failure or destructive migration without separate authority. Work is incomplete while any blocker, bug, unresolved acceptance finding or required evidence row remains open. Repair and rerun affected evidence on the exact candidate, then publish clean `main` in all three repositories before terminal closeout.\n
