@@ -7,7 +7,7 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **1 open PD prerequisite** and **0 open PF execution Batches**.
+Current inventory: **0 open Platform-owned PD prerequisites** and **0 open PF execution Batches**. Cross-repository PD-D8-S02 is the next ready consumer/authority certification slice.
 PF-B1 through PF-B12 are terminal at their accepted Platform scopes. CTRL and
 IMS retain separate downstream PD plans.
 
@@ -48,8 +48,9 @@ consumer cutover. It is not a PF-B13 expansion of terminal foundation scope:
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
 | PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Terminal** | WP-PD7PF-01..06 accepted on the disposable restored database; CTRL/IMS snapshot/feed and mapping gates passed | [completed plan](completed/pd-d7-s01-platform-production-import.md) |
+| PD-D8-S02 | Platform authority integration certification | **Ready / next** | Terminal matched consumer PD-D8-S01 and published Platform read/write contracts | [plan](pd-d8-s02-platform-authority-certification.md) |
 
-Consumer authentication and membership-writer cutover are implemented and terminal in both consumers under PD-D7-S02. A real production activation remains operator-controlled and proceeds through the staged receipts and rollback protocol.
+Consumer authentication and membership-writer cutover are implemented and terminal in both consumers under PD-D7-S02. PD-D8-S01 product-access/isolation certification is terminal in both consumers. PD-D8-S02 is the next ready cross-repository authority certification; real production activation remains operator-controlled and proceeds only through its accepted cutover and rollback protocol.
 
 PF is the owner-authorised Platform Foundation programme. It establishes
 shared identity, tenancy and product-access authority for future CTRL and IMS
