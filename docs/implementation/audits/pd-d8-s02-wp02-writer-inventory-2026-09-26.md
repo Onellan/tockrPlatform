@@ -14,8 +14,8 @@ a production configuration change.
 | Repository | Published `main` | Evidence source |
 | --- | --- | --- |
 | Platform source code | `3115caad66b4086535720a03ccf08c2766666edd` | exact code candidate |
-| CTRL source code | `809afc951eebce23c6b4fb6e5cbe822c5a75103d` | exact code candidate |
-| IMS source code | `bd4b26a0eefb86fb4900777e683c319334f6f179` | exact code candidate |
+| CTRL source code | `c63da1bda3994e7b3a9c751efc56d8a35ffadd2e` | exact code candidate |
+| IMS source code | `0a8750fbac24ff6ceca3b8fd13afd70b503f2e92` | exact code candidate |
 | Platform evidence publication | `23c76eb936733e18238e20b192b0eec222294985` | clean `main` / `origin/main` |
 | CTRL evidence publication | `7faab0a1657a67df9163c6ec1bdc365733e0d418` | clean `main` / `origin/main` |
 | IMS evidence publication | `6634764cddf5b83ee438e8cb976958528a348d17` | clean `main` / `origin/main` |

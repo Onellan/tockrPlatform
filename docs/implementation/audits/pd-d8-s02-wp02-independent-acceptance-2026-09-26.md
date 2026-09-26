@@ -3,8 +3,8 @@
 ## Exact source code candidates
 
 - Platform `3115caad66b4086535720a03ccf08c2766666edd`
-- CTRL `809afc951eebce23c6b4fb6e5cbe822c5a75103d`
-- IMS `bd4b26a0eefb86fb4900777e683c319334f6f179`
+- CTRL `c63da1bda3994e7b3a9c751efc56d8a35ffadd2e`
+- IMS `0a8750fbac24ff6ceca3b8fd13afd70b503f2e92`
 
 Evidence publication commits: Platform `23c76eb936733e18238e20b192b0eec222294985`,
 CTRL `7faab0a1657a67df9163c6ec1bdc365733e0d418`, IMS
