@@ -146,6 +146,4 @@ separate D5-S02 and D7 rollout gates pass.
 PF-B12-S01 passed independent review, independent tester acceptance and all
 required exact-candidate Platform validation. The terminal Slice plan and
 certification evidence are recorded in `plan/completed/` and
-`docs/implementation/audits/`. This Platform closeout publishes the command
-contract and leaves consumer writers disabled pending D6-S01, D5-S02 and D7
-gates.
+`docs/implementation/audits/`. This Platform closeout publishes the command contract; matched consumer D6-S01, D5-S02 and D7-S02 implementation gates are terminal, while any real writer activation remains an operator-controlled deployment action.

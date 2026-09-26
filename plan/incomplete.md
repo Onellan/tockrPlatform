@@ -49,8 +49,7 @@ consumer cutover. It is not a PF-B13 expansion of terminal foundation scope:
 | --- | --- | --- | --- | --- |
 | PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Terminal** | WP-PD7PF-01..06 accepted on the disposable restored database; CTRL/IMS snapshot/feed and mapping gates passed | [completed plan](completed/pd-d7-s01-platform-production-import.md) |
 
-Consumer authentication, membership-writer activation and D7-S02 remain
-gated until this prerequisite and both consumer D7-S01 plans are terminal.
+Consumer authentication and membership-writer cutover are implemented and terminal in both consumers under PD-D7-S02. A real production activation remains operator-controlled and proceeds through the staged receipts and rollback protocol.
 
 PF is the owner-authorised Platform Foundation programme. It establishes
 shared identity, tenancy and product-access authority for future CTRL and IMS
