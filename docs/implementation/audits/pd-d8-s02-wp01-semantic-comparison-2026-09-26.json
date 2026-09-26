@@ -1,0 +1,127 @@
+{
+  "work_package": "WP-PD8S02-01",
+  "recorded_at": "2026-09-26",
+  "decision": "PASS",
+  "unresolved_exceptions": 0,
+  "candidates": {
+    "platform": "4b507a88f7912288674b9cf78f57713abfa9e88a",
+    "ctrl": "efd46bacd7d0041ebc18e375b275c4786d2b14b3",
+    "ims": "225b193ba2ef90158529a92e7bf60b58822e7bdc"
+  },
+  "repaired_candidates": {
+    "ctrl": "efd46bacd7d0041ebc18e375b275c4786d2b14b3",
+    "ims": "225b193ba2ef90158529a92e7bf60b58822e7bdc"
+  },
+  "rows": [
+    {
+      "id": "SEM-01",
+      "meaning": "organisation roles",
+      "authority": "owner/admin/member with owner mutation protected",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-02",
+      "meaning": "workspace roles",
+      "authority": "admin/member/viewer",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-03",
+      "meaning": "record statuses",
+      "authority": "active/archived, active/revoked, active/retired by entity kind",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-04",
+      "meaning": "opaque IDs",
+      "authority": "usr_, org_, omem_, wsp_, wmem_, product., ent_, upa_; no local-ID derivation",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-05",
+      "meaning": "assertion claims",
+      "authority": "Ed25519 v1 issuer/audience/scoped IDs/time/assertion ID/version; no roles or entitlement",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-06",
+      "meaning": "audience/product binding",
+      "authority": "CTRL and IMS map to their own product key",
+      "resolution": "resolved intentional specialization",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-07",
+      "meaning": "access rules",
+      "authority": "active product + org entitlement + user assignment + valid scope; product roles local",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-08",
+      "meaning": "freshness",
+      "authority": "current authoritative; 2 minute command bound; 15 minute degraded read bound; otherwise blocked",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-09",
+      "meaning": "membership commands",
+      "authority": "v1 add/change_role/deactivate; version and idempotency rules",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-10",
+      "meaning": "command errors",
+      "authority": "version/auth/access/request/conflict/stale/limit/unavailable mappings",
+      "resolution": "matched",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-11",
+      "meaning": "feed states",
+      "authority": "current/stale/gap/blocked/unavailable/resync_required; non-current fails closed",
+      "resolution": "resolved explicit resync mapping",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-12",
+      "meaning": "read errors",
+      "authority": "cursor/snapshot expiry, incomplete, request and limit codes preserved",
+      "resolution": "resolved explicit consumer mappings",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-13",
+      "meaning": "snapshot/feed integrity",
+      "authority": "lowercase SHA-256 canonical checksum, opaque cursor, ordered changes, bounded pages",
+      "resolution": "resolved CTRL digest canonicalization",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-14",
+      "meaning": "version/provenance",
+      "authority": "v1 source compatibility; v2 active event or migration-seed consumer contract",
+      "resolution": "resolved v2 consumer boundary",
+      "unresolved": false
+    },
+    {
+      "id": "SEM-15",
+      "meaning": "data safety",
+      "authority": "bounded secret-free errors; failed commands/feed pages do not mutate product data",
+      "resolution": "matched",
+      "unresolved": false
+    }
+  ],
+  "focused_validation": {
+    "platform": "go test ./internal/platform/readauthority ./internal/platform/membershipcommand ./internal/platform/assertion ./internal/platform/http",
+    "ctrl": "go test ./internal/platform/readauthority ./internal/platform/client ./internal/platform/sync",
+    "ims": "go test ./internal/platform/readauthority ./internal/platform/client ./internal/platform/sync"
+  }
+}

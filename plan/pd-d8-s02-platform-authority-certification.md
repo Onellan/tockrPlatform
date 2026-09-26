@@ -19,6 +19,8 @@ Freeze exact Platform, CTRL and IMS SHAs; contract/schema versions; build identi
 
 Compare lifecycle/status/role meanings, opaque ID prefixes, assertion claims, entitlement/assignment rules, membership command operations/errors, snapshot/feed states and freshness boundaries. Resolve each difference against the published authority contract and record zero unresolved semantic exceptions.
 
+**Status:** Terminal. The exact candidate comparison recorded zero unresolved exceptions. Evidence: `docs/implementation/audits/pd-d8-s02-wp01-semantic-comparison-2026-09-26.md` and its structured JSON companion. The remaining D8-S02 work packages are still gated in order.
+
 ### WP-PD8S02-02 — Sole-writer and local-reader proof
 
 Inventory every shared-authority writer in Platform, CTRL and IMS. Prove Platform is the only enabled writer, consumer commands are bounded adapters, ordinary product requests read local projections without synchronous Platform calls, and CTRL/IMS-owned project, discipline, programme, control and commercial writers remain local.
