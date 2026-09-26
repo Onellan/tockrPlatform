@@ -7,9 +7,9 @@
     "ims": "bd4b26a0eefb86fb4900777e683c319334f6f179"
   },
   "evidence_publication_commits": {
-    "platform": "19d4193524b1b2fe551b31059af244cb3b057329",
-    "ctrl": "55206a9f5092e00b71d2f0b9ffea4d9e18b26b32",
-    "ims": "a839a211d48cc04b462f7e1916b1ccd35867c0f3"
+    "platform": "23c76eb936733e18238e20b192b0eec222294985",
+    "ctrl": "7faab0a1657a67df9163c6ec1bdc365733e0d418",
+    "ims": "6634764cddf5b83ee438e8cb976958528a348d17"
   },
   "decision": "platform_is_only_shared_authority_writer_in_platform_mode",
   "local_compatibility_mode": {
