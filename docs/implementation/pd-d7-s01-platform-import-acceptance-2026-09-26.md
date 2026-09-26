@@ -58,5 +58,5 @@ The consumer post-import verifiers now scope projection checks to the consumer's
 
 ## Validation
 
-Platform `go test ./...`, unit, integration, architecture, security, migration, quality and race profiles passed. CTRL and IMS `go test ./...` passed after the consumer verifier fixes; IMS also restored its required embedded `presentation.css` asset so the full test/build graph is valid.
+Platform `go test ./...`, unit, integration, architecture, security, migration, quality and race profiles passed. Linux `GOOS=linux GOARCH=amd64 go build ./...` and `GOOS=linux GOARCH=arm64 go build ./...` also passed. The repository's Docker build profiles were classified `TOOL_FAIL` because no Docker executable is installed on this host; this is an environment check failure, not a product test failure. CTRL and IMS `go test ./...` passed after the consumer verifier fixes; IMS also restored its required embedded `presentation.css` asset so the full test/build graph is valid.
 
