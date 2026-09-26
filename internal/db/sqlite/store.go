@@ -515,6 +515,28 @@ func supportedMigrations() []migration {
 				)`,
 			},
 		},
+		{
+			version: 14,
+			name:    "audit-actor-tombstone-provenance",
+			statements: []string{
+				`ALTER TABLE audit_events RENAME TO audit_events_legacy`,
+				`CREATE TABLE audit_events (
+					id INTEGER PRIMARY KEY,
+					actor_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+					actor_user_public_id TEXT NOT NULL DEFAULT '',
+					aggregate_type TEXT NOT NULL,
+					aggregate_id TEXT NOT NULL,
+					event TEXT NOT NULL,
+					details TEXT NOT NULL DEFAULT '',
+					occurred_at TEXT NOT NULL
+				)`,
+				`INSERT INTO audit_events(id,actor_user_id,actor_user_public_id,aggregate_type,aggregate_id,event,details,occurred_at)
+				 SELECT a.id,a.actor_user_id,COALESCE(u.public_id,''),a.aggregate_type,a.aggregate_id,a.event,a.details,a.occurred_at
+				 FROM audit_events_legacy a LEFT JOIN users u ON u.id=a.actor_user_id`,
+				`DROP TABLE audit_events_legacy`,
+				`CREATE INDEX audit_events_aggregate_time_idx ON audit_events(aggregate_type,aggregate_id,occurred_at,id)`,
+			},
+		},
 	}
 }
 

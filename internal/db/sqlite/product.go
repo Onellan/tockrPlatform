@@ -279,7 +279,8 @@ func recordProductAuditTx(ctx context.Context, tx *sql.Tx, actorInternalID int64
 	if err != nil {
 		return fmt.Errorf("encode product audit: %w", err)
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditProduct, productKey, event, string(payload), formatTime(at.UTC())); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,actor_user_public_id,aggregate_type,aggregate_id,event,details,occurred_at)
+		SELECT ?,public_id,?,?,?,?,? FROM users WHERE id=?`, actorInternalID, auditProduct, productKey, event, string(payload), formatTime(at.UTC()), actorInternalID); err != nil {
 		return fmt.Errorf("record product audit: %w", err)
 	}
 	if err := appendProductEventTx(ctx, tx, event, details, at); err != nil {
@@ -293,7 +294,8 @@ func recordOrganisationProductAuditTx(ctx context.Context, tx *sql.Tx, actorInte
 	if err != nil {
 		return fmt.Errorf("encode organisation product audit: %w", err)
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditOrganisation, organisationID, event, string(payload), formatTime(at.UTC())); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,actor_user_public_id,aggregate_type,aggregate_id,event,details,occurred_at)
+		SELECT ?,public_id,?,?,?,?,? FROM users WHERE id=?`, actorInternalID, auditOrganisation, organisationID, event, string(payload), formatTime(at.UTC()), actorInternalID); err != nil {
 		return fmt.Errorf("record organisation product audit: %w", err)
 	}
 	if err := appendAccessEventTx(ctx, tx, event, details, at); err != nil {

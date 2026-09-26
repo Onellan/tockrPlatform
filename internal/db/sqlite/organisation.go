@@ -553,10 +553,10 @@ func (s *Store) ListOrganisationAudit(ctx context.Context, requesterUserID, orga
 	if limit <= 0 || limit > 100 {
 		return nil, errors.New("organisation audit limit must be between 1 and 100")
 	}
-	rows, err := s.db.QueryContext(ctx, `SELECT a.id,o.public_id,actor.public_id,a.event,a.details,a.occurred_at
+	rows, err := s.db.QueryContext(ctx, `SELECT a.id,o.public_id,COALESCE(NULLIF(a.actor_user_public_id,''),actor.public_id,''),a.event,a.details,a.occurred_at
 		FROM audit_events a
 		JOIN organisations o ON o.public_id=a.aggregate_id AND o.id=?
-		JOIN users actor ON actor.id=a.actor_user_id
+		LEFT JOIN users actor ON actor.id=a.actor_user_id
 		WHERE a.aggregate_type=? AND a.aggregate_id=?
 		ORDER BY a.occurred_at DESC,a.id DESC LIMIT ?`, organisationInternalID, auditOrganisation, organisationID, limit)
 	if err != nil {
@@ -688,7 +688,8 @@ func recordOrganisationAuditTx(ctx context.Context, tx *sql.Tx, actorInternalID 
 	if err != nil {
 		return fmt.Errorf("encode organisation audit: %w", err)
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditOrganisation, organisationID, event, string(payload), formatTime(at.UTC())); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,actor_user_public_id,aggregate_type,aggregate_id,event,details,occurred_at)
+		SELECT ?,public_id,?,?,?,?,? FROM users WHERE id=?`, actorInternalID, auditOrganisation, organisationID, event, string(payload), formatTime(at.UTC()), actorInternalID); err != nil {
 		return fmt.Errorf("record organisation audit: %w", err)
 	}
 	if err := appendOrganisationEventTx(ctx, tx, event, details, at); err != nil {

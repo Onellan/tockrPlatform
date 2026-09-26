@@ -75,7 +75,7 @@ assignment writes.
 
 The Platform Foundation remains terminal at PF-B12. The separately governed
 PD programme now has one Platform-owned prerequisite before CTRL/IMS D7-S01:
-[`pd-d7-s01-platform-production-import.md`](pd-d7-s01-platform-production-import.md).
+[`completed/pd-d7-s01-platform-production-import.md`](completed/pd-d7-s01-platform-production-import.md).
 It replaces the fixture-only PF-B9 rehearsal with a versioned production
 manifest, durable import ledger/checkpoints, transactional canonical apply,
 safe compensation and operator receipts. It does not authorize consumer

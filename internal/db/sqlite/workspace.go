@@ -507,10 +507,10 @@ func (s *Store) ListWorkspaceAudit(ctx context.Context, requesterUserID, workspa
 	if limit <= 0 || limit > 100 {
 		return nil, errors.New("workspace audit limit must be between 1 and 100")
 	}
-	rows, err := s.db.QueryContext(ctx, `SELECT a.id,w.public_id,actor.public_id,a.event,a.details,a.occurred_at
+	rows, err := s.db.QueryContext(ctx, `SELECT a.id,w.public_id,COALESCE(NULLIF(a.actor_user_public_id,''),actor.public_id,''),a.event,a.details,a.occurred_at
 		FROM audit_events a
 		JOIN workspaces w ON w.public_id=a.aggregate_id AND w.id=?
-		JOIN users actor ON actor.id=a.actor_user_id
+		LEFT JOIN users actor ON actor.id=a.actor_user_id
 		WHERE a.aggregate_type=? AND a.aggregate_id=?
 		ORDER BY a.occurred_at DESC,a.id DESC LIMIT ?`, workspaceInternalID, auditWorkspace, workspaceID, limit)
 	if err != nil {
@@ -608,7 +608,8 @@ func recordWorkspaceAuditTx(ctx context.Context, tx *sql.Tx, actorInternalID int
 	if err != nil {
 		return fmt.Errorf("encode workspace audit: %w", err)
 	}
-	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,aggregate_type,aggregate_id,event,details,occurred_at) VALUES(?,?,?,?,?,?)`, actorInternalID, auditWorkspace, workspaceID, event, string(payload), formatTime(at.UTC())); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO audit_events(actor_user_id,actor_user_public_id,aggregate_type,aggregate_id,event,details,occurred_at)
+		SELECT ?,public_id,?,?,?,?,? FROM users WHERE id=?`, actorInternalID, auditWorkspace, workspaceID, event, string(payload), formatTime(at.UTC()), actorInternalID); err != nil {
 		return fmt.Errorf("record workspace audit: %w", err)
 	}
 	var organisationID string

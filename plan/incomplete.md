@@ -47,7 +47,7 @@ consumer cutover. It is not a PF-B13 expansion of terminal foundation scope:
 
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
-| PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Implementation candidate** | WP-PD7PF-01..05 implemented; exact CTRL/IMS inventories and independent gates still required for WP-PD7PF-06 | [active plan](pd-d7-s01-platform-production-import.md) |
+| PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Terminal** | WP-PD7PF-01..06 accepted on the disposable restored database; CTRL/IMS snapshot/feed and mapping gates passed | [completed plan](completed/pd-d7-s01-platform-production-import.md) |
 
 Consumer authentication, membership-writer activation and D7-S02 remain
 gated until this prerequisite and both consumer D7-S01 plans are terminal.
@@ -121,7 +121,7 @@ programme plan.
 
 > No open Platform Slice remains in PF-B12. The Platform command contract is
 > terminal. Deliver the Platform-owned PD-D7-S01-PF prerequisite from
-> [`plan/pd-d7-s01-platform-production-import.md`](pd-d7-s01-platform-production-import.md)
+> [`plan/completed/pd-d7-s01-platform-production-import.md`](completed/pd-d7-s01-platform-production-import.md)
 > before real CTRL/IMS import or consumer cutover. Then continue with the
 > separately governed CTRL/IMS consumer plans.
 

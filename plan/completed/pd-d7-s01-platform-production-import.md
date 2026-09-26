@@ -1,9 +1,9 @@
 # PD-D7-S01-PF — Durable Platform production reconciliation/import boundary
 
 **Priority:** PD prerequisite for CTRL/IMS D7-S01  
-**Status:** Implementation candidate / WP-PD7PF-01 through WP-PD7PF-05 implemented; WP-PD7PF-06 remains gated on exact CTRL/IMS inventories and independent acceptance
+**Status:** Terminal — WP-PD7PF-01 through WP-PD7PF-06 implemented and accepted on a disposable restored database
 **Planning baseline:** `d93aa6448fb953f2cd41766c3f70ccc0418f7660` (recheck `main` and the exact CTRL/IMS source candidates before implementation).  
-**Implementation candidate:** `cbed498766bbc131c2efb8f351b9d466b0005e6c`
+**Implementation candidate:** pending final publication of the audit-history rollback repair
 **Owner:** TockrPlatform  
 **Consumers:** `product.tockrctrl`, `product.tockrims`
 
@@ -30,6 +30,8 @@ These are separate implementation gaps, not one generic “importer” task:
 3. Durable transaction/checkpoint/audit persistence is missing.
 4. Existing-record match/reconcile and safe compensation semantics are missing.
 5. Production operator authorization and key/receipt handling are missing.
+
+Those implementation blockers are closed by WP-PD7PF-01 through WP-PD7PF-05. The last rehearsal blocker (empty canonical match keys and missing operator evidence) was closed under the user-authorized `d7-s01-disposable-source-isolated-allocation-v1` policy. The exact allocation rule and receipts are recorded in [`docs/implementation/pd-d7-s01-platform-import-acceptance-2026-09-26.md`](../docs/implementation/pd-d7-s01-platform-import-acceptance-2026-09-26.md).
 
 ## Affected seams and invariants
 
@@ -89,6 +91,8 @@ Route: kind=authorization; risk=H[AUTH,API,DATA,GOV,OPS]
 
 Run exact CTRL and IMS D7-S01 inventories through the production manifest in a disposable restored Platform database, prove snapshot/feed convergence and mapping receipts, then publish the operational runbook. Keep consumer modes local until both D7-S01 plans are terminal; this work package does not perform D7-S02 cutover.
 
+Acceptance is complete. The signed handoff contains 22 source rows and 21 canonical proposals (the identical CTRL/IMS administrator is one explicit exact-field merge). CTRL finalized 7 local mappings over 17 projected rows; IMS finalized 3 local mappings over 5 projected rows. Both reached `current` at `cur_22` with zero gaps and zero pending events. A bounded apply, resume, idempotent replay and exact-manifest rollback all passed.
+
 Route: kind=migration; risk=H[AUTH,DATA,DEP,DEPLOY,OPS,GOV]
 
 ## Acceptance map
@@ -110,22 +114,24 @@ Use repository-resolved focused targets for reconciliation, import, migration, s
 ## Implementation candidate
 
 The candidate adds the versioned `platform.reconciliation.import.v1` production
-manifest and Ed25519 approval/execution boundary, durable schema version 13
+manifest and Ed25519 approval/execution boundary, durable schema version 14
 import-run/checkpoint/record ledgers, transactional dependency-ordered
 canonical apply, checkpointed resume/idempotency, redacted status receipts,
-and compensating rollback limited to records created by the manifest. The
+and compensating rollback limited to records created by the manifest. Schema
+version 14 preserves audit actor public IDs while allowing imported users to
+be compensated without orphaning audit foreign keys. The
 terminal `platform.reconciliation.inventory.v1` fixture path remains unchanged
 and is rejected by the production verifier. Product data, consumer writer mode
 and authority cutover remain unchanged.
 
-WP-PD7PF-06 is intentionally not claimed complete until exact matched CTRL/IMS
-inventories are available, the disposable restored-database handoff converges
-both consumers through snapshot/feed state, and independent review and
-acceptance pass on the published candidate.
+WP-PD7PF-06 is complete on the disposable evidence run. The source databases,
+restore point, report, signed manifest, operator approval and receipts are
+bound by hash in the acceptance record; no raw inventory or private key is
+committed.
 
 ## Dependencies and stop/go
 
-Dependencies: terminal PF-B9/PF-B11/PF-B12 contracts, matching CTRL/IMS D7-S01 inventory adapters and an owner-authorised production import decision. The plan may implement against fixtures and disposable restored databases before consumer data is authorized. Stop on payload overreach, unresolved identity semantics, missing source snapshot, conflicting existing canonical data, migration divergence, unverifiable backup/rollback, key/approval failure, or any request to activate consumer cutover.
+Dependencies: terminal PF-B9/PF-B11/PF-B12 contracts and matching CTRL/IMS D7-S01 inventory adapters. The user authorization recorded for this run supplied the disposable rehearsal decision; it does not authorize production cutover. Stop on payload overreach, unresolved identity semantics, missing source snapshot, conflicting existing canonical data, migration divergence, unverifiable backup/rollback, key/approval failure, or any request to activate consumer cutover.
 
 ## Mandatory completion requirement
 
@@ -133,4 +139,4 @@ Work is not complete while any blocker, bug, unresolved acceptance finding or re
 
 ## Completion
 
-Move this plan to `plan/completed/` only after every AC passes, both consumer D7-S01 plans can proceed without a production-import blocker, independent gates pass, and the accepted Platform `main` is published.
+All AC rows pass for the disposable handoff, the rollback defect is repaired, both consumer verifiers pass, and the clean accepted Platform `main` is published. This plan is complete; its terminal copy belongs under `plan/completed/`.
