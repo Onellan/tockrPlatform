@@ -1,0 +1,276 @@
+{
+  "ledger": "PD-D8-S02-WP-PD8S02-03",
+  "date": "2026-09-26",
+  "scope": "Authority migration compatibility seams across TockrPlatform, TockrCTRL and TockrIMS",
+  "exact_source_candidates": {
+    "platform": "3115caad66b4086535720a03ccf08c2766666edd",
+    "ctrl": "677dd0dc5573b0bb7ac6c42d2d20c907505e6683",
+    "ims": "a6c73c1200d73885358056d378e4cff196f467f4"
+  },
+  "evidence_policy": "Source-active means present in the exact source candidate and covered by repository tests; production counters were not supplied and zero use is not claimed.",
+  "entries": [
+    {
+      "id": "AUTH-CTRL-LOCAL",
+      "kind": "Legacy authentication path",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "Local `/login`, forgot/reset password, email OTP, TOTP and local account-security/session handlers in `internal/platform/http/auth.go`, `server.go`, `middleware.go`, `account_security.go` and `sessions.go`. Reachable when `TOCKR_PLATFORM_AUTH_MODE=local` or `coexist`; blocked when `platform`. Covered by auth and platform-session tests. Source-active; no production counter supplied.",
+      "owner": "CTRL authentication maintainers",
+      "rollback_dependency": "PD-D7-S02 rollback runbook; local session secret and database restore point; D8-S01 exact-candidate acceptance",
+      "disposition": "Retain as guarded rollback path until Platform authentication cutover and rollback are accepted; do not remove now."
+    },
+    {
+      "id": "AUTH-IMS-LOCAL",
+      "kind": "Legacy authentication path",
+      "repository": "IMS",
+      "item_and_usage_evidence": "Local login/session and login-security handlers in `internal/platform/http/server.go`, `login_security.go` and the local session store. Reachable when `TOCKRIMS_PLATFORM_AUTH_MODE=local` or `coexist`; blocked when `platform`. Covered by `platform_session_test.go`, `login_security_test.go` and HTTP login tests. Source-active; no production counter supplied.",
+      "owner": "IMS authentication maintainers",
+      "rollback_dependency": "PD-D7-S02 rollback runbook; local session secret and database restore point; D8-S01 exact-candidate acceptance",
+      "disposition": "Retain as guarded rollback path until Platform authentication cutover and rollback are accepted; do not remove now."
+    },
+    {
+      "id": "WR-CTRL-IDENTITY",
+      "kind": "Local shared-membership writer",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "User create/update/profile and organization membership methods in `internal/db/sqlite/identity.go` and `organization_membership.go`. The sole-writer guard in `platform_authority_write.go` returns `ErrPlatformAuthority` in Platform auth or membership-authoritative mode; guard tests cover the matrix. Source-active compatibility API.",
+      "owner": "CTRL identity and membership maintainers",
+      "rollback_dependency": "PD-D7-S02 authority rollback; local database backup; Platform command receipt/audit correlation",
+      "disposition": "Retain rollback-only and guarded. No steady-state shared writes while Platform authority is selected."
+    },
+    {
+      "id": "WR-CTRL-WORKSPACE",
+      "kind": "Local shared-membership writer",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "Workspace creation/update and Workspace membership add/remove methods in `internal/db/sqlite/workspace.go` and `workspace_membership.go`. Guarded by `platform_authority_write.go` and its tests. Source-active compatibility API.",
+      "owner": "CTRL workspace maintainers",
+      "rollback_dependency": "PD-D7-S02 rollback; projection checkpoint and restore point",
+      "disposition": "Retain rollback-only and guarded; retire only after rollback is no longer required."
+    },
+    {
+      "id": "WR-CTRL-BOOTSTRAP",
+      "kind": "Local shared-membership writer",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`CreateBootstrap`, `SeedAdmin`, demo seed/clear utilities and email-change OTP mutation in `bootstrap.go`, `demo_seed.go` and `account_security.go`. Guarded so utilities cannot bypass Platform authority. Source-active test/operations seam.",
+      "owner": "CTRL release and operations maintainers",
+      "rollback_dependency": "Disposable bootstrap restore point; PD-D7-S02 emergency local-mode procedure",
+      "disposition": "Retain for disposable setup and emergency rollback; never enable as a production dual writer."
+    },
+    {
+      "id": "WR-IMS-IDENTITY",
+      "kind": "Local shared-membership writer",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`CreateUser`, `AddOrganisationMember`, `RemoveOrganisationMember`, and compatibility HTTP boundary methods in `workspace_project_roles.go` and `http_boundary.go`. Guarded by `platform_authority_write.go` and tests. Source-active compatibility API.",
+      "owner": "IMS identity and membership maintainers",
+      "rollback_dependency": "PD-D7-S02 authority rollback; local database backup; Platform command receipt/audit correlation",
+      "disposition": "Retain rollback-only and guarded. No steady-state shared writes while Platform authority is selected."
+    },
+    {
+      "id": "WR-IMS-WORKSPACE",
+      "kind": "Local shared-membership writer",
+      "repository": "IMS",
+      "item_and_usage_evidence": "Workspace membership, Workspace create/update/default/status and Organisation update methods in `workspace_membership.go`, `workspace_foundation.go` and `organisation_administration.go`. Guarded by the Platform-authority matrix tests. Source-active compatibility API.",
+      "owner": "IMS workspace and Organisation maintainers",
+      "rollback_dependency": "PD-D7-S02 rollback; projection checkpoint and restore point",
+      "disposition": "Retain rollback-only and guarded; retire only after rollback is no longer required."
+    },
+    {
+      "id": "WR-IMS-BOOTSTRAP",
+      "kind": "Local shared-membership writer",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`CreateBootstrap`, `SeedBootstrap` and seed-time membership writes in `bootstrap.go` and `store.go`. Guarded in Platform-authoritative mode. Source-active setup seam.",
+      "owner": "IMS release and operations maintainers",
+      "rollback_dependency": "Disposable bootstrap restore point; PD-D7-S02 emergency local-mode procedure",
+      "disposition": "Retain for disposable setup and emergency rollback; never enable as a production dual writer."
+    },
+    {
+      "id": "COL-CTRL-USER-ORG",
+      "kind": "Compatibility column",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`users.organization_id` is retained by `schema_compat.go` and the migration schema. `identity.go` and `organization_membership.go` document it as historical compatibility data; membership tables are the scope authority. Source reads remain for legacy database/query compatibility; no production row-count evidence supplied.",
+      "owner": "CTRL SQLite/migration maintainers",
+      "rollback_dependency": "Database backup and reversible migration; PD-D7 mapping/rollback evidence",
+      "disposition": "Retain read-compatible and stop treating it as authority. Remove only after a migration audit proves no reader or export depends on it."
+    },
+    {
+      "id": "COL-CTRL-AUTH-SOURCE",
+      "kind": "Compatibility column",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`sessions.auth_source` migration records `local` or `platform`; middleware requires `platform` sessions in authoritative auth mode. Covered by session and platform-session tests. Source-active protocol boundary.",
+      "owner": "CTRL authentication maintainers",
+      "rollback_dependency": "Session invalidation/restore procedure; PD-D7-S02 auth rollback",
+      "disposition": "Retain active until Platform auth cutover and rollback are terminal; then retain historical values for audit."
+    },
+    {
+      "id": "COL-IMS-MEMBERSHIP-ROLE",
+      "kind": "Compatibility column",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`memberships.role` remains the historical/raw role projection. `organisation_membership.go`, `member_discovery.go` and authority-source code preserve it while bounded canonical sources decide access. Source-active reads and upgrade fixtures; no production row-count evidence supplied.",
+      "owner": "IMS SQLite/domain maintainers",
+      "rollback_dependency": "PA-A2 authority-source rollback; D7 mapping ledger; database restore point",
+      "disposition": "Retain historical/read compatibility; no new authority decisions may rely on raw role alone."
+    },
+    {
+      "id": "COL-IMS-LEGACY-ROLE",
+      "kind": "Compatibility column",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`memberships.legacy_role` is added by `authority_sources_schema.go` to preserve the source role when canonical role is `member`. Compatibility and authority-source tests exercise writes and reads. Source-active migration column.",
+      "owner": "IMS SQLite/domain maintainers",
+      "rollback_dependency": "Reversible authority-source migration; D7 mapping ledger; database restore point",
+      "disposition": "Retain until all historical role mappings are proven and exported; then archive/remove only with a separate migration decision."
+    },
+    {
+      "id": "COL-IMS-CANONICAL-ROLE",
+      "kind": "Compatibility projection columns",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`memberships.organisation_role` and `organisation_role_status` (`canonical`, `legacy_compatibility`, `unresolved`) are populated by `organisation_membership_canonical_schema.go` and read by membership/authority checks. Source-active canonicalisation bridge.",
+      "owner": "IMS identity/domain maintainers",
+      "rollback_dependency": "PA-A2 authority-source rollback; D7 reconciliation/import mapping; D8 semantic comparison",
+      "disposition": "Retain active until every `unresolved` mapping is resolved and a zero-exception migration report is accepted."
+    },
+    {
+      "id": "TAB-IMS-ROLE-SOURCES",
+      "kind": "Compatibility/authority table",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`organisation_role_assignments` stores explicit Organisation role authority and `source_role`; `authority_sources_schema.go` extracts bounded authority from compatibility membership rows. Source-active table and indexes; covered by authority-source tests.",
+      "owner": "IMS identity/domain maintainers",
+      "rollback_dependency": "PA-A2 authority-source rollback; database restore point",
+      "disposition": "Retain active as the explicit local authority-source ledger until Platform projection handoff is complete; do not drop historical rows."
+    },
+    {
+      "id": "COL-IMS-AUTH-SOURCE",
+      "kind": "Compatibility column",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`sessions.auth_source` records `local` or `platform`; `platform_session.go` creates `platform` sessions and middleware rejects local sessions in authoritative mode. Covered by platform-session tests. Source-active protocol boundary.",
+      "owner": "IMS authentication maintainers",
+      "rollback_dependency": "Session invalidation/restore procedure; PD-D7-S02 auth rollback",
+      "disposition": "Retain active through cutover and rollback; preserve historical values for audit."
+    },
+    {
+      "id": "ADP-CTRL-PLATFORM-SESSION",
+      "kind": "Forward authentication adapter",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`internal/platform/http/platform_session.go` exposes explicit `/auth/platform/session`, verifies a Platform assertion, resolves mapped User/Organisation/Workspace state and creates a session with source `platform`. Calls Platform only on this explicit bootstrap path.",
+      "owner": "Platform protocol plus CTRL authentication maintainers",
+      "rollback_dependency": "Platform assertion key overlap/rotation; D8-S01 auth matrix; PD-D7-S02 rollback",
+      "disposition": "Retain active. This is the forward cutover adapter, not a legacy writer."
+    },
+    {
+      "id": "ADP-IMS-PLATFORM-SESSION",
+      "kind": "Forward authentication adapter",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`internal/platform/http/platform_session.go` exposes explicit `/auth/platform/session`, validates assertion/mapping/access and creates a `platform` session. Normal product requests continue from local projection.",
+      "owner": "Platform protocol plus IMS authentication maintainers",
+      "rollback_dependency": "Platform assertion key overlap/rotation; D8-S01 auth matrix; PD-D7-S02 rollback",
+      "disposition": "Retain active. This is the forward cutover adapter, not a legacy writer."
+    },
+    {
+      "id": "ADP-CTRL-MEMBERSHIP-COMMAND",
+      "kind": "Shared-authority write adapter",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`internal/platform/http/platform_membership_write.go` validates projection health, mapping and bound actor assertion, sends the signed Platform command, then applies only returned state to local projection/audit. Command seam is disabled unless write mode is explicitly `platform`.",
+      "owner": "CTRL platform integration maintainers",
+      "rollback_dependency": "Platform command idempotency/receipt; D7 mapping and rollback; D8 sole-writer proof",
+      "disposition": "Retain active as the only shared-write request adapter."
+    },
+    {
+      "id": "ADP-IMS-MEMBERSHIP-COMMAND",
+      "kind": "Shared-authority write adapter",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`internal/platform/http/platform_membership_write.go` has the same signed command and returned-state projection flow. Command seam defaults disabled and is enabled only in explicit `platform` write mode.",
+      "owner": "IMS platform integration maintainers",
+      "rollback_dependency": "Platform command idempotency/receipt; D7 mapping and rollback; D8 sole-writer proof",
+      "disposition": "Retain active as the only shared-write request adapter."
+    },
+    {
+      "id": "ADP-CTRL-PROJECTION",
+      "kind": "Read/projection adapter",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`internal/db/sqlite/platform_read_authority*.go` and `ApplyPlatform*Projection` apply snapshots/feed records, checkpoints and inbox/audit metadata to local read models. They do not write Platform authority.",
+      "owner": "CTRL synchronisation maintainers",
+      "rollback_dependency": "Snapshot/feed cursor, gap/resync and checkpoint rollback; D6/D7 evidence",
+      "disposition": "Retain active. Normal requests depend on this local projection, not a synchronous Platform call."
+    },
+    {
+      "id": "ADP-IMS-PROJECTION",
+      "kind": "Read/projection adapter",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`internal/db/sqlite/platform_read_authority*.go` and `platform_membership_projection.go` apply Platform snapshots/feed records and sync metadata to local read models. They do not write Platform authority.",
+      "owner": "IMS synchronisation maintainers",
+      "rollback_dependency": "Snapshot/feed cursor, gap/resync and checkpoint rollback; D6/D7 evidence",
+      "disposition": "Retain active. Normal requests depend on this local projection, not a synchronous Platform call."
+    },
+    {
+      "id": "ADP-IMS-LEGACY-ROUTES",
+      "kind": "Legacy route adapter",
+      "repository": "IMS",
+      "item_and_usage_evidence": "Bounded `/workspace/*` Organisation-vocabulary routes in `internal/platform/http/legacy_compatibility.go` and the discovery URL helpers redirect/link to `/organisation/*`. Headers identify PA-A8-S01 owner, review and sunset; compatibility tests enumerate the route set. Source-active; no production route counter supplied.",
+      "owner": "IMS HTTP maintainers",
+      "rollback_dependency": "PA-A8-S01 migration/reopen evidence; browser rollback and route restore",
+      "disposition": "Retain until route usage is measured at zero and PA-A8-S01 retirement is accepted; do not remove from this ledger as part of D8 authority work."
+    },
+    {
+      "id": "ADP-PLATFORM-V1",
+      "kind": "Read-authority compatibility adapter",
+      "repository": "Platform",
+      "item_and_usage_evidence": "`platform.read-authority.v1` remains a terminal event-only source-side contract in `internal/platform/readauthority/contract.go` and its contract documents; v2 is the active snapshot/feed contract.",
+      "owner": "Platform protocol maintainers",
+      "rollback_dependency": "v1 consumer compatibility and v2 resync rollback; PF-B11 contract evidence",
+      "disposition": "Retain read-only compatibility. Retire only after CTRL and IMS v2 usage is proven and a separate contract decision accepts removal."
+    },
+    {
+      "id": "TAB-PLATFORM-OPERATIONS",
+      "kind": "Active operational tables (not legacy compatibility)",
+      "repository": "Platform",
+      "item_and_usage_evidence": "platform_outbox, platform_projection_inbox, platform_projection_checkpoints, platform_read_authority_snapshots, nonce/result-idempotency and import-ledger tables are current feed, replay, audit and rollback state. Source migrations and read-authority/import tests exercise them; they are not consumer-owned authority columns.",
+      "owner": "Platform persistence and operations maintainers",
+      "rollback_dependency": "Snapshot/feed replay and production-import rollback receipts; Platform database restore point",
+      "disposition": "Retain active. These tables are required operational contracts and are outside compatibility retirement; no drop or rewrite is authorised by this ledger."
+    },
+    {
+      "id": "FLAG-CTRL-AUTH",
+      "kind": "Cutover feature flag",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`TOCKR_PLATFORM_AUTH_MODE` accepts `local`, `coexist` and `platform`; config validation requires complete Platform endpoint/issuer/audience/key configuration for non-local modes. Default is `local`.",
+      "owner": "CTRL release/operator owner",
+      "rollback_dependency": "PD-D7-S02 cutover/rollback runbook; config snapshot and secret restore",
+      "disposition": "Retain until auth cutover is terminal; local remains the emergency rollback value."
+    },
+    {
+      "id": "FLAG-CTRL-WRITE",
+      "kind": "Cutover feature flag",
+      "repository": "CTRL",
+      "item_and_usage_evidence": "`TOCKR_PLATFORM_MEMBERSHIP_WRITE_MODE` accepts `local` or `platform`; default is `local`. Platform command key ID/private key are required for `platform`; modes are mutually exclusive with the guarded local writer.",
+      "owner": "CTRL release/operator owner",
+      "rollback_dependency": "PD-D7-S02 writer rollback; command-key rotation and restore",
+      "disposition": "Retain until shared-write cutover is terminal; never enable local and Platform writers together."
+    },
+    {
+      "id": "FLAG-IMS-AUTH",
+      "kind": "Cutover feature flag",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`TOCKRIMS_PLATFORM_AUTH_MODE` accepts `local`, `coexist` and `platform`; default is `local`. Non-local modes require complete Platform assertion configuration.",
+      "owner": "IMS release/operator owner",
+      "rollback_dependency": "PD-D7-S02 cutover/rollback runbook; config snapshot and secret restore",
+      "disposition": "Retain until auth cutover is terminal; local remains the emergency rollback value."
+    },
+    {
+      "id": "FLAG-IMS-WRITE",
+      "kind": "Cutover feature flag",
+      "repository": "IMS",
+      "item_and_usage_evidence": "`TOCKRIMS_PLATFORM_MEMBERSHIP_WRITE_MODE` accepts `local` or `platform`; default is `local`. Platform command credentials are required for `platform`; guarded local writers fail closed when Platform authority is selected.",
+      "owner": "IMS release/operator owner",
+      "rollback_dependency": "PD-D7-S02 writer rollback; command-key rotation and restore",
+      "disposition": "Retain until shared-write cutover is terminal; never enable local and Platform writers together."
+    },
+    {
+      "id": "FLAG-PLATFORM-KEYS",
+      "kind": "Platform authority configuration",
+      "repository": "Platform",
+      "item_and_usage_evidence": "`PLATFORM_ASSERTION_ISSUER`, `PLATFORM_ASSERTION_KEY_ID`, `PLATFORM_ASSERTION_PRIVATE_KEY`, `PLATFORM_ASSERTION_AUDIENCES` and `PLATFORM_READ_AUTHORITY_KEYS` select signing, audience and consumer verification material. Rotation retains verification overlap.",
+      "owner": "Platform security/release owner",
+      "rollback_dependency": "Assertion-key rotation procedure; consumer key overlap; restore point",
+      "disposition": "Retain active. These are authority controls, not legacy compatibility flags; changes require the existing key-rotation and exact-candidate evidence."
+    }
+  ],
+  "unresolved_removals": [],
+  "current_disposition": "All entries retained; no compatibility path, writer, table or flag removed."
+}

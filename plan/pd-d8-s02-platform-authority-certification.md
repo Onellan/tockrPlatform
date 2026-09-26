@@ -27,6 +27,8 @@ Inventory every shared-authority writer in Platform, CTRL and IMS. Prove Platfor
 
 ### WP-PD8S02-03 — Compatibility usage ledger
 
+
+**Status:** Terminal for inventory and disposition recording. Evidence: `docs/implementation/audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md` and its structured JSON companion. All rows are retained; no compatibility path, writer, table or flag was removed. Runtime zero-use evidence and rollback rehearsal remain prerequisites for any later retirement slice.
 Inventory legacy auth paths, local shared-membership writers, compatibility tables/columns, adapters and flags. For each item record owner, call sites, runtime counters/log evidence, rollback dependency, retention or removal disposition. Retain by default until zero use and safe rollback are proven.
 
 ### WP-PD8S02-04 — Reversible retirement migration
