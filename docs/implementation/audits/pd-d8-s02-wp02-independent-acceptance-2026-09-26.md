@@ -6,9 +6,9 @@
 - CTRL `c63da1bda3994e7b3a9c751efc56d8a35ffadd2e`
 - IMS `0a8750fbac24ff6ceca3b8fd13afd70b503f2e92`
 
-Evidence publication commits: Platform `23c76eb936733e18238e20b192b0eec222294985`,
-CTRL `7faab0a1657a67df9163c6ec1bdc365733e0d418`, IMS
-`6634764cddf5b83ee438e8cb976958528a348d17`.
+Evidence publication commits: Platform `952f5fae08609b082ddb5e9f46a31ceb4405c860`,
+CTRL `786ea76d769bdc59ea18718a39e0b8e7e85d1f57`, IMS
+`0ebafb8cfe949530c53e224beff6baa7a381d9e1`.
 
 ## Acceptance matrix
 
