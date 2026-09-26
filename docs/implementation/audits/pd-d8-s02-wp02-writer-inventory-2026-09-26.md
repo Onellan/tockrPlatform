@@ -14,7 +14,7 @@ a production configuration change.
 | Repository | Published `main` | Evidence source |
 | --- | --- | --- |
 | Platform source code | `3115caad66b4086535720a03ccf08c2766666edd` | exact code candidate |
-| CTRL source code | `c63da1bda3994e7b3a9c751efc56d8a35ffadd2e` | exact code candidate |
+| CTRL source code | `677dd0dc5573b0bb7ac6c42d2d20c907505e6683` | exact code candidate |
 | IMS source code | `0a8750fbac24ff6ceca3b8fd13afd70b503f2e92` | exact code candidate |
 | Platform evidence publication | `952f5fae08609b082ddb5e9f46a31ceb4405c860` | clean `main` / `origin/main` |
 | CTRL evidence publication | `786ea76d769bdc59ea18718a39e0b8e7e85d1f57` | clean `main` / `origin/main` |

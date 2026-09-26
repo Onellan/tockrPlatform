@@ -3,7 +3,7 @@
 ## Source code candidate binding
 
 - Platform `3115caad66b4086535720a03ccf08c2766666edd`
-- CTRL `c63da1bda3994e7b3a9c751efc56d8a35ffadd2e`
+- CTRL `677dd0dc5573b0bb7ac6c42d2d20c907505e6683`
 - IMS `0a8750fbac24ff6ceca3b8fd13afd70b503f2e92`
 
 Evidence publication commits are Platform `952f5fae08609b082ddb5e9f46a31ceb4405c860`,
