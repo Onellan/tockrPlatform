@@ -1,4 +1,4 @@
-
+# Implemented delivery ledger
 ## PD-D8-S01 — Product-access, tenant and outage certification
 
 - Status: **Implemented / terminal in CTRL and IMS; Platform handoff recorded**
@@ -7,7 +7,7 @@
 - Accepted consumer code candidates: CTRL `bfbd808cec5c3dc705bef1c2e8e2e6296dead76c`, IMS `63e47c0929fd417b6d7c526bb662ba7fdf5cd5a5`
 - Platform handoff: [`pd-d8-s01-platform-handoff-2026-09-26.md`](pd-d8-s01-platform-handoff-2026-09-26.md)
 - Consumer plans and independent review/acceptance records are terminal in their repositories. The only repair was a tests-only current-time reconciliation fixture; Platform code and data were unchanged.
-- Next slice: [`plan/pd-d8-s02-platform-authority-certification.md`](../../plan/pd-d8-s02-platform-authority-certification.md) is **Ready / next**. Production authority activation remains separately gated.# Implemented delivery ledger
+- Next slice: [`plan/pd-d8-s02-platform-authority-certification.md`](../../plan/pd-d8-s02-platform-authority-certification.md) is **Ready / next**. Production authority activation remains separately gated.
 
 ## PD-D7-S01-PF — Durable Platform production reconciliation/import boundary
 
