@@ -1,1 +1,645 @@
-## PD-D8-S02-WP-PD8S02-03 — Compatibility usage ledger\n\n- Status: **Implemented / terminal**\n- Exact source candidates: Platform `3115caad66b4086535720a03ccf08c2766666edd`; CTRL `677dd0dc5573b0bb7ac6c42d2d20c907505e6683`; IMS `5f163633c358c636376ebd5ade659a0e7bdf78ee`.\n- Evidence: [compatibility usage ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md) and [machine-readable ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.json).\n- The ledger records legacy authentication paths, local shared-membership writers, compatibility tables/columns, adapters and feature flags with source usage evidence, owner, rollback dependency and disposition. One package-private IMS alias pair was retired after a zero-reference scan; all externally reachable paths, writers, tables, adapters and flags remain retained.\n- Retirement still requires current deployment usage evidence, rollback rehearsal, independent review and tester acceptance for the exact retirement candidate.\n\n## PD-D8-S02-WP-PD8S02-04 — Bounded compatibility retirement\n\n- Status: **Implemented / terminal for the bounded candidate**\n- Evidence: [retirement evidence](audits/pd-d8-s02-wp04-retirement-2026-09-26.md) and the updated [compatibility usage ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md).\n- IMS package-private `workspaceMemberDiscoveryQueryFromRequest` and `programmeWorkspaceMemberDiscoveryURL` had zero repository references beyond their definitions. They were removed with a Git-revert rollback receipt; no database migration, local ID, historical reference, audit record or active route was changed.\n\n# Implemented delivery ledger\n\n## PD-D8-S01 — Product-access, tenant and outage certification\n\n- Status: **Implemented / terminal in CTRL and IMS; Platform handoff recorded**\n- Platform candidate: `cc78557d8048bac6392f837166cb101460f43c98`\n- Published CTRL/IMS mains: `71406518624d3260d96f52e0cbde8eb8b89d440c` / `d5d438b8707ae92136e4677bdc2a96ecbc76199c`\n- Accepted consumer code candidates: CTRL `bfbd808cec5c3dc705bef1c2e8e2e6296dead76c`, IMS `63e47c0929fd417b6d7c526bb662ba7fdf5cd5a5`\n- Platform handoff: [`pd-d8-s01-platform-handoff-2026-09-26.md`](pd-d8-s01-platform-handoff-2026-09-26.md)\n- Consumer plans and independent review/acceptance records are terminal in their repositories. The only repair was a tests-only current-time reconciliation fixture; Platform code and data were unchanged.\n- Next slice: [`plan/pd-d8-s02-platform-authority-certification.md`](../../plan/pd-d8-s02-platform-authority-certification.md) is **Ready / next**. Production authority activation remains separately gated.\n\n## PD-D7-S01-PF — Durable Platform production reconciliation/import boundary\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pd-d7-s01-platform-production-import.md`](../../plan/completed/pd-d7-s01-platform-production-import.md)\n- Published Platform main: `eb27dd02f59108371f13fb9e8b1972f78acb5294`\n- Matched consumer main commits: CTRL `920b5830e8b99fdb19b46091e95e365fdcc352fe`; IMS `ef85f2be8f8fd02a87ff70ded354917b2a8546cc`.\n- Acceptance: [`pd-d7-s01-platform-import-acceptance-2026-09-26.md`](pd-d7-s01-platform-import-acceptance-2026-09-26.md)\n- Platform now has the signed production import envelope, durable checkpointed apply/resume/idempotency, exact-manifest compensation, audit actor tombstone provenance, and operator receipts. WP-PD7PF-06 passed against the disposable restore point.\n- CTRL and IMS each passed source-scoped snapshot/feed convergence and mapping finalization at `cur_22`; product-owned state and local authority modes remained unchanged. Consumer PD-D7-S02 cutover and rollback implementation is terminal in both consumers; any real production activation remains operator-controlled.\n\n## PF-B12-S01 — Versioned shared membership command API\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pf-b12-s01-membership-command-api.md`](../../plan/completed/pf-b12-s01-membership-command-api.md)\n- Implementation candidate: `d246968b0a18e14883106283092998574e9a7e10`\n- Certification candidate: `87872417600a750a6cad0a81d2106c0f56ce78e6`\n- Evidence: [`audits/pf-b12-s01-engineering-review.md`](audits/pf-b12-s01-engineering-review.md),\n  [`audits/pf-b12-s01-tester-acceptance.md`](audits/pf-b12-s01-tester-acceptance.md)\n  and [`audits/pf-b12-batch-certification.md`](audits/pf-b12-batch-certification.md).\n- Platform now publishes `platform.membership-command.v1` for authenticated\n  OrganisationMembership and generic WorkspaceMembership add, role-change and\n  deactivate commands with live actor authorization, idempotency, expected\n  versions, atomic audit/outbox writes and safe redaction.\n- CTRL and IMS consumer command seams remain disabled/local-mode. D6-S01 may\n  proceed before D5-S02; production writer activation remains gated by each\n  product's D7 reconciliation and cutover plans.\n\n## PF-B11-S01 — Read-authority contract and consumer compatibility\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b11-s01-read-authority-contract.md`](../../plan/completed/pf-b11-s01-read-authority-contract.md)\n- Accepted implementation candidate: `b79b9321a06dd1c0e25381127dc61e861bae520d`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate format/architecture/security/unit and plan-routing checks all\n  passed. The initial unsupported focused-validator invocation is retained as\n  `INVOCATION_FAIL`; the repository-resolved unit profile passed and no\n  required S01 evidence is blocked.\n- Platform now publishes the separate `platform.read-authority.v1` contract,\n  exact snapshot/feed/status envelopes, the CTRL/IMS compatibility matrix,\n  fail-closed freshness states, bounded limits, machine-signing requirements\n  and a capability-local validation seam. Snapshot persistence, feed routes\n  and consumer cutover remain outside this Slice.\n- No CTRL/IMS production code, data, migration, product role, billing fact,\n  shared database or authority cutover was changed. PF-B11-S02 was initially\n  **BLOCKED / NOT RUN** by the Product source-provenance conflict; the\n  superseding S01-R1 correction below resolves that authority conflict and\n  promotes S02 to Ready. No snapshot, feed or consumer cutover was started.\n\n## PF-B11-S01-R1 — Seed provenance contract correction\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pf-b11-s01-r1-seed-provenance-v2.md`](../../plan/completed/pf-b11-s01-r1-seed-provenance-v2.md)\n- Accepted implementation candidate: `25c2502298b030f77e38aa246822611f875ad57a`\n- Evidence: [`audits/pf-b11-s01-r1-implementation.md`](audits/pf-b11-s01-r1-implementation.md),\n  [`audits/pf-b11-s01-r1-independent-review.md`](audits/pf-b11-s01-r1-independent-review.md),\n  [`audits/pf-b11-s01-r1-independent-acceptance.md`](audits/pf-b11-s01-r1-independent-acceptance.md).\n- The superseding `platform.read-authority.v2` contract adds explicit\n  `migration_seed` version/name/checksum provenance for rows created before the\n  outbox, while v1 and `platform-events-v1` remain unchanged.\n- PF-B11-S02 was promoted to **Ready** by this correction; the correction did\n  not implement snapshot persistence, feed routes or CTRL/IMS runtime behavior.\n\n## PF-B11-S02 — Durable snapshot and source cursor\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pf-b11-s02-durable-snapshot.md`](../../plan/completed/pf-b11-s02-durable-snapshot.md)\n- Accepted implementation candidate: `065564e9db4be88dc556bb4b0fd0a88050c9487a`\n- Evidence: [`audits/pf-b11-s02-engineering-review.md`](audits/pf-b11-s02-engineering-review.md),\n  [`audits/pf-b11-s02-tester-acceptance.md`](audits/pf-b11-s02-tester-acceptance.md)\n  and the retained initial-review repair record.\n- Platform now provides a transactionally materialized, immutable and bounded\n  `platform.read-authority.v2` bootstrap snapshot with an opaque source\n  cursor, deterministic SHA-256 checksum, v2 event/migration-seed provenance,\n  consumer-bound paging, expiry and bounded cleanup. Fresh/upgrade/reopen,\n  corruption, omission, duplicate, source-mutation and race evidence passed.\n- PF-B11 is now **terminally certified**. No consumer cutover, CTRL/IMS\n  production code, product role, billing fact, shared database or authority\n  transfer was changed.\n\n## PF-B11-S03 — Authenticated feed and resynchronisation API\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pf-b11-s03-feed-and-api.md`](../../plan/completed/pf-b11-s03-feed-and-api.md)\n- Accepted implementation candidate: `bfc111ad1e7f8add6967e2dbb8b41f8ac2d192ea`\n- Evidence: [`audits/pf-b11-s03-engineering-review.md`](audits/pf-b11-s03-engineering-review.md),\n  [`audits/pf-b11-s03-tester-acceptance.md`](audits/pf-b11-s03-tester-acceptance.md)\n  and the retained initial-review repair record.\n- Platform now provides bounded v2 machine-authenticated snapshot, record,\n  committed-change and status routes for `tockrctrl` and `tockrims`, with\n  Ed25519 key overlap/retirement, durable nonce replay protection, bounded\n  timestamp/body/page/response/rate controls, safe errors and explicit cursor\n  resynchronisation. Snapshot provenance and terminal `platform-events-v1`\n  payload semantics remain intact.\n- All required local profiles and focused HTTP contract evidence passed on the\n  exact candidate; no CTRL/IMS runtime, consumer cutover or shared database was\n  implemented.\n\n## PF-B11-S04 — Security, operability and consumer-readiness certification\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pf-b11-s04-certification.md`](../../plan/completed/pf-b11-s04-certification.md)\n- Certification candidate: `6da51a24b281549e5c8084f6c109bd860560154d`\n- Published Platform `main` handoff: `737167fbbb2bb0c6746ec7d333ab9e6baf714c1f`\n- Evidence: [`audits/pf-b11-s04-engineering-review.md`](audits/pf-b11-s04-engineering-review.md),\n  [`audits/pf-b11-s04-tester-acceptance.md`](audits/pf-b11-s04-tester-acceptance.md)\n  and [`audits/pf-b11-batch-certification.md`](audits/pf-b11-batch-certification.md).\n- PF-B11 is terminally certified. All 27 PF Slices are reconciled; required\n  validation passed; the unavailable Docker builds remain explicitly\n  `BLOCKED / NOT RUN` and were not required because no container deployment\n  surface changed. The Platform handoff makes CTRL and IMS eligible to\n  re-evaluate PD-D5-S01 only; it does not implement their runtimes or\n  authorize cutover.\n\nThe following Platform Foundation Slices are terminally recorded:\n\n## PF-B7-S01 — Platform events and transactional outbox\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b7-s01-events.md`](../../plan/completed/pf-b7-s01-events.md)\n- Accepted implementation candidate: `bde43056446327103f8e1241ce460aebe561bdcd`\n- Terminal closeout candidate: `7ad1b8988fe81a0767b543fd09927a2d277a5e02`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate format/architecture/security/migration/frontend/quality/unit,\n  SQLite/HTTP integration and extended repository-wide race validation all\n  passed. The repository composite race child exceeded its fixed 300-second\n  timeout and is retained as diagnostic `TIMEOUT`, not PASS evidence.\n- Platform now emits versioned, bounded and redacted v1 outbox facts for\n  committed shared identity, tenancy and product-access authority changes.\n  Failed transactions leave no outbox fact; consumer ordering and duplicate\n  detection use opaque event IDs and per-aggregate sequences.\n- The initial one-connection SQLite policy remains unchanged. Container build\n  profiles are **NOT_APPLICABLE** because no authorised Dockerfile exists. No\n  CTRL/IMS production code, data, product role, migration or authority cutover\n  was changed.\n\n## PF-B7-S02 — Projection inbox and reconciliation support\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b7-s02-projections.md`](../../plan/completed/pf-b7-s02-projections.md)\n- Accepted implementation candidate: `07c2b23ac35645b809fea3b1fc87042932f111b9`\n- Terminal closeout candidate: `5d884cc3395e7ee6b2b7a11010f7bac3f435b8ba`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate format/architecture/security/migration/frontend/quality/unit,\n  SQLite/HTTP integration and extended repository-wide race validation all\n  passed. The repository composite race child exceeded its fixed 300-second\n  timeout and is retained as diagnostic `TIMEOUT`, not PASS evidence.\n- Platform now retains bounded consumer inbox identity, per-aggregate\n  checkpoints and explicit current/stale/gap/blocked/unavailable states. Gap\n  reconciliation is bounded and unknown source versions remain blocked for\n  repair; projection state is never used as unconditional authorization.\n- Migration 9 and the initial one-connection SQLite policy remain unchanged\n  after acceptance. Container build profiles are **NOT_APPLICABLE** because no\n  authorised Dockerfile exists. No CTRL/IMS production code, data, product\n  role, migration or authority cutover was changed.\n\n## PF-B7 — Events and local projection support\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B7-S01 and PF-B7-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `da66f502a170cc01c6cd1e8fe690d81f42bc5dd6`.\n- Independent Batch engineering review and independent Batch tester\n  acceptance: **PASS**.\n- Batch-local format, architecture, security, migration, frontend, quality,\n  unit, integration and extended repository-wide race evidence: **PASS**.\n  The repository composite `full/local` race child exceeded its fixed\n  300-second bound; the equivalent exact-candidate race command passed and the\n  timeout is retained as diagnostic context. Container builds are\n  **NOT_APPLICABLE** without an authorised Dockerfile.\n- Platform now provides versioned event/outbox and bounded projection inbox/\n  checkpoint support without making projections authoritative for access.\n  The initial one-connection SQLite policy remains unchanged. No CTRL/IMS\n  production code, data, product role, migration or authority cutover was\n  changed.\n\n## PF-B5-S01 — Product catalogue and Organisation entitlements\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b5-s01-product-catalogue.md`](../../plan/completed/pf-b5-s01-product-catalogue.md)\n- Accepted implementation candidate: `9727f848c2e1c762ed8cc8fad6edfae59bf1de22`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate format/architecture/security/migration/quality/unit,\n  SQLite/HTTP integration and race validation all passed.\n- Platform now owns the stable `product.tockrctrl` and `product.tockrims`\n  catalogue records and auditable OrganisationProductEntitlement lifecycle.\n  Product assignment and effective-access evaluation remain PF-B5-S02-owned.\n- Container build profiles are **NOT_APPLICABLE** because no authorised\n  Dockerfile exists. The initial one-connection SQLite policy is unchanged.\n- No CTRL/IMS code, data, product role, migration or authority cutover was\n  changed.\n\n## PF-B5-S02 — User assignment and effective product access\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b5-s02-product-access.md`](../../plan/completed/pf-b5-s02-product-access.md)\n- Accepted implementation candidate: `1fbdb1a5a82b3e397d166d2cc24516d4cbf03597`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate format/architecture/security/migration/quality/unit,\n  SQLite/HTTP integration and race validation all passed.\n- Platform now owns the history-preserving UserProductAssignment lifecycle and\n  one deny-by-default effective-access predicate requiring active identity,\n  Organisation membership, entitlement, assignment, Product, Workspace and\n  permitted scope. Product-specific roles remain outside the proof.\n- Migration 7 and the assignment HTTP seams preserve safe scope, CSRF and\n  audit behavior. The initial one-connection SQLite policy is unchanged.\n- Container build profiles are **NOT_APPLICABLE** because no authorised\n  Dockerfile exists. No CTRL/IMS code, data, product role, migration or\n  authority cutover was changed.\n\n## PF-B5 — Product catalogue and product access\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B5-S01 and PF-B5-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `b6b79e5d8f92041e7335aac2a4f18b80f3d73e1a`\n- Independent Batch engineering review and independent Batch tester\n  acceptance: **PASS**.\n- Batch-local `full/local`, migration, assignment, effective-access, HTTP,\n  audit/history, concurrency, plan-routing and boundary evidence: **PASS**;\n  container builds **NOT_APPLICABLE** without an authorised Dockerfile.\n- Platform owns the catalogue, Organisation entitlement, UserProductAssignment\n  and shared effective-access predicate. Product-specific roles, billing and\n  CTRL/IMS authority remain outside PF-B5.\n- The initial one-connection SQLite policy remains unchanged. PF-B7 is\n  terminally certified above; PF-B9-S01 is now the next dependency-ready Slice\n  and no later Batch is implemented here.\n\n## PF-B6-S01 — Signed assertion issuance and verification\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b6-s01-assertions.md`](../../plan/completed/pf-b6-s01-assertions.md)\n- Accepted implementation candidate: `bf3b134e62155481cc98aad7b3613ccdc94129bd`\n- Terminal closeout candidate: `cfe24a25e663147f07f8c1d5d5e8fe1e17246477`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate format/architecture/security/quality/unit, SQLite/HTTP\n  integration and repository-wide race validation all passed.\n- Platform now issues a short-lived, versioned Ed25519 assertion only after\n  the central effective-access proof succeeds. The strict shared claim set is\n  limited to issuer, audience, `usr_`, `org_`, `wsp_`, issued/expiry times,\n  assertion ID and version. Public-key-only consumer verification and key\n  overlap are supported.\n- Startup key configuration and the rotation runbook are explicit. The\n  initial one-connection SQLite policy is unchanged.\n- Container build profiles are **NOT_APPLICABLE** because no authorised\n  Dockerfile exists. No CTRL/IMS production code, role, data, migration or\n  authority cutover was changed.\n\n## PF-B6-S02 — Consumer handoff and compatibility\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b6-s02-consumer-contract.md`](../../plan/completed/pf-b6-s02-consumer-contract.md)\n- Accepted implementation candidate: `e9de6b100eafd19ad75a4b4c3046e0107cb93f62`\n- Terminal closeout candidate: `9d87b50a1495776e49134249e6be009bc9dd55ca`\n  (`full/local` PASS; container profiles **NOT_APPLICABLE**).\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate format/architecture/security/quality/unit/integration and\n  repository-wide race validation all passed; uncached assertion and HTTP\n  acceptance tests also passed.\n- Platform now publishes the bounded v1 consumer compatibility matrix for\n  `tockrctrl` and `tockrims`, with explicit product pairing and fail-closed\n  unauthenticated, forbidden, stale, unavailable and version-mismatch classes.\n  Product roles, billing, sessions, full entitlement detail and governance\n  remain product-owned.\n- The initial one-connection SQLite policy is unchanged. Container build\n  profiles are **NOT_APPLICABLE** without an authorised Dockerfile. No CTRL/IMS\n  production code, data, migration or authority cutover was changed.\n\n## PF-B6 — Product assertion and consumer contract\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B6-S01 and PF-B6-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `eabcdf22c00d939fc07d5b1ea8eb69d903ab687a`.\n- Independent Batch engineering review and independent Batch tester\n  acceptance: **PASS**.\n- Batch-local `full/local`, plan-routing, read-only codebase audit and boundary\n  checks: **PASS**; container builds **NOT_APPLICABLE** without an authorised\n  Dockerfile.\n- Platform now has a versioned Ed25519 handoff assertion and an explicit\n  consumer audience/product compatibility contract for CTRL and IMS. Product\n  roles, billing, sessions, full entitlement detail and governance remain\n  product-owned.\n- The initial one-connection SQLite policy remains unchanged. PF-B7 is\n  terminally certified above; PF-B9-S01 is now the next dependency-ready Slice\n  and no later Batch or authority cutover is claimed.\n\n## PF-B1-S01 — Repository, standards, agents and validation foundation\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b1-s01-repository-foundation.md`](../../plan/completed/pf-b1-s01-repository-foundation.md)\n- Accepted candidate: `d1737088b47e3180ac250f3f268c1d92e9719f17`\n- Evidence: independent engineering review, independent tester acceptance,\n  foundation audit, full/local validation, routing/contract tests and clean\n  candidate-bound diff checks all passed.\n- Runtime, migration, unit, integration, race and container profiles were\n  `NOT_APPLICABLE` because their prerequisites are not introduced by this\n  Slice.\n- No CTRL/IMS code, data, migration or authority was changed.\n\n## PF-B1-S02 — Platform ownership and shared contracts\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b1-s02-ownership-contracts.md`](../../plan/completed/pf-b1-s02-ownership-contracts.md)\n- Accepted implementation candidate: `b8d8174ebb1ff659c3c3c7db5c420314b6f00b7c`\n- Evidence: independent engineering review, independent tester acceptance,\n  architecture/security/quality validation and contract assertions all passed.\n- Runtime and data migration profiles were `NOT_APPLICABLE` because this Slice\n  changes contracts and documentation only.\n- No CTRL/IMS code, data, migration or authority was changed.\n\n## PF-B1-S03 — Runtime, persistence and presentation foundation\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b1-s03-runtime-foundation.md`](../../plan/completed/pf-b1-s03-runtime-foundation.md)\n- Accepted implementation candidate: `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`\n- Initial SQLite policy: one connection, with WAL, serialized migration\n  startup and a single-instance boundary. Any later pool-width upgrade is a\n  separate authorized, measured change.\n- Evidence: independent review, independent tester acceptance, foundation\n  audit, full/local validation, routing/contract tests and exact-candidate\n  diff checks all passed.\n- Runtime/build profiles were `NOT_APPLICABLE` because no runtime module or\n  Dockerfile is introduced by this planning Slice.\n- No CTRL/IMS code, data, migration or authority was changed.\n\n## PF-B2-S01 — User and authentication authority\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b2-s01-user-authentication.md`](../../plan/completed/pf-b2-s01-user-authentication.md)\n- Accepted implementation candidate: `3d283961b8b6f88bd301712555587c2c556a857f`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate `full/local` validation, migration-ledger checks, secure\n  cookie/CSRF/rate-limit tests, and one-connection SQLite evidence all passed.\n- The Slice owns Platform identity/authentication only; no CTRL/IMS code, data,\n  migration or authority cutover was changed.\n\n## PF-B2-S02 — Sessions, MFA, recovery and revocation\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b2-s02-sessions-security.md`](../../plan/completed/pf-b2-s02-sessions-security.md)\n- Accepted implementation candidate: `7a05b179419ebbe77dee18aaf1bace40d3f5fced`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate `full/local` validation, fresh/upgrade/reopen migration\n  checks, race validation, protected-boundary tests, TOTP/recovery replay\n  checks and bounded session cleanup all passed.\n- No CTRL/IMS sessions, credentials, data, migration or authority was copied\n  or cut over.\n\n## PF-B2 — Identity and authentication\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B2-S01 and PF-B2-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `7a05b179419ebbe77dee18aaf1bace40d3f5fced`\n- Independent Batch review and independent Batch tester acceptance: **PASS**.\n- Batch-local full/local validation, migration/audit reconciliation and all 63\n  Slice route signatures: **PASS**.\n- Platform owns identity, authentication, sessions, MFA, recovery and\n  revocation; CTRL/IMS authority and data remain outside this Batch.\n\n## PF-B1 — Repository, standards and architecture foundation\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B1-S01, PF-B1-S02 and PF-B1-S03 are terminal in\n  `plan/completed/`.\n- Accepted Batch candidate: `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`\n- Independent Batch review and independent Batch tester acceptance: **PASS**.\n- Batch-local validation and all 63 Slice route signatures: **PASS**.\n- No CTRL/IMS migration or authority cutover is claimed.\n\n## PF-B3-S01 — Organisation authority\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b3-s01-organisation-authority.md`](../../plan/completed/pf-b3-s01-organisation-authority.md)\n- Accepted implementation candidate: `b82155c4606102750a537f6a5bc39be05939ed9e`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate `full/local` validation, fresh/upgrade/reopen/divergence\n  migration checks, transactional membership/audit tests and cross-Organisation\n  denial tests all passed.\n- Platform now owns Organisation lifecycle and canonical owner/admin/member\n  membership history. Owner transfer semantics remain explicitly unresolved;\n  direct owner mutation is denied rather than inferred.\n- No CTRL/IMS code, data, migration or authority cutover was changed.\n\n## PF-B3-S02 — Organisation administration seams\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b3-s02-organisation-administration.md`](../../plan/completed/pf-b3-s02-organisation-administration.md)\n- Accepted implementation candidate: `5181e76de4b3feeb22b9bcc18b3929014915b286`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate `full/local` validation, v4 fresh/upgrade/reopen/divergence\n  migration checks, HTTP authorization/CSRF/redaction/safe-error tests, audit\n  continuity and Workspace entry-seam tests all passed.\n- The Platform exposes narrow Organisation command/read seams only; system-role\n  recognition is explicit, Workspace data remains PF-B4-owned and product roles\n  remain absent.\n- No CTRL/IMS route, code, data, migration or authority cutover was changed.\n\n## PF-B3 — Organisation authority\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B3-S01 and PF-B3-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `5181e76de4b3feeb22b9bcc18b3929014915b286`\n- Independent Batch review and independent Batch tester acceptance: **PASS**.\n- Batch-local `full/local` validation, audit/reconciliation, migration and\n  Platform boundary checks: **PASS**; container builds **NOT_APPLICABLE** without\n  an authorised Dockerfile.\n- PF-B4-S01 was the next dependency-ready Slice at this Batch certification\n  point; it is now terminally recorded below. No CTRL/IMS authority cutover,\n  product role or production-data import is claimed.\n\n## PF-B4-S01 — Workspace authority\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b4-s01-workspace-authority.md`](../../plan/completed/pf-b4-s01-workspace-authority.md)\n- Accepted implementation candidate: `0835ba67bd38460676740cdf058e56b17b1330c7`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate `full/local` validation, v5 fresh/upgrade/reopen/divergence\n  migration checks, concurrent membership proof, HTTP authorization/CSRF/\n  redaction/safe-error tests and Workspace audit/history assertions all passed.\n- Platform now owns Organisation-owned Workspace lifecycle, generic\n  admin/member/viewer membership, deterministic authorised default selection,\n  audit continuity and active Organisation parent-scope enforcement.\n- SQLite remains intentionally limited to one connection until a separate\n  authorised, measured upgrade. Container builds are **NOT_APPLICABLE** without\n  an authorised Dockerfile.\n- No CTRL/IMS code, data, migration, product role or authority cutover was\n  changed. PF-B4 is now terminally certified below.\n\n## PF-B4-S02 — Workspace access and scope guard\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b4-s02-workspace-access.md`](../../plan/completed/pf-b4-s02-workspace-access.md)\n- Accepted implementation candidate: `9105b7debbb3aa857a1472373bb410676976900e`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate `full/local` validation, active-scope truth-table tests,\n  tampered/revoked/archived fail-closed tests, concurrent revocation proof,\n  HTTP middleware coverage and race validation all passed.\n- Platform now exposes one reusable User + Organisation + Workspace scope\n  proof; protected Workspace reads and mutations use route middleware plus\n  transaction-time writer rechecks. Product roles remain outside the proof.\n- No CTRL/IMS code, data, product role or authority cutover was changed.\n\n## PF-B4 — Workspace authority\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B4-S01 and PF-B4-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `9105b7debbb3aa857a1472373bb410676976900e`\n- Independent Batch review and independent Batch tester acceptance: **PASS**.\n- Batch-local `full/local` validation, Workspace migration/history/audit,\n  scope-guard, HTTP and race evidence: **PASS**; container builds\n  **NOT_APPLICABLE** without an authorised Dockerfile.\n- Platform retains one SQLite connection. PF-B5-S01 is the next\n  dependency-ready Slice; no CTRL/IMS migration or authority cutover is\n  claimed.\n\n## PF-B8-S01 — Platform layouts, selectors and launcher\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b8-s01-platform-shell.md`](../../plan/completed/pf-b8-s01-platform-shell.md)\n- Accepted implementation candidate: `57b1669312d9336e7f5a0d0812e9135c38e75994`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate HTTP/presentation tests, frontend/architecture/security\n  profiles, focused race validation and wide/narrow browser verification all\n  passed. The `full/local` composite race child exceeded its fixed 300-second\n  bound and is recorded as **TIMEOUT**, not PASS.\n- Platform now provides the shared server-rendered shell,\n  Organisation/Workspace selectors and access-gated product launcher. Product\n  roles and operational screens remain outside Platform.\n- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS\n  production code, data, migration, product role or authority cutover was\n  changed. PF-B8 is now terminally certified and PF-B9-S01 is the next\n  dependency-ready Slice.\n\n## PF-B8-S02 — Platform administration UI\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b8-s02-administration-ui.md`](../../plan/completed/pf-b8-s02-administration-ui.md)\n- Accepted implementation candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`\n- Evidence: independent engineering review, independent tester acceptance,\n  exact-candidate Organisation/Workspace/System Admin HTTP tests, CSRF and\n  fail-closed role checks, frontend/architecture/security profiles, focused\n  race validation and wide/narrow browser verification all passed. The\n  `full/local` composite race child exceeded its fixed 300-second bound and is\n  recorded as **TIMEOUT**, not PASS.\n- Platform now provides the initial server-rendered Organisation, Workspace\n  and System Admin surfaces with recorded audit/history facts. Product roles,\n  billing and CTRL/IMS operational screens remain outside Platform.\n- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS\n  production code, data, migration, product role or authority cutover was\n  changed.\n\n## PF-B8 — Platform administration UI\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B8-S01 and PF-B8-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`.\n- Independent Batch engineering review and independent Batch tester\n  acceptance: **PASS**.\n- Batch-local named profiles, authorization/CSRF, audit/history, responsive\n  browser and focused race evidence: **PASS**; the fixed `full/local` race\n  child is retained as **TIMEOUT**, not converted to PASS. Container builds\n  are **NOT_APPLICABLE** without an authorised Dockerfile.\n- PF-B9 is now terminally recorded below. No CTRL/IMS authority cutover or\n  product-role ownership is claimed.\n\n## PF-B9-S01 — CTRL/IMS reconciliation inventory and mapping\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b9-s01-reconciliation.md`](../../plan/completed/pf-b9-s01-reconciliation.md)\n- Accepted implementation candidate: `eafb9451572d248275f6eafe6174a547a4eceadb`\n- Evidence: deterministic normalized inventory/proposal tests, collision and\n  ambiguity blocking, source-linked relationship checks, redacted repeatable\n  CLI output, independent review, independent tester acceptance and exact\n  candidate `full/local` validation all passed. Container builds are\n  **NOT_APPLICABLE** without an authorised Dockerfile.\n- Platform now provides read-only fixture/adapter reconciliation proposals for\n  Users, Organisations, Workspaces and memberships. Source/version/source-ID\n  provenance is retained; no identity is accepted silently and unresolved\n  mappings remain blocked.\n- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS\n  production code, data, source connector, product role, import or authority\n  cutover was changed.\n\n## PF-B9-S02 — Dry-run/import and rollback tooling\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b9-s02-migration-tooling.md`](../../plan/completed/pf-b9-s02-migration-tooling.md)\n- Accepted implementation candidate: `05b4cfb020dead9cc5cc1fcd22e8bb2cb671489d`\n- Evidence: signed fixture-manifest approval and verification, deterministic\n  fixture import, HMAC checkpoint integrity, pause/resume, idempotency,\n  compensating rollback, audit retention, independent review, independent\n  tester acceptance and exact-candidate `full/local` validation all passed.\n  Container builds are **NOT_APPLICABLE** without an authorised Dockerfile.\n- Platform now has a fixture-only rehearsal boundary for staged migration\n  manifests. Blocked/ambiguous records cannot be imported, and production\n  import, shadow mode and authority cutover remain outside PF.\n- No Platform SQLite migration, CTRL/IMS source connector, production record,\n  product role or authority cutover was added. PF-B9 is terminally certified;\n  PF-B10-S02 is the next dependency-ready Slice.\n\n## PF-B9 — CTRL/IMS reconciliation and migration tooling\n\n- Status: **Implemented / terminal Batch certification**\n- Slices PF-B9-S01 and PF-B9-S02 are terminal in `plan/completed/` and were\n  delivered strictly in dependency order.\n- Accepted Batch candidate: `9c073cba5ce495de9bc217696062485c9999ab62`.\n- Independent Batch engineering review and independent Batch tester\n  acceptance: **PASS**.\n- Batch-local signed-manifest, fixture import/rollback, provenance, profile\n  and race evidence: **PASS**; container builds are **NOT_APPLICABLE** without\n  an authorised Dockerfile.\n- PF-B10-S02 is now the next dependency-ready Slice. No production import,\n  consumer-repository migration or authority cutover is claimed.\n\n## PF-B10-S01 — Security and hardened runtime\n\n- Status: **Implemented / terminal**\n- Historical plan: [`plan/completed/pf-b10-s01-runtime-hardening.md`](../../plan/completed/pf-b10-s01-runtime-hardening.md)\n- Accepted implementation candidate: `6cdfed1179d4f0dbc5266991ad6074741ef7dd75`\n- Independent engineering review, independent tester acceptance and exact\n  candidate `full/local` validation all passed. Format, architecture,\n  security, migration, frontend, quality, unit, integration, repository-wide\n  race, AMD64 and ARM64 container build profiles all passed.\n- Platform now has strict secret-safe startup configuration, bounded HTTP\n  resources, restrictive security headers, graceful shutdown, distinct safe\n  `/healthz` and SQLite-backed `/readyz`, and hardened non-root container\n  targets for Linux AMD64/ARM64. Compose applies read-only root storage,\n  dropped capabilities, bounded `/tmp`, no-new-privileges and a persistent\n  Platform data volume.\n- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS\n  production code, data, connector, product role, production record or\n  authority cutover was changed. PF-B10-S01-R1 and PF-B10-S02 are terminally\n  recorded below; PF-B10 is certified.\n\n## PF-B10-S01-R1 — Runtime asset packaging repair\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pf-b10-s01-r1-runtime-assets.md`](../../plan/completed/pf-b10-s01-r1-runtime-assets.md)\n- Accepted repair candidate: `2dbac87909b296e66da33f1e9f26d049bbbd1bd7`\n- Independent engineering review, independent tester acceptance, exact\n  `full/local` validation, AMD64/ARM64 builds and real-browser `/login`,\n  `/healthz`, `/readyz`, CSS MIME and favicon checks all passed.\n- The repair packages the existing source-owned static assets in the hardened\n  image and adds a safe `204` favicon response. It introduces no new product\n  authority, schema, migration, SQLite pool change or CTRL/IMS code/data.\n- PF-B10-S02 was promoted only after this repair was terminally published and\n  is certified below.\n\n## PF-B10-S02 — Final Platform foundation certification\n\n- Status: **Implemented / terminal**\n- Completed plan: [`plan/completed/pf-b10-s02-final-certification.md`](../../plan/completed/pf-b10-s02-final-certification.md)\n- Validated certification candidate: `26d6923dfc277e71a1253b110bd6f740ce3b475f`\n- Independent engineering review, independent tester acceptance, final\n  certification reconciliation and exact `full/local` validation all passed.\n- All PF plan rows and prior Batch evidence reconcile through PF-B10. No later\n  Slice was implemented in parallel, and no CTRL/IMS migration, production\n  import, authority cutover or SQLite pool upgrade is authorized.\n\n## PF-B10 — Security, runtime and final certification\n\n- Status: **Implemented / terminal Batch certification**\n- Batch certification: [`docs/implementation/audits/pf-b10-batch-certification.md`](audits/pf-b10-batch-certification.md)\n- PF-B10-S01, PF-B10-S01-R1 and PF-B10-S02 are terminal and were delivered in\n  strict dependency order with candidate-bound independent gates.\n- The Platform Foundation programme is terminal at the authorised scope. Future\n  runtime upgrades or cross-repository authority changes require a new explicit\n  plan and independent acceptance.\n\n## PD-D8-S02-WP-PD8S02-05 — Final cutover and recovery rehearsal\n\n- Status: **Implemented / terminal for the disposable rehearsal**\n- Exact candidates: Platform `dd721cfdfcd0f680a8cfe070162105bfead4f917`, CTRL `217b210ee03a0a0b54f01fbe6ffb038917f14f37`, IMS `86068d15573cfe608007db64c6b7d6584eb5d99f`.\n- Evidence: [cutover/recovery rehearsal](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md) and [machine-readable evidence](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.json).\n- Platform/CTRL/IMS backup and restore, projection resynchronisation, membership command correlation, Platform outage/recovery, staged cutover, bounded rollback, sole-writer, local-request and unchanged product-data checks passed. Production activation remains separately gated by WP06.\n\n\n\n\n\n
+## PD-D8-S02-WP-PD8S02-03 — Compatibility usage ledger
+
+- Status: **Implemented / terminal**
+- Exact source candidates: Platform `3115caad66b4086535720a03ccf08c2766666edd`; CTRL `677dd0dc5573b0bb7ac6c42d2d20c907505e6683`; IMS `5f163633c358c636376ebd5ade659a0e7bdf78ee`.
+- Evidence: [compatibility usage ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md) and [machine-readable ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.json).
+- The ledger records legacy authentication paths, local shared-membership writers, compatibility tables/columns, adapters and feature flags with source usage evidence, owner, rollback dependency and disposition. One package-private IMS alias pair was retired after a zero-reference scan; all externally reachable paths, writers, tables, adapters and flags remain retained.
+- Retirement still requires current deployment usage evidence, rollback rehearsal, independent review and tester acceptance for the exact retirement candidate.
+
+## PD-D8-S02-WP-PD8S02-04 — Bounded compatibility retirement
+
+- Status: **Implemented / terminal for the bounded candidate**
+- Evidence: [retirement evidence](audits/pd-d8-s02-wp04-retirement-2026-09-26.md) and the updated [compatibility usage ledger](audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md).
+- IMS package-private `workspaceMemberDiscoveryQueryFromRequest` and `programmeWorkspaceMemberDiscoveryURL` had zero repository references beyond their definitions. They were removed with a Git-revert rollback receipt; no database migration, local ID, historical reference, audit record or active route was changed.
+
+# Implemented delivery ledger
+
+## PD-D8-S01 — Product-access, tenant and outage certification
+
+- Status: **Implemented / terminal in CTRL and IMS; Platform handoff recorded**
+- Platform candidate: `cc78557d8048bac6392f837166cb101460f43c98`
+- Published CTRL/IMS mains: `71406518624d3260d96f52e0cbde8eb8b89d440c` / `d5d438b8707ae92136e4677bdc2a96ecbc76199c`
+- Accepted consumer code candidates: CTRL `bfbd808cec5c3dc705bef1c2e8e2e6296dead76c`, IMS `63e47c0929fd417b6d7c526bb662ba7fdf5cd5a5`
+- Platform handoff: [`pd-d8-s01-platform-handoff-2026-09-26.md`](pd-d8-s01-platform-handoff-2026-09-26.md)
+- Consumer plans and independent review/acceptance records are terminal in their repositories. The only repair was a tests-only current-time reconciliation fixture; Platform code and data were unchanged.
+- Next slice: [`plan/pd-d8-s02-platform-authority-certification.md`](../../plan/pd-d8-s02-platform-authority-certification.md) is **Ready / next**. Production authority activation remains separately gated.
+
+## PD-D7-S01-PF — Durable Platform production reconciliation/import boundary
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pd-d7-s01-platform-production-import.md`](../../plan/completed/pd-d7-s01-platform-production-import.md)
+- Published Platform main: `eb27dd02f59108371f13fb9e8b1972f78acb5294`
+- Matched consumer main commits: CTRL `920b5830e8b99fdb19b46091e95e365fdcc352fe`; IMS `ef85f2be8f8fd02a87ff70ded354917b2a8546cc`.
+- Acceptance: [`pd-d7-s01-platform-import-acceptance-2026-09-26.md`](pd-d7-s01-platform-import-acceptance-2026-09-26.md)
+- Platform now has the signed production import envelope, durable checkpointed apply/resume/idempotency, exact-manifest compensation, audit actor tombstone provenance, and operator receipts. WP-PD7PF-06 passed against the disposable restore point.
+- CTRL and IMS each passed source-scoped snapshot/feed convergence and mapping finalization at `cur_22`; product-owned state and local authority modes remained unchanged. Consumer PD-D7-S02 cutover and rollback implementation is terminal in both consumers; any real production activation remains operator-controlled.
+
+## PF-B12-S01 — Versioned shared membership command API
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b12-s01-membership-command-api.md`](../../plan/completed/pf-b12-s01-membership-command-api.md)
+- Implementation candidate: `d246968b0a18e14883106283092998574e9a7e10`
+- Certification candidate: `87872417600a750a6cad0a81d2106c0f56ce78e6`
+- Evidence: [`audits/pf-b12-s01-engineering-review.md`](audits/pf-b12-s01-engineering-review.md),
+  [`audits/pf-b12-s01-tester-acceptance.md`](audits/pf-b12-s01-tester-acceptance.md)
+  and [`audits/pf-b12-batch-certification.md`](audits/pf-b12-batch-certification.md).
+- Platform now publishes `platform.membership-command.v1` for authenticated
+  OrganisationMembership and generic WorkspaceMembership add, role-change and
+  deactivate commands with live actor authorization, idempotency, expected
+  versions, atomic audit/outbox writes and safe redaction.
+- CTRL and IMS consumer command seams remain disabled/local-mode. D6-S01 may
+  proceed before D5-S02; production writer activation remains gated by each
+  product's D7 reconciliation and cutover plans.
+
+## PF-B11-S01 — Read-authority contract and consumer compatibility
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b11-s01-read-authority-contract.md`](../../plan/completed/pf-b11-s01-read-authority-contract.md)
+- Accepted implementation candidate: `b79b9321a06dd1c0e25381127dc61e861bae520d`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/unit and plan-routing checks all
+  passed. The initial unsupported focused-validator invocation is retained as
+  `INVOCATION_FAIL`; the repository-resolved unit profile passed and no
+  required S01 evidence is blocked.
+- Platform now publishes the separate `platform.read-authority.v1` contract,
+  exact snapshot/feed/status envelopes, the CTRL/IMS compatibility matrix,
+  fail-closed freshness states, bounded limits, machine-signing requirements
+  and a capability-local validation seam. Snapshot persistence, feed routes
+  and consumer cutover remain outside this Slice.
+- No CTRL/IMS production code, data, migration, product role, billing fact,
+  shared database or authority cutover was changed. PF-B11-S02 was initially
+  **BLOCKED / NOT RUN** by the Product source-provenance conflict; the
+  superseding S01-R1 correction below resolves that authority conflict and
+  promotes S02 to Ready. No snapshot, feed or consumer cutover was started.
+
+## PF-B11-S01-R1 — Seed provenance contract correction
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s01-r1-seed-provenance-v2.md`](../../plan/completed/pf-b11-s01-r1-seed-provenance-v2.md)
+- Accepted implementation candidate: `25c2502298b030f77e38aa246822611f875ad57a`
+- Evidence: [`audits/pf-b11-s01-r1-implementation.md`](audits/pf-b11-s01-r1-implementation.md),
+  [`audits/pf-b11-s01-r1-independent-review.md`](audits/pf-b11-s01-r1-independent-review.md),
+  [`audits/pf-b11-s01-r1-independent-acceptance.md`](audits/pf-b11-s01-r1-independent-acceptance.md).
+- The superseding `platform.read-authority.v2` contract adds explicit
+  `migration_seed` version/name/checksum provenance for rows created before the
+  outbox, while v1 and `platform-events-v1` remain unchanged.
+- PF-B11-S02 was promoted to **Ready** by this correction; the correction did
+  not implement snapshot persistence, feed routes or CTRL/IMS runtime behavior.
+
+## PF-B11-S02 — Durable snapshot and source cursor
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s02-durable-snapshot.md`](../../plan/completed/pf-b11-s02-durable-snapshot.md)
+- Accepted implementation candidate: `065564e9db4be88dc556bb4b0fd0a88050c9487a`
+- Evidence: [`audits/pf-b11-s02-engineering-review.md`](audits/pf-b11-s02-engineering-review.md),
+  [`audits/pf-b11-s02-tester-acceptance.md`](audits/pf-b11-s02-tester-acceptance.md)
+  and the retained initial-review repair record.
+- Platform now provides a transactionally materialized, immutable and bounded
+  `platform.read-authority.v2` bootstrap snapshot with an opaque source
+  cursor, deterministic SHA-256 checksum, v2 event/migration-seed provenance,
+  consumer-bound paging, expiry and bounded cleanup. Fresh/upgrade/reopen,
+  corruption, omission, duplicate, source-mutation and race evidence passed.
+- PF-B11 is now **terminally certified**. No consumer cutover, CTRL/IMS
+  production code, product role, billing fact, shared database or authority
+  transfer was changed.
+
+## PF-B11-S03 — Authenticated feed and resynchronisation API
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s03-feed-and-api.md`](../../plan/completed/pf-b11-s03-feed-and-api.md)
+- Accepted implementation candidate: `bfc111ad1e7f8add6967e2dbb8b41f8ac2d192ea`
+- Evidence: [`audits/pf-b11-s03-engineering-review.md`](audits/pf-b11-s03-engineering-review.md),
+  [`audits/pf-b11-s03-tester-acceptance.md`](audits/pf-b11-s03-tester-acceptance.md)
+  and the retained initial-review repair record.
+- Platform now provides bounded v2 machine-authenticated snapshot, record,
+  committed-change and status routes for `tockrctrl` and `tockrims`, with
+  Ed25519 key overlap/retirement, durable nonce replay protection, bounded
+  timestamp/body/page/response/rate controls, safe errors and explicit cursor
+  resynchronisation. Snapshot provenance and terminal `platform-events-v1`
+  payload semantics remain intact.
+- All required local profiles and focused HTTP contract evidence passed on the
+  exact candidate; no CTRL/IMS runtime, consumer cutover or shared database was
+  implemented.
+
+## PF-B11-S04 — Security, operability and consumer-readiness certification
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b11-s04-certification.md`](../../plan/completed/pf-b11-s04-certification.md)
+- Certification candidate: `6da51a24b281549e5c8084f6c109bd860560154d`
+- Published Platform `main` handoff: `737167fbbb2bb0c6746ec7d333ab9e6baf714c1f`
+- Evidence: [`audits/pf-b11-s04-engineering-review.md`](audits/pf-b11-s04-engineering-review.md),
+  [`audits/pf-b11-s04-tester-acceptance.md`](audits/pf-b11-s04-tester-acceptance.md)
+  and [`audits/pf-b11-batch-certification.md`](audits/pf-b11-batch-certification.md).
+- PF-B11 is terminally certified. All 27 PF Slices are reconciled; required
+  validation passed; the unavailable Docker builds remain explicitly
+  `BLOCKED / NOT RUN` and were not required because no container deployment
+  surface changed. The Platform handoff makes CTRL and IMS eligible to
+  re-evaluate PD-D5-S01 only; it does not implement their runtimes or
+  authorize cutover.
+
+The following Platform Foundation Slices are terminally recorded:
+
+## PF-B7-S01 — Platform events and transactional outbox
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b7-s01-events.md`](../../plan/completed/pf-b7-s01-events.md)
+- Accepted implementation candidate: `bde43056446327103f8e1241ce460aebe561bdcd`
+- Terminal closeout candidate: `7ad1b8988fe81a0767b543fd09927a2d277a5e02`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/migration/frontend/quality/unit,
+  SQLite/HTTP integration and extended repository-wide race validation all
+  passed. The repository composite race child exceeded its fixed 300-second
+  timeout and is retained as diagnostic `TIMEOUT`, not PASS evidence.
+- Platform now emits versioned, bounded and redacted v1 outbox facts for
+  committed shared identity, tenancy and product-access authority changes.
+  Failed transactions leave no outbox fact; consumer ordering and duplicate
+  detection use opaque event IDs and per-aggregate sequences.
+- The initial one-connection SQLite policy remains unchanged. Container build
+  profiles are **NOT_APPLICABLE** because no authorised Dockerfile exists. No
+  CTRL/IMS production code, data, product role, migration or authority cutover
+  was changed.
+
+## PF-B7-S02 — Projection inbox and reconciliation support
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b7-s02-projections.md`](../../plan/completed/pf-b7-s02-projections.md)
+- Accepted implementation candidate: `07c2b23ac35645b809fea3b1fc87042932f111b9`
+- Terminal closeout candidate: `5d884cc3395e7ee6b2b7a11010f7bac3f435b8ba`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/migration/frontend/quality/unit,
+  SQLite/HTTP integration and extended repository-wide race validation all
+  passed. The repository composite race child exceeded its fixed 300-second
+  timeout and is retained as diagnostic `TIMEOUT`, not PASS evidence.
+- Platform now retains bounded consumer inbox identity, per-aggregate
+  checkpoints and explicit current/stale/gap/blocked/unavailable states. Gap
+  reconciliation is bounded and unknown source versions remain blocked for
+  repair; projection state is never used as unconditional authorization.
+- Migration 9 and the initial one-connection SQLite policy remain unchanged
+  after acceptance. Container build profiles are **NOT_APPLICABLE** because no
+  authorised Dockerfile exists. No CTRL/IMS production code, data, product
+  role, migration or authority cutover was changed.
+
+## PF-B7 — Events and local projection support
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B7-S01 and PF-B7-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `da66f502a170cc01c6cd1e8fe690d81f42bc5dd6`.
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local format, architecture, security, migration, frontend, quality,
+  unit, integration and extended repository-wide race evidence: **PASS**.
+  The repository composite `full/local` race child exceeded its fixed
+  300-second bound; the equivalent exact-candidate race command passed and the
+  timeout is retained as diagnostic context. Container builds are
+  **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform now provides versioned event/outbox and bounded projection inbox/
+  checkpoint support without making projections authoritative for access.
+  The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, product role, migration or authority cutover was
+  changed.
+
+## PF-B5-S01 — Product catalogue and Organisation entitlements
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b5-s01-product-catalogue.md`](../../plan/completed/pf-b5-s01-product-catalogue.md)
+- Accepted implementation candidate: `9727f848c2e1c762ed8cc8fad6edfae59bf1de22`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/migration/quality/unit,
+  SQLite/HTTP integration and race validation all passed.
+- Platform now owns the stable `product.tockrctrl` and `product.tockrims`
+  catalogue records and auditable OrganisationProductEntitlement lifecycle.
+  Product assignment and effective-access evaluation remain PF-B5-S02-owned.
+- Container build profiles are **NOT_APPLICABLE** because no authorised
+  Dockerfile exists. The initial one-connection SQLite policy is unchanged.
+- No CTRL/IMS code, data, product role, migration or authority cutover was
+  changed.
+
+## PF-B5-S02 — User assignment and effective product access
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b5-s02-product-access.md`](../../plan/completed/pf-b5-s02-product-access.md)
+- Accepted implementation candidate: `1fbdb1a5a82b3e397d166d2cc24516d4cbf03597`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/migration/quality/unit,
+  SQLite/HTTP integration and race validation all passed.
+- Platform now owns the history-preserving UserProductAssignment lifecycle and
+  one deny-by-default effective-access predicate requiring active identity,
+  Organisation membership, entitlement, assignment, Product, Workspace and
+  permitted scope. Product-specific roles remain outside the proof.
+- Migration 7 and the assignment HTTP seams preserve safe scope, CSRF and
+  audit behavior. The initial one-connection SQLite policy is unchanged.
+- Container build profiles are **NOT_APPLICABLE** because no authorised
+  Dockerfile exists. No CTRL/IMS code, data, product role, migration or
+  authority cutover was changed.
+
+## PF-B5 — Product catalogue and product access
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B5-S01 and PF-B5-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `b6b79e5d8f92041e7335aac2a4f18b80f3d73e1a`
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local `full/local`, migration, assignment, effective-access, HTTP,
+  audit/history, concurrency, plan-routing and boundary evidence: **PASS**;
+  container builds **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform owns the catalogue, Organisation entitlement, UserProductAssignment
+  and shared effective-access predicate. Product-specific roles, billing and
+  CTRL/IMS authority remain outside PF-B5.
+- The initial one-connection SQLite policy remains unchanged. PF-B7 is
+  terminally certified above; PF-B9-S01 is now the next dependency-ready Slice
+  and no later Batch is implemented here.
+
+## PF-B6-S01 — Signed assertion issuance and verification
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b6-s01-assertions.md`](../../plan/completed/pf-b6-s01-assertions.md)
+- Accepted implementation candidate: `bf3b134e62155481cc98aad7b3613ccdc94129bd`
+- Terminal closeout candidate: `cfe24a25e663147f07f8c1d5d5e8fe1e17246477`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/quality/unit, SQLite/HTTP
+  integration and repository-wide race validation all passed.
+- Platform now issues a short-lived, versioned Ed25519 assertion only after
+  the central effective-access proof succeeds. The strict shared claim set is
+  limited to issuer, audience, `usr_`, `org_`, `wsp_`, issued/expiry times,
+  assertion ID and version. Public-key-only consumer verification and key
+  overlap are supported.
+- Startup key configuration and the rotation runbook are explicit. The
+  initial one-connection SQLite policy is unchanged.
+- Container build profiles are **NOT_APPLICABLE** because no authorised
+  Dockerfile exists. No CTRL/IMS production code, role, data, migration or
+  authority cutover was changed.
+
+## PF-B6-S02 — Consumer handoff and compatibility
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b6-s02-consumer-contract.md`](../../plan/completed/pf-b6-s02-consumer-contract.md)
+- Accepted implementation candidate: `e9de6b100eafd19ad75a4b4c3046e0107cb93f62`
+- Terminal closeout candidate: `9d87b50a1495776e49134249e6be009bc9dd55ca`
+  (`full/local` PASS; container profiles **NOT_APPLICABLE**).
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate format/architecture/security/quality/unit/integration and
+  repository-wide race validation all passed; uncached assertion and HTTP
+  acceptance tests also passed.
+- Platform now publishes the bounded v1 consumer compatibility matrix for
+  `tockrctrl` and `tockrims`, with explicit product pairing and fail-closed
+  unauthenticated, forbidden, stale, unavailable and version-mismatch classes.
+  Product roles, billing, sessions, full entitlement detail and governance
+  remain product-owned.
+- The initial one-connection SQLite policy is unchanged. Container build
+  profiles are **NOT_APPLICABLE** without an authorised Dockerfile. No CTRL/IMS
+  production code, data, migration or authority cutover was changed.
+
+## PF-B6 — Product assertion and consumer contract
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B6-S01 and PF-B6-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `eabcdf22c00d939fc07d5b1ea8eb69d903ab687a`.
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local `full/local`, plan-routing, read-only codebase audit and boundary
+  checks: **PASS**; container builds **NOT_APPLICABLE** without an authorised
+  Dockerfile.
+- Platform now has a versioned Ed25519 handoff assertion and an explicit
+  consumer audience/product compatibility contract for CTRL and IMS. Product
+  roles, billing, sessions, full entitlement detail and governance remain
+  product-owned.
+- The initial one-connection SQLite policy remains unchanged. PF-B7 is
+  terminally certified above; PF-B9-S01 is now the next dependency-ready Slice
+  and no later Batch or authority cutover is claimed.
+
+## PF-B1-S01 — Repository, standards, agents and validation foundation
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b1-s01-repository-foundation.md`](../../plan/completed/pf-b1-s01-repository-foundation.md)
+- Accepted candidate: `d1737088b47e3180ac250f3f268c1d92e9719f17`
+- Evidence: independent engineering review, independent tester acceptance,
+  foundation audit, full/local validation, routing/contract tests and clean
+  candidate-bound diff checks all passed.
+- Runtime, migration, unit, integration, race and container profiles were
+  `NOT_APPLICABLE` because their prerequisites are not introduced by this
+  Slice.
+- No CTRL/IMS code, data, migration or authority was changed.
+
+## PF-B1-S02 — Platform ownership and shared contracts
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b1-s02-ownership-contracts.md`](../../plan/completed/pf-b1-s02-ownership-contracts.md)
+- Accepted implementation candidate: `b8d8174ebb1ff659c3c3c7db5c420314b6f00b7c`
+- Evidence: independent engineering review, independent tester acceptance,
+  architecture/security/quality validation and contract assertions all passed.
+- Runtime and data migration profiles were `NOT_APPLICABLE` because this Slice
+  changes contracts and documentation only.
+- No CTRL/IMS code, data, migration or authority was changed.
+
+## PF-B1-S03 — Runtime, persistence and presentation foundation
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b1-s03-runtime-foundation.md`](../../plan/completed/pf-b1-s03-runtime-foundation.md)
+- Accepted implementation candidate: `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`
+- Initial SQLite policy: one connection, with WAL, serialized migration
+  startup and a single-instance boundary. Any later pool-width upgrade is a
+  separate authorized, measured change.
+- Evidence: independent review, independent tester acceptance, foundation
+  audit, full/local validation, routing/contract tests and exact-candidate
+  diff checks all passed.
+- Runtime/build profiles were `NOT_APPLICABLE` because no runtime module or
+  Dockerfile is introduced by this planning Slice.
+- No CTRL/IMS code, data, migration or authority was changed.
+
+## PF-B2-S01 — User and authentication authority
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b2-s01-user-authentication.md`](../../plan/completed/pf-b2-s01-user-authentication.md)
+- Accepted implementation candidate: `3d283961b8b6f88bd301712555587c2c556a857f`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, migration-ledger checks, secure
+  cookie/CSRF/rate-limit tests, and one-connection SQLite evidence all passed.
+- The Slice owns Platform identity/authentication only; no CTRL/IMS code, data,
+  migration or authority cutover was changed.
+
+## PF-B2-S02 — Sessions, MFA, recovery and revocation
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b2-s02-sessions-security.md`](../../plan/completed/pf-b2-s02-sessions-security.md)
+- Accepted implementation candidate: `7a05b179419ebbe77dee18aaf1bace40d3f5fced`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, fresh/upgrade/reopen migration
+  checks, race validation, protected-boundary tests, TOTP/recovery replay
+  checks and bounded session cleanup all passed.
+- No CTRL/IMS sessions, credentials, data, migration or authority was copied
+  or cut over.
+
+## PF-B2 — Identity and authentication
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B2-S01 and PF-B2-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `7a05b179419ebbe77dee18aaf1bace40d3f5fced`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local full/local validation, migration/audit reconciliation and all 63
+  Slice route signatures: **PASS**.
+- Platform owns identity, authentication, sessions, MFA, recovery and
+  revocation; CTRL/IMS authority and data remain outside this Batch.
+
+## PF-B1 — Repository, standards and architecture foundation
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B1-S01, PF-B1-S02 and PF-B1-S03 are terminal in
+  `plan/completed/`.
+- Accepted Batch candidate: `495d3e0278877d0f9c79fc8fb1f3e0ec65a7bf82`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local validation and all 63 Slice route signatures: **PASS**.
+- No CTRL/IMS migration or authority cutover is claimed.
+
+## PF-B3-S01 — Organisation authority
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b3-s01-organisation-authority.md`](../../plan/completed/pf-b3-s01-organisation-authority.md)
+- Accepted implementation candidate: `b82155c4606102750a537f6a5bc39be05939ed9e`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, fresh/upgrade/reopen/divergence
+  migration checks, transactional membership/audit tests and cross-Organisation
+  denial tests all passed.
+- Platform now owns Organisation lifecycle and canonical owner/admin/member
+  membership history. Owner transfer semantics remain explicitly unresolved;
+  direct owner mutation is denied rather than inferred.
+- No CTRL/IMS code, data, migration or authority cutover was changed.
+
+## PF-B3-S02 — Organisation administration seams
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b3-s02-organisation-administration.md`](../../plan/completed/pf-b3-s02-organisation-administration.md)
+- Accepted implementation candidate: `5181e76de4b3feeb22b9bcc18b3929014915b286`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, v4 fresh/upgrade/reopen/divergence
+  migration checks, HTTP authorization/CSRF/redaction/safe-error tests, audit
+  continuity and Workspace entry-seam tests all passed.
+- The Platform exposes narrow Organisation command/read seams only; system-role
+  recognition is explicit, Workspace data remains PF-B4-owned and product roles
+  remain absent.
+- No CTRL/IMS route, code, data, migration or authority cutover was changed.
+
+## PF-B3 — Organisation authority
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B3-S01 and PF-B3-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `5181e76de4b3feeb22b9bcc18b3929014915b286`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local `full/local` validation, audit/reconciliation, migration and
+  Platform boundary checks: **PASS**; container builds **NOT_APPLICABLE** without
+  an authorised Dockerfile.
+- PF-B4-S01 was the next dependency-ready Slice at this Batch certification
+  point; it is now terminally recorded below. No CTRL/IMS authority cutover,
+  product role or production-data import is claimed.
+
+## PF-B4-S01 — Workspace authority
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b4-s01-workspace-authority.md`](../../plan/completed/pf-b4-s01-workspace-authority.md)
+- Accepted implementation candidate: `0835ba67bd38460676740cdf058e56b17b1330c7`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, v5 fresh/upgrade/reopen/divergence
+  migration checks, concurrent membership proof, HTTP authorization/CSRF/
+  redaction/safe-error tests and Workspace audit/history assertions all passed.
+- Platform now owns Organisation-owned Workspace lifecycle, generic
+  admin/member/viewer membership, deterministic authorised default selection,
+  audit continuity and active Organisation parent-scope enforcement.
+- SQLite remains intentionally limited to one connection until a separate
+  authorised, measured upgrade. Container builds are **NOT_APPLICABLE** without
+  an authorised Dockerfile.
+- No CTRL/IMS code, data, migration, product role or authority cutover was
+  changed. PF-B4 is now terminally certified below.
+
+## PF-B4-S02 — Workspace access and scope guard
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b4-s02-workspace-access.md`](../../plan/completed/pf-b4-s02-workspace-access.md)
+- Accepted implementation candidate: `9105b7debbb3aa857a1472373bb410676976900e`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate `full/local` validation, active-scope truth-table tests,
+  tampered/revoked/archived fail-closed tests, concurrent revocation proof,
+  HTTP middleware coverage and race validation all passed.
+- Platform now exposes one reusable User + Organisation + Workspace scope
+  proof; protected Workspace reads and mutations use route middleware plus
+  transaction-time writer rechecks. Product roles remain outside the proof.
+- No CTRL/IMS code, data, product role or authority cutover was changed.
+
+## PF-B4 — Workspace authority
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B4-S01 and PF-B4-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `9105b7debbb3aa857a1472373bb410676976900e`
+- Independent Batch review and independent Batch tester acceptance: **PASS**.
+- Batch-local `full/local` validation, Workspace migration/history/audit,
+  scope-guard, HTTP and race evidence: **PASS**; container builds
+  **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform retains one SQLite connection. PF-B5-S01 is the next
+  dependency-ready Slice; no CTRL/IMS migration or authority cutover is
+  claimed.
+
+## PF-B8-S01 — Platform layouts, selectors and launcher
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b8-s01-platform-shell.md`](../../plan/completed/pf-b8-s01-platform-shell.md)
+- Accepted implementation candidate: `57b1669312d9336e7f5a0d0812e9135c38e75994`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate HTTP/presentation tests, frontend/architecture/security
+  profiles, focused race validation and wide/narrow browser verification all
+  passed. The `full/local` composite race child exceeded its fixed 300-second
+  bound and is recorded as **TIMEOUT**, not PASS.
+- Platform now provides the shared server-rendered shell,
+  Organisation/Workspace selectors and access-gated product launcher. Product
+  roles and operational screens remain outside Platform.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed. PF-B8 is now terminally certified and PF-B9-S01 is the next
+  dependency-ready Slice.
+
+## PF-B8-S02 — Platform administration UI
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b8-s02-administration-ui.md`](../../plan/completed/pf-b8-s02-administration-ui.md)
+- Accepted implementation candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`
+- Evidence: independent engineering review, independent tester acceptance,
+  exact-candidate Organisation/Workspace/System Admin HTTP tests, CSRF and
+  fail-closed role checks, frontend/architecture/security profiles, focused
+  race validation and wide/narrow browser verification all passed. The
+  `full/local` composite race child exceeded its fixed 300-second bound and is
+  recorded as **TIMEOUT**, not PASS.
+- Platform now provides the initial server-rendered Organisation, Workspace
+  and System Admin surfaces with recorded audit/history facts. Product roles,
+  billing and CTRL/IMS operational screens remain outside Platform.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, migration, product role or authority cutover was
+  changed.
+
+## PF-B8 — Platform administration UI
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B8-S01 and PF-B8-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `13315d0fbb2c3b2163f9b34c4f8449de4cefb735`.
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local named profiles, authorization/CSRF, audit/history, responsive
+  browser and focused race evidence: **PASS**; the fixed `full/local` race
+  child is retained as **TIMEOUT**, not converted to PASS. Container builds
+  are **NOT_APPLICABLE** without an authorised Dockerfile.
+- PF-B9 is now terminally recorded below. No CTRL/IMS authority cutover or
+  product-role ownership is claimed.
+
+## PF-B9-S01 — CTRL/IMS reconciliation inventory and mapping
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b9-s01-reconciliation.md`](../../plan/completed/pf-b9-s01-reconciliation.md)
+- Accepted implementation candidate: `eafb9451572d248275f6eafe6174a547a4eceadb`
+- Evidence: deterministic normalized inventory/proposal tests, collision and
+  ambiguity blocking, source-linked relationship checks, redacted repeatable
+  CLI output, independent review, independent tester acceptance and exact
+  candidate `full/local` validation all passed. Container builds are
+  **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform now provides read-only fixture/adapter reconciliation proposals for
+  Users, Organisations, Workspaces and memberships. Source/version/source-ID
+  provenance is retained; no identity is accepted silently and unresolved
+  mappings remain blocked.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, source connector, product role, import or authority
+  cutover was changed.
+
+## PF-B9-S02 — Dry-run/import and rollback tooling
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b9-s02-migration-tooling.md`](../../plan/completed/pf-b9-s02-migration-tooling.md)
+- Accepted implementation candidate: `05b4cfb020dead9cc5cc1fcd22e8bb2cb671489d`
+- Evidence: signed fixture-manifest approval and verification, deterministic
+  fixture import, HMAC checkpoint integrity, pause/resume, idempotency,
+  compensating rollback, audit retention, independent review, independent
+  tester acceptance and exact-candidate `full/local` validation all passed.
+  Container builds are **NOT_APPLICABLE** without an authorised Dockerfile.
+- Platform now has a fixture-only rehearsal boundary for staged migration
+  manifests. Blocked/ambiguous records cannot be imported, and production
+  import, shadow mode and authority cutover remain outside PF.
+- No Platform SQLite migration, CTRL/IMS source connector, production record,
+  product role or authority cutover was added. PF-B9 is terminally certified;
+  PF-B10-S02 is the next dependency-ready Slice.
+
+## PF-B9 — CTRL/IMS reconciliation and migration tooling
+
+- Status: **Implemented / terminal Batch certification**
+- Slices PF-B9-S01 and PF-B9-S02 are terminal in `plan/completed/` and were
+  delivered strictly in dependency order.
+- Accepted Batch candidate: `9c073cba5ce495de9bc217696062485c9999ab62`.
+- Independent Batch engineering review and independent Batch tester
+  acceptance: **PASS**.
+- Batch-local signed-manifest, fixture import/rollback, provenance, profile
+  and race evidence: **PASS**; container builds are **NOT_APPLICABLE** without
+  an authorised Dockerfile.
+- PF-B10-S02 is now the next dependency-ready Slice. No production import,
+  consumer-repository migration or authority cutover is claimed.
+
+## PF-B10-S01 — Security and hardened runtime
+
+- Status: **Implemented / terminal**
+- Historical plan: [`plan/completed/pf-b10-s01-runtime-hardening.md`](../../plan/completed/pf-b10-s01-runtime-hardening.md)
+- Accepted implementation candidate: `6cdfed1179d4f0dbc5266991ad6074741ef7dd75`
+- Independent engineering review, independent tester acceptance and exact
+  candidate `full/local` validation all passed. Format, architecture,
+  security, migration, frontend, quality, unit, integration, repository-wide
+  race, AMD64 and ARM64 container build profiles all passed.
+- Platform now has strict secret-safe startup configuration, bounded HTTP
+  resources, restrictive security headers, graceful shutdown, distinct safe
+  `/healthz` and SQLite-backed `/readyz`, and hardened non-root container
+  targets for Linux AMD64/ARM64. Compose applies read-only root storage,
+  dropped capabilities, bounded `/tmp`, no-new-privileges and a persistent
+  Platform data volume.
+- The initial one-connection SQLite policy remains unchanged. No CTRL/IMS
+  production code, data, connector, product role, production record or
+  authority cutover was changed. PF-B10-S01-R1 and PF-B10-S02 are terminally
+  recorded below; PF-B10 is certified.
+
+## PF-B10-S01-R1 — Runtime asset packaging repair
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b10-s01-r1-runtime-assets.md`](../../plan/completed/pf-b10-s01-r1-runtime-assets.md)
+- Accepted repair candidate: `2dbac87909b296e66da33f1e9f26d049bbbd1bd7`
+- Independent engineering review, independent tester acceptance, exact
+  `full/local` validation, AMD64/ARM64 builds and real-browser `/login`,
+  `/healthz`, `/readyz`, CSS MIME and favicon checks all passed.
+- The repair packages the existing source-owned static assets in the hardened
+  image and adds a safe `204` favicon response. It introduces no new product
+  authority, schema, migration, SQLite pool change or CTRL/IMS code/data.
+- PF-B10-S02 was promoted only after this repair was terminally published and
+  is certified below.
+
+## PF-B10-S02 — Final Platform foundation certification
+
+- Status: **Implemented / terminal**
+- Completed plan: [`plan/completed/pf-b10-s02-final-certification.md`](../../plan/completed/pf-b10-s02-final-certification.md)
+- Validated certification candidate: `26d6923dfc277e71a1253b110bd6f740ce3b475f`
+- Independent engineering review, independent tester acceptance, final
+  certification reconciliation and exact `full/local` validation all passed.
+- All PF plan rows and prior Batch evidence reconcile through PF-B10. No later
+  Slice was implemented in parallel, and no CTRL/IMS migration, production
+  import, authority cutover or SQLite pool upgrade is authorized.
+
+## PF-B10 — Security, runtime and final certification
+
+- Status: **Implemented / terminal Batch certification**
+- Batch certification: [`docs/implementation/audits/pf-b10-batch-certification.md`](audits/pf-b10-batch-certification.md)
+- PF-B10-S01, PF-B10-S01-R1 and PF-B10-S02 are terminal and were delivered in
+  strict dependency order with candidate-bound independent gates.
+- The Platform Foundation programme is terminal at the authorised scope. Future
+  runtime upgrades or cross-repository authority changes require a new explicit
+  plan and independent acceptance.
+
+## PD-D8-S02-WP-PD8S02-05 — Final cutover and recovery rehearsal
+
+- Status: **Implemented / terminal for the disposable rehearsal**
+- Exact candidates: Platform `dd721cfdfcd0f680a8cfe070162105bfead4f917`, CTRL `217b210ee03a0a0b54f01fbe6ffb038917f14f37`, IMS `86068d15573cfe608007db64c6b7d6584eb5d99f`.
+- Evidence: [cutover/recovery rehearsal](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md) and [machine-readable evidence](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.json).
+- Backup/restore, projection resynchronisation, membership command correlation, Platform outage/recovery, staged cutover, bounded rollback, sole-writer, local-request and unchanged product-data checks passed. Production activation remains separately gated by WP06.
