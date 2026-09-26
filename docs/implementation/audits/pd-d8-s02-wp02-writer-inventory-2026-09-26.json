@@ -1,0 +1,31 @@
+{
+  "work_package": "WP-PD8S02-02",
+  "date": "2026-09-26",
+  "candidates": {
+    "platform": "3115caad66b4086535720a03ccf08c2766666edd",
+    "ctrl": "4710090b2d6019bc1686945828bc1e90eb7f6a8d",
+    "ims": "69344937bcb8e030976dd2c67447d7d2d41861a8"
+  },
+  "decision": "platform_is_only_shared_authority_writer_in_platform_mode",
+  "local_compatibility_mode": {
+    "ctrl": "TOCKR_PLATFORM_MEMBERSHIP_WRITE_MODE=local",
+    "ims": "TOCKRIMS_PLATFORM_MEMBERSHIP_WRITE_MODE=local",
+    "simultaneous_with_platform_mode": false
+  },
+  "checks": {
+    "platform_authoritative_writer_inventory": "PASS",
+    "ctrl_local_projection_normal_requests": "PASS",
+    "ims_local_projection_normal_requests": "PASS",
+    "ordinary_request_synchronous_platform_dependency": "PASS_NO_DEPENDENCY",
+    "product_owned_project_discipline_programme_control_commercial_data": "PASS_LOCAL",
+    "dual_enabled_shared_writer": "PASS_NONE"
+  },
+  "tests": {
+    "platform": "PASS",
+    "ctrl": "PASS",
+    "ims": "PASS",
+    "repository_wide_go_test": "PASS"
+  },
+  "production_cutover_performed": false,
+  "unresolved_exceptions": []
+}

@@ -15,7 +15,7 @@ The only repair was a tests-only current-time reconciliation fixture in each con
 
 ## Next gate
 
-PD-D8-S02 — Platform authority integration certification is the next ready cross-repository slice. It must compare semantic contracts, prove sole shared-authority writing and local projection reads, inventory compatibility usage, and rehearse bounded retirement/cutover/rollback before any production activation. This handoff does not authorize a production cutover.
+PD-D8-S02 — Platform authority integration certification is the next ready cross-repository slice. Its semantic comparison (WP-PD8S02-01) and sole-writer/local-reader inventory (WP-PD8S02-02) are now terminally reviewed and accepted. The remaining D8-S02 work must rehearse bounded retirement/cutover/rollback before any production activation. This handoff does not authorize a production cutover.
 
 WSL Docker evidence: docker buildx build --platform linux/amd64 and linux/arm64 both completed successfully from C:\MyGitProjects\tockrPlatform on the exact Platform candidate. The Windows full/local wrapper's Docker children are TOOL_FAIL because no Windows docker executable is installed; the equivalent WSL commands are the authoritative build evidence.
 
