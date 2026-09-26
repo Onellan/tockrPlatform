@@ -65,9 +65,9 @@
   "date": "2026-09-26",
   "private_material": false,
   "source_candidates": {
-    "platform": "dd721cfdfcd0f680a8cfe070162105bfead4f917",
-    "ctrl": "217b210ee03a0a0b54f01fbe6ffb038917f14f37",
-    "ims": "86068d15573cfe608007db64c6b7d6584eb5d99f"
+    "platform": "ec9bb853c20308dc8d808c425b257d8099f611fd",
+    "ctrl": "7d5b23629aa0a3725eaa1ff15dddf4e298b077ea",
+    "ims": "1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d"
   },
   "current_writer_gate": "PASS: real membership write middleware and local writer guards exercised on exact source candidates",
   "product_fingerprint_evidence": "PASS: reconciliation/mapping tests recorded unchanged product-owned fingerprints",
