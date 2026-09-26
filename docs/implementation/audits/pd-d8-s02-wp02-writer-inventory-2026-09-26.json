@@ -3,8 +3,8 @@
   "date": "2026-09-26",
   "candidates": {
     "platform": "3115caad66b4086535720a03ccf08c2766666edd",
-    "ctrl": "4710090b2d6019bc1686945828bc1e90eb7f6a8d",
-    "ims": "69344937bcb8e030976dd2c67447d7d2d41861a8"
+    "ctrl": "809afc951eebce23c6b4fb6e5cbe822c5a75103d",
+    "ims": "bd4b26a0eefb86fb4900777e683c319334f6f179"
   },
   "evidence_publication_commits": {
     "platform": "19d4193524b1b2fe551b31059af244cb3b057329",
@@ -23,13 +23,15 @@
     "ims_local_projection_normal_requests": "PASS",
     "ordinary_request_synchronous_platform_dependency": "PASS_NO_DEPENDENCY",
     "product_owned_project_discipline_programme_control_commercial_data": "PASS_LOCAL",
-    "dual_enabled_shared_writer": "PASS_NONE"
+    "dual_enabled_shared_writer": "PASS_NONE",
+    "consumer_local_writer_guard": "PASS"
   },
   "tests": {
     "platform": "PASS",
     "ctrl": "PASS",
     "ims": "PASS",
-    "repository_wide_go_test": "PASS"
+    "repository_wide_go_test": "PASS",
+    "sole_writer_guard_tests": "PASS"
   },
   "production_cutover_performed": false,
   "unresolved_exceptions": []
