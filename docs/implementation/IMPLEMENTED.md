@@ -4,7 +4,7 @@
 
 - Status: **Implemented / terminal in CTRL and IMS; Platform handoff recorded**
 - Platform candidate: `cc78557d8048bac6392f837166cb101460f43c98`
-- Published CTRL/IMS mains: `8964b571b65e9917164ce0fa657e6cb541873d25` / `956a1c1e8e9629dfb8f112d8279c023fbffab43e`
+- Published CTRL/IMS mains: `71406518624d3260d96f52e0cbde8eb8b89d440c` / `d5d438b8707ae92136e4677bdc2a96ecbc76199c`
 - Accepted consumer code candidates: CTRL `bfbd808cec5c3dc705bef1c2e8e2e6296dead76c`, IMS `63e47c0929fd417b6d7c526bb662ba7fdf5cd5a5`
 - Platform handoff: [`pd-d8-s01-platform-handoff-2026-09-26.md`](pd-d8-s01-platform-handoff-2026-09-26.md)
 - Consumer plans and independent review/acceptance records are terminal in their repositories. The only repair was a tests-only current-time reconciliation fixture; Platform code and data were unchanged.
