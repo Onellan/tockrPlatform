@@ -141,7 +141,8 @@ def validate_state(state: object, *, root: Path = ROOT) -> list[str]:
             # plan without acquiring new routing metadata.
             if isinstance(packages, list):
                 for package in packages:
-                    if isinstance(package, dict) and isinstance(package.get("id"), str):
+                    if (isinstance(package, dict) and isinstance(package.get("id"), str)
+                            and package.get("status") != "pass"):
                         package_issues = validate_plan(plan_path, package["id"])
                         issues.extend(f"delivery plan routing: {issue}" for issue in package_issues)
             declared = set(declared_packages(plan_path))
@@ -189,7 +190,11 @@ def validate_state(state: object, *, root: Path = ROOT) -> list[str]:
             if package_id in routed_packages:
                 issues.append(f"duplicate routing decision: {package_id}")
             routed_packages.add(package_id)
-            if plan_path is not None and plan_path.is_file():
+            package_passed = any(
+                isinstance(package, dict) and package.get("id") == package_id and package.get("status") == "pass"
+                for package in (packages if isinstance(packages, list) else [])
+            )
+            if not package_passed and plan_path is not None and plan_path.is_file():
                 route = declared_route(plan_path, package_id)
                 if route is None:
                     issues.append(f"routing decision has no unique plan Route signature: {package_id}")
