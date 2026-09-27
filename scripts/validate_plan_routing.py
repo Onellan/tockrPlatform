@@ -15,6 +15,20 @@ ROUTE = re.compile(r"^\s*Route:\s*kind=(?P<kind>[a-z-]+);\s*risk=(?P<risk>[REH])
 
 
 def validate_text(text: str, package: str | None = None) -> list[str]:
+    if package is not None:
+        lines = text.splitlines()
+        starts = [index for index, line in enumerate(lines) if (match := PACKAGE_HEADING.match(line)) and match.group("package") == package]
+        if not starts:
+            return [f"requested work package is not declared: {package}"]
+        if len(starts) != 1:
+            return [f"duplicate work package {package}"]
+        start = starts[0]
+        end = next((index for index in range(start + 1, len(lines)) if PACKAGE_HEADING.match(lines[index])), len(lines))
+        # A selected-package check is local to that package. Terminal or
+        # otherwise unrelated packages may intentionally have no current
+        # routing signature; whole-plan validation remains strict below.
+        return validate_text("\n".join(lines[start:end]))
+
     issues: list[str] = []
     packages: list[str] = []
     routes: dict[str, list[dict[str, object]]] = {}
@@ -51,11 +65,6 @@ def validate_text(text: str, package: str | None = None) -> list[str]:
         count = len(routes.get(name, []))
         if count != 1:
             issues.append(f"work package {name} must contain exactly one Route signature (found {count})")
-    if package is not None:
-        if package not in packages:
-            issues.append(f"requested work package is not declared: {package}")
-        elif len(routes.get(package, [])) != 1:
-            issues.append(f"requested work package has no unique Route signature: {package}")
     return issues
 
 

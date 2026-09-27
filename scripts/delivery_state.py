@@ -136,8 +136,14 @@ def validate_state(state: object, *, root: Path = ROOT) -> list[str]:
         if plan_path is None or not plan_path.is_file():
             issues.append("delivery state plan is unavailable for route validation")
         else:
-            plan_issues = validate_plan(plan_path)
-            issues.extend(f"delivery plan routing: {issue}" for issue in plan_issues)
+            # Delivery state routes only work packages participating in this
+            # execution. Historical terminal packages can remain in an active
+            # plan without acquiring new routing metadata.
+            if isinstance(packages, list):
+                for package in packages:
+                    if isinstance(package, dict) and isinstance(package.get("id"), str):
+                        package_issues = validate_plan(plan_path, package["id"])
+                        issues.extend(f"delivery plan routing: {issue}" for issue in package_issues)
             declared = set(declared_packages(plan_path))
             if isinstance(packages, list):
                 for package in packages:
