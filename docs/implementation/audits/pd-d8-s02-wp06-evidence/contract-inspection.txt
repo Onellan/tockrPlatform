@@ -1,0 +1,85 @@
+scripts/validate_plan_routing.py-9-
+scripts/validate_plan_routing.py-10-from shared_delivery_contract import ALLOWED_KINDS, ALLOWED_RISK_CODES
+scripts/validate_plan_routing.py-11-
+scripts/validate_plan_routing.py-12-ALLOWED_CODES = ALLOWED_RISK_CODES
+scripts/validate_plan_routing.py-13-PACKAGE_HEADING = re.compile(r"^\s{0,3}#{2,6}\s+(?:Work package\s+)?(?P<package>WP[A-Za-z0-9_-]*)\b", re.IGNORECASE)
+scripts/validate_plan_routing.py-14-ROUTE = re.compile(r"^\s*Route:\s*kind=(?P<kind>[a-z-]+);\s*risk=(?P<risk>[REH])\[(?P<codes>[A-Z, ]*)\]\s*$")
+scripts/validate_plan_routing.py-15-
+scripts/validate_plan_routing.py-16-
+scripts/validate_plan_routing.py:17:def validate_text(text: str, package: str | None = None) -> list[str]:
+scripts/validate_plan_routing.py-18-    if package is not None:
+scripts/validate_plan_routing.py-19-        lines = text.splitlines()
+scripts/validate_plan_routing.py-20-        starts = [index for index, line in enumerate(lines) if (match := PACKAGE_HEADING.match(line)) and match.group("package") == package]
+scripts/validate_plan_routing.py-21-        if not starts:
+scripts/validate_plan_routing.py-22-            return [f"requested work package is not declared: {package}"]
+scripts/validate_plan_routing.py-23-        if len(starts) != 1:
+scripts/validate_plan_routing.py-24-            return [f"duplicate work package {package}"]
+scripts/validate_plan_routing.py-25-        start = starts[0]
+scripts/validate_plan_routing.py-26-        end = next((index for index in range(start + 1, len(lines)) if PACKAGE_HEADING.match(lines[index])), len(lines))
+scripts/validate_plan_routing.py:27:        # A selected-package check is local to that package. Terminal or
+scripts/validate_plan_routing.py-28-        # otherwise unrelated packages may intentionally have no current
+scripts/validate_plan_routing.py-29-        # routing signature; whole-plan validation remains strict below.
+scripts/validate_plan_routing.py-30-        return validate_text("\n".join(lines[start:end]))
+scripts/validate_plan_routing.py-31-
+scripts/validate_plan_routing.py-32-    issues: list[str] = []
+scripts/validate_plan_routing.py-33-    packages: list[str] = []
+scripts/validate_plan_routing.py-34-    routes: dict[str, list[dict[str, object]]] = {}
+scripts/validate_plan_routing.py-35-    current: str | None = None
+--
+scripts/validate_plan_routing.py-49-            issues.append(f"line {line_number}: route signature is outside a work package")
+scripts/validate_plan_routing.py-50-            continue
+scripts/validate_plan_routing.py-51-        raw_codes = [code.strip() for code in route.group("codes").split(",") if code.strip()]
+scripts/validate_plan_routing.py-52-        if len(raw_codes) != len(set(raw_codes)):
+scripts/validate_plan_routing.py-53-            issues.append(f"line {line_number}: duplicate risk code(s) are not allowed")
+scripts/validate_plan_routing.py-54-        codes = sorted(set(raw_codes))
+scripts/validate_plan_routing.py-55-        unknown = sorted(set(codes) - ALLOWED_CODES)
+scripts/validate_plan_routing.py-56-        if route.group("kind") not in ALLOWED_KINDS:
+scripts/validate_plan_routing.py:57:            issues.append(f"line {line_number}: unsupported work-package kind")
+scripts/validate_plan_routing.py-58-        if unknown:
+scripts/validate_plan_routing.py-59-            issues.append(f"line {line_number}: unsupported risk code(s): {', '.join(unknown)}")
+scripts/validate_plan_routing.py-60-        routes[current].append({"kind": route.group("kind"), "risk": route.group("risk"), "risk_codes": codes})
+scripts/validate_plan_routing.py-61-
+scripts/validate_plan_routing.py-62-    if not packages:
+scripts/validate_plan_routing.py-63-        issues.append("plan must declare at least one WP work-package heading")
+scripts/validate_plan_routing.py-64-    for name in packages:
+scripts/validate_plan_routing.py-65-        count = len(routes.get(name, []))
+--
+scripts/test_plan_routing.py-43-Route: kind=routine; risk=R[UI]
+scripts/test_plan_routing.py-44-
+scripts/test_plan_routing.py-45-## WP02 - elevated change
+scripts/test_plan_routing.py-46-Route: kind=authorization; risk=E[AUTH]
+scripts/test_plan_routing.py-47-"""
+scripts/test_plan_routing.py-48-        self.assertEqual(validate_text(plan), [])
+scripts/test_plan_routing.py-49-        self.assertEqual(validate_text(plan, "WP02"), [])
+scripts/test_plan_routing.py-50-
+scripts/test_plan_routing.py:51:    def test_missing_duplicate_or_unknown_route_is_fail_closed(self):
+scripts/test_plan_routing.py-52-        plan = """
+scripts/test_plan_routing.py-53-## WP01 - bounded change
+scripts/test_plan_routing.py-54-Route: kind=routine; risk=R[]
+scripts/test_plan_routing.py-55-Route: kind=routine; risk=R[UNKNOWN]
+scripts/test_plan_routing.py-56-## WP02 - missing route
+scripts/test_plan_routing.py-57-"""
+scripts/test_plan_routing.py-58-        issues = validate_text(plan)
+scripts/test_plan_routing.py-59-        self.assertTrue(any("exactly one" in issue for issue in issues))
+scripts/test_plan_routing.py-60-        self.assertTrue(any("unsupported risk code" in issue for issue in issues))
+scripts/test_plan_routing.py-61-
+scripts/test_plan_routing.py:62:    def test_selected_package_ignores_unrelated_terminal_packages(self):
+scripts/test_plan_routing.py-63-        plan = """
+scripts/test_plan_routing.py-64-## WP01 - terminal package
+scripts/test_plan_routing.py-65-No historical route signature is required.
+scripts/test_plan_routing.py-66-
+scripts/test_plan_routing.py-67-## WP06 - current package
+scripts/test_plan_routing.py-68-Route: kind=defect; risk=E[GOV,DOC,API]
+scripts/test_plan_routing.py-69-"""
+scripts/test_plan_routing.py-70-        self.assertEqual(validate_text(plan, "WP06"), [])
+scripts/test_plan_routing.py-71-        self.assertTrue(any("exactly one" in issue for issue in validate_text(plan)))
+scripts/test_plan_routing.py-72-
+scripts/test_plan_routing.py:73:    def test_selected_package_rejects_missing_duplicate_and_unknown(self):
+scripts/test_plan_routing.py-74-        missing = "## WP06 - current\n"
+scripts/test_plan_routing.py-75-        duplicate = "## WP06 - current\nRoute: kind=defect; risk=E[GOV]\nRoute: kind=defect; risk=E[DOC]\n"
+scripts/test_plan_routing.py-76-        valid = "## WP06 - current\nRoute: kind=defect; risk=E[GOV]\n"
+scripts/test_plan_routing.py-77-        self.assertTrue(any("exactly one" in issue for issue in validate_text(missing, "WP06")))
+scripts/test_plan_routing.py-78-        self.assertTrue(any("exactly one" in issue for issue in validate_text(duplicate, "WP06")))
+scripts/test_plan_routing.py-79-        self.assertTrue(any("not declared" in issue for issue in validate_text(valid, "WP99")))
+scripts/test_plan_routing.py-80-
+scripts/test_plan_routing.py-81-    def test_all_active_execution_plans_are_routeable(self):

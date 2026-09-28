@@ -1,0 +1,6 @@
+{
+  "status": "FAIL",
+  "issues": [
+    "work package WP06 must contain exactly one Route signature (found 0)"
+  ]
+}

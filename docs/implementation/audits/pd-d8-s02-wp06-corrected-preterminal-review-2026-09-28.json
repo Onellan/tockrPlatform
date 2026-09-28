@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-corrected-preterminal-review-2026-09-28-r1",
+  "role": "independent engineering reviewer",
+  "verdict": "PASS",
+  "findings": [],
+  "candidate": {
+    "Platform": {
+      "source_commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+      "candidate_tree": "55468e98199f1e9ea2215f552cc74d4c9aab109d"
+    },
+    "CTRL": {
+      "source_commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "candidate_tree": "2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd"
+    },
+    "IMS": {
+      "source_commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "source_tree": "90778a268b3b81826c50ab58b27706c29ebde8c7",
+      "candidate_tree": "ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30"
+    }
+  },
+  "review_checks": [
+    "Corrected .fixture filenames avoid repository docs lint while preserving fixture bytes and behavior.",
+    "All three current staged trees match reviewed IDs and contain no unstaged changes.",
+    "Source-freeze, local evidence bundle manifests and both tester manifests verify.",
+    "The previous POSTCONDITION_FAIL for CTRL/IMS docs lint is accurately retained as fixture-context history, and corrected registry outputs are bound to their synthetic validation commits and source trees.",
+    "WP06.2 and earlier final-gate reports remain clearly bound to their historical staged tree tuples.",
+    "Production remains NOT ACTIVE / NOT PROVIDED; no production activation, deployment mode change, migration, or compatibility retirement occurred."
+  ],
+  "validation_context": {
+    "Platform": {
+      "staged_tree_tested": "ef65196aaad2a28cf7ff9f1548eeb700d413d677",
+      "validation_commit": "ff7b09f82eec0b2b29436d0abb59f856ba96c84c",
+      "profile": "format"
+    },
+    "CTRL": {
+      "staged_tree_tested": "b04aa949d2d57a7aa208a5dd2c23675a2221c9a4",
+      "validation_commit": "99a8f6ae94281a46252f5ed265dbb181caff143a",
+      "profile": "ci-architecture"
+    },
+    "IMS": {
+      "staged_tree_tested": "1f1883054ef54f5aa93b55014588659d0fb783dd",
+      "validation_commit": "81ae03ba98b1f894003ace1aac1426e8b44068ca",
+      "profile": "ci-architecture"
+    }
+  },
+  "scope": "Reviewer did not rerun validations; reviewed their candidate-bound reports and outputs. Final tester acceptance on this exact corrected record tree remains pending."
+}

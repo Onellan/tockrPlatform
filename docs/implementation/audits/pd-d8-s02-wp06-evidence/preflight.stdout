@@ -1,0 +1,8 @@
+candidate=cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5
+branch=worktree_status=clean
+index_diff_exit=0
+worktree_diff_exit=0
+python=Python 3.10.12
+go=go version go1.27.1 linux/amd64
+gofmt_path=/usr/local/go/bin/gofmt
+gofmt_preflight_exit=0

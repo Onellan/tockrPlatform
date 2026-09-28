@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-full-closeout-tester-acceptance-2026-09-28-r1",
+  "verdict": "PASS",
+  "scope": "Acceptance of exact staged pre-terminal closeout candidate; does not certify final exact-head validation, publication, or terminal plan/queue moves.",
+  "candidate": {
+    "Platform": {
+      "source_commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+      "staged_tree": "8d77154f23342593547ae826499d0d083e10f196"
+    },
+    "CTRL": {
+      "source_commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "candidate_id": "2f4d232abba8c9bc163aa5fec8afa39c74ea1ec9525ba3bcd54e659be2476f34",
+      "fingerprint": "e92e1c5195b2bfd8c8df0a0e074d825e419978adef3419b62c989f74ced1476f",
+      "staged_tree": "c8ec11c9c57a1c8229521849e7356fa65788210f"
+    },
+    "IMS": {
+      "source_commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "candidate_id": "0c8895e0f206c516488942f40cc41115f4f42c0ea7f6917f04e26a24eebf5feb",
+      "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+      "staged_tree": "b34c2d895a76b88a9930de3833d40a6f35f2b071"
+    }
+  },
+  "acceptance": [
+    {
+      "evidence_id": "E01",
+      "result": "PASS",
+      "command": "python3 scripts/test_plan_routing.py -v",
+      "exit": 0,
+      "result_detail": "11 tests passed: terminal routing, active missing-route behavior, selected-package missing/duplicate/unknown cases, delivery_state, strict whole-plan validation.",
+      "output_sha256": "d168e591d10bf95b7e1faa84655f0bad3d5417d463619781fc449afbbd93c5e5"
+    },
+    {
+      "evidence_id": "E02-E03",
+      "result": "PASS",
+      "commands": [
+        "python3 scripts/validate.py describe format",
+        "PATH=/usr/local/go/bin:$PATH python3 scripts/validate.py run format"
+      ],
+      "describe_output_sha256": "feaf27aee4eda50ca615ea6b46140eeb65d4d8c6a4bad1a0ced574bbd1bbd6ee",
+      "format_output_sha256": "5db79ace010d18df4bf821dd1c1a30c58bf61801e312c6a3149b309e72b31552",
+      "initial_TOOL_FAIL_output_sha256": "12ac525e93e39891e65d040e28df46e8dd1fc9fd82e72b7dc3876f38af4eae87",
+      "initial_classification": "BLOCKED / NOT RUN \u2014 TOOL_FAIL: gofmt absent from initial PATH",
+      "rerun_preflight": "gofmt and Go resolved from /usr/local/go/bin; go version go1.27.1 linux/amd64",
+      "rerun_exit": 0
+    },
+    {
+      "evidence_id": "E04",
+      "result": "PASS",
+      "command": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md --package WP-PD8S02-06",
+      "exit": 0,
+      "output_sha256": "611eeaed1ec1ac0685af2340b74cb129738004462646d959642ce4547ea50d"
+    },
+    {
+      "evidence_id": "E05",
+      "result": "PASS \u2014 expected strict rejection",
+      "command": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md",
+      "exit": 1,
+      "output_sha256": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856"
+    },
+    {
+      "evidence_id": "E06",
+      "result": "PASS",
+      "criteria": "Exact staged candidate identities, source tuple, ancestry, record reconciliation, historical immutability, production boundary",
+      "reconciliation_sha256_each_repository": "aa6b03903f445ae2c5a57faa3a89b9c2fac16189fe2804d1dfd1c79c0b5134ce",
+      "reviewer_gate": {
+        "evidence_id": "wp06-full-closeout-review-2026-09-28-r1",
+        "verdict": "PASS",
+        "findings": []
+      },
+      "immutability": "WP01-WP05 audits/acceptance, IMPLEMENTED.md and plan/incomplete.md have identical Git blob IDs between WP06.1 parent and source candidate."
+    },
+    {
+      "evidence_id": "E07",
+      "result": "PASS in each repo; validation output digests recomputed and matched",
+      "manifest_checks": {
+        "combined": {
+          "entries": 50,
+          "sha256": "cab070909c627574f1204907b7973b965db5fd35a126e8baf30f01555d49b4f4"
+        },
+        "tester_E05_E07": {
+          "entries": 23,
+          "sha256": "8c1b30f5dddb8f2239629ab64c884cf0c1040ec32ca800f84343b3a714299d85"
+        },
+        "tester_E01_E04": {
+          "entries": 11,
+          "sha256": "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b"
+        }
+      }
+    }
+  ],
+  "IMS_validation": {
+    "registry_profile": "ci-architecture",
+    "first_run": {
+      "evidence_id": "wp06-2-ims-ci-architecture-first-attempt-2026-09-28",
+      "classification": "BLOCKED / NOT RUN \u2014 TOOL_FAIL",
+      "cause": "gofmt missing from PATH",
+      "stdout_sha256": "e9e0d2c7f72052e8b8ecd3151aa5dd4773f89fc5ae063ba929470eabacd3e9cd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "successful_rerun": {
+      "evidence_id": "wp06-2-ims-ci-architecture-rerun-2026-09-28",
+      "command": "PATH=/usr/local/go/bin:$PATH python3 scripts/validate.py run ci-architecture",
+      "exit": 0,
+      "stdout_sha256": "f337288a7906902f97a5c26571cd0b4430d58c7429c277f8a50d58291c092dbc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "raw_artifacts": "Existing repo-local IMS context files under pd-d8-s02-wp06-evidence/"
+  },
+  "findings": [],
+  "required_follow_up": [
+    "Record this PASS and reviewer PASS in terminal closeout records.",
+    "Run final exact-head validation on the resulting candidate.",
+    "Publish and reconcile terminal plan/queue moves only after required gates pass."
+  ],
+  "limitations": [
+    "Verdict accepts exact pre-terminal staged evidence candidate only.",
+    "Terminal plan/queue moves and final exact-head validation remain pending."
+  ]
+}

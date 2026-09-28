@@ -1,0 +1,40 @@
+PASS: docs [NONE] — PASS: Markdown structure, local links and Priority/Batch/Slice status hierarchy are valid.
+PASS: plan-reconciliation [NONE] — PASS: active-plan acceptance/status reconciliation is complete and fail-closed.
+PASS: imports [NONE] — PASS: SQLite implementation dependency remains localized.
+PASS: architecture [NONE] — PASS: architecture/import/document-storage boundaries are intact.
+FAIL: store-contract-locality [POSTCONDITION_FAIL] — Store contract locality check failed:
+- store.go lexical validation failed: internal/store/store.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/admin_maintenance.go lexical validation failed: internal/store/admin_maintenance.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/audit.go lexical validation failed: internal/store/audit.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/bootstrap.go lexical validation failed: internal/store/bootstrap.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/errors.go lexical validation failed: internal/store/errors.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/errors_test.go lexical validation failed: internal/store/errors_test.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/external_documents.go lexical validation failed: internal/store/external_documents.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/external_viewer.go lexical validation failed: internal/store/external_viewer.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/framework.go lexical validation failed: internal/store/framework.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/governance.go lexical validation failed: internal/store/governance.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/identity.go lexical validation failed: internal/store/identity.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/integrations.go lexical validation failed: internal/store/integrations.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/organisation.go lexical validation failed: internal/store/organisation.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/programme.go lexical validation failed: internal/store/programme.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/project_access.go lexical validation failed: internal/store/project_access.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/project_assurance.go lexical validation failed: internal/store/project_assurance.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/project_controls.go lexical validation failed: internal/store/project_controls.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/project_delivery.go lexical validation failed: internal/store/project_delivery.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/project_engineering.go lexical validation failed: internal/store/project_engineering.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/project_information.go lexical validation failed: internal/store/project_information.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/runtime.go lexical validation failed: internal/store/runtime.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/store.go lexical validation failed: internal/store/store.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/templates.go lexical validation failed: internal/store/templates.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'
+- internal/store/workspace.go lexical validation failed: internal/store/workspace.go syntax validation unavailable: [Errno 2] No such file o…[truncated]
+FAIL: store-contract-locality-tests [POSTCONDITION_FAIL] — Traceback (most recent call last):
+  File "[redacted local path] line 406, in <module>
+    raise SystemExit(main())
+  File "[redacted local path] line 87, in main
+    assert errors == [], errors
+AssertionError: ["store.go lexical validation failed: internal/store/store.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'", "internal/store/admin_maintenance.go lexical validation failed: internal/store/admin_maintenance.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'", "internal/store/bootstrap.go lexical validation failed: internal/store/bootstrap.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'", "internal/store/runtime.go lexical validation failed: internal/store/runtime.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'", "internal/store/store.go lexical validation failed: internal/store/store.go syntax validation unavailable: [Errno 2] No such file or directory: 'gofmt'", 'AdministratorMaintenanceStore must be declared exactly once in internal/store/admin_maintenance.go; found nowhere', 'BootstrapLifecycleStore must be declared exactly once in internal/store/bootstrap.go; found nowhere', 'ReadinessStore must be declared exactly once in internal/store/runtime.go; found nowhere']
+PASS: portability-tests [NONE] — PASS: portability guard self-tests passed.
+PASS: portability [NONE] — PASS: changed persistence code does not add avoidable SQLite-only DML/date syntax.
+PASS: repository-hygiene [NONE] — PASS: generated root build outputs are untracked and guarded by .gitignore.
+PASS: pb-b4-s01-boundaries [NONE] — PASS: PB-B4 native presentation boundaries are fail-closed
+Overall: FAIL

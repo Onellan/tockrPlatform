@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "issues": [
+    "work package WP-PD8S02-01 must contain exactly one Route signature (found 0)",
+    "work package WP-PD8S02-02 must contain exactly one Route signature (found 0)",
+    "work package WP-PD8S02-03 must contain exactly one Route signature (found 0)",
+    "work package WP-PD8S02-04 must contain exactly one Route signature (found 0)",
+    "work package WP-PD8S02-05 must contain exactly one Route signature (found 0)"
+  ]
+}

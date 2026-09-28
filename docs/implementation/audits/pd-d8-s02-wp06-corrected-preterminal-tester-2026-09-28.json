@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1",
+  "verdict": "PASS",
+  "findings": [],
+  "scope": "Fresh acceptance of exact corrected preterminal staged trees. Final exact-head validation, publication, and terminal plan/queue moves remain pending.",
+  "candidate": {
+    "Platform": {
+      "source_commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+      "staged_tree": "02b88a5dad7af21adbb37a456f2381f24d5d1274",
+      "validation_commit": "bf48245f9db91fc9561986d74145680b6318bc68"
+    },
+    "CTRL": {
+      "source_commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "staged_tree": "dd986e47876c8d4ef7191980c507286ea078b66e",
+      "validation_commit": "0449c453b315ca4dd7552b658534985d812255fa"
+    },
+    "IMS": {
+      "source_commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "staged_tree": "a4cf60449bdde04245a6956f73829e53fbaee47b",
+      "validation_commit": "0c60e2f90bd98baf9a6bc9f39669aaaeefb819c2"
+    }
+  },
+  "preflight": {
+    "result": "PASS",
+    "details": "For each temporary validation worktree, HEAD tree and index tree equaled the requested staged tree; git status was clean. Main repositories remain at stated source commits with only intended staged WP06 records and no unstaged changes."
+  },
+  "review_link": {
+    "evidence_id": "wp06-corrected-preterminal-review-2026-09-28-r1",
+    "sha256": "33fba1be0f33f7ca704cb545c7e9da5185c2271628cb7ba6056e5dafe6b248dd",
+    "verdict": "PASS",
+    "findings": [],
+    "reviewed_predecessor_trees": {
+      "Platform": "55468e98199f1e9ea2215f552cc74d4c9aab109d",
+      "CTRL": "2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd",
+      "IMS": "ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30"
+    }
+  },
+  "acceptance_evidence": [
+    {
+      "evidence_id": "E01",
+      "result": "PASS",
+      "criteria": "Platform registry-resolved format profile",
+      "describe_sha256": "feaf27aee4eda50ca615ea6b46140eeb65d4d8c6a4bad1a0ced574bbd1bbd6ee",
+      "run_sha256": "8ef7a3160cda75c4ce4d9d4222bcedd197ca2e8ef1ffed4cd9c99b3427d53460"
+    },
+    {
+      "evidence_id": "E02",
+      "result": "PASS",
+      "criteria": "CTRL and IMS ci-architecture, including docs",
+      "CTRL": {
+        "describe_sha256": "301cccfa7bf9b09ac0b3d0b4fbda1ca1600d83827db419a0861c0131ba9b88db",
+        "run_sha256": "9ff3da34283cbf449f649543f317e253ce4122cc9f2b2fa1e8aa38bf375bbb9e",
+        "docs": "PASS"
+      },
+      "IMS": {
+        "describe_sha256": "5398d28c0694e9686ca5652cfa5b46ec9959f258d7759ffe5b886cb86c71f65e",
+        "run_sha256": "f337288a7906902f97a5c26571cd0b4430d58c7429c277f8a50d58291c092dbc",
+        "docs": "PASS"
+      }
+    },
+    {
+      "evidence_id": "E03",
+      "result": "PASS",
+      "routing_suite": {
+        "tests": "11 passed",
+        "stdout_sha256": "58ec2ef1f43ab77e91b916b78002245bd1e5143748f77c0d3e74414226091d72"
+      },
+      "selected_route_sha256": "611eeaed1ec1ac0685af2340b74cb129738004462646d959642ce4547ea50d",
+      "unscoped_strict_expected_rejection_sha256": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856"
+    },
+    {
+      "evidence_id": "E04",
+      "result": "PASS",
+      "fixtures": {
+        "invalid_kind.fixture": "f8f7a5eb3e989c724e9677dd9c8afaef6ba6a9be93004cc901adc0005ff63a7a",
+        "invalid_risk_valid_syntax.fixture": "96cf8ab1857270a70d962a5ee7d79dfd75d459c3a796826eee4aa1d08b87eca8"
+      },
+      "fixture_bytes_identical_to_preserved_history": true,
+      "malformed_underscore_risk": "FIXTURE_FAIL; excluded"
+    },
+    {
+      "evidence_id": "E05",
+      "result": "PASS",
+      "manifests": {
+        "SHA256SUMS": {
+          "Platform": "8bce29c2fc759f640215ae0ae2acb15836fce5f7e62f10e23ec4b8b10c1d716a",
+          "CTRL": "40731b35b254090fd5ae9275e142a43b8778aa04dc51b89b3f7defbc84f48016",
+          "IMS": "96d4a5aff87925e89ce438426e533dcf9e0a58598bd1508cf2f79ff1ab02bebc"
+        },
+        "tester-E05-E07-SHA256SUMS": "df0bd4e3db7c26a8595f7e59cddba638e460025d49bb4cb892db3030973a338a",
+        "tester-SHA256SUMS": "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b"
+      },
+      "manifest_scope": "All three current manifests verify in every repository; prior malformed localized manifest is retained as historical blocked evidence only."
+    }
+  ],
+  "retained_context": {
+    "CTRL_IMS_docs_postcondition_failure": "POSTCONDITION_FAIL due only to invalid .md fixture names, repaired by renaming unchanged fixture bytes to .fixture; outputs and candidate IDs retained in review history.",
+    "initial_PLATFORM_gofmt_attempt": "TOOL_FAIL, retried with /usr/local/go/bin; prior original IMS TOOL_FAIL retained separately."
+  },
+  "required_follow_up": [
+    "Record this PASS and review PASS in terminal closeout records.",
+    "Run final exact-head validation on the resulting candidate.",
+    "Publish and reconcile terminal plan/queue moves only after remaining gates pass."
+  ],
+  "limitations": [
+    "This PASS applies only to the exact corrected preterminal staged candidate.",
+    "Final exact-head validation, publication, and terminal plan/queue moves remain pending."
+  ]
+}

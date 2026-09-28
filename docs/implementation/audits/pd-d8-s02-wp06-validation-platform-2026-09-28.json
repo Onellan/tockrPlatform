@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "repo": "Platform",
+  "candidate": {
+    "commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "branch": null,
+    "worktree": "clean",
+    "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+    "id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046"
+  },
+  "preflight": {
+    "head": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "branch": "",
+    "status_porcelain": "",
+    "unstaged_diff_stat": "",
+    "staged_diff_stat": "",
+    "clean_worktree": true,
+    "clean_index": true,
+    "candidate": {
+      "commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "branch": null,
+      "worktree": "clean",
+      "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+      "id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046"
+    }
+  },
+  "command_authority": "scripts/validate.py and scripts/validation_registry.py; focused plan-routing test target is explicitly INFERRED by active plan and preflight confirmed the file exists and is executable",
+  "overall_status": "PASS",
+  "runs": [
+    {
+      "argv": [
+        "python3",
+        "scripts/validate.py",
+        "describe",
+        "format"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "status": "PASS",
+      "stdout": "{\n  \"profile\": \"format\",\n  \"name\": \"Foundation document/configuration format\",\n  \"kind\": \"foundation\"\n}\n",
+      "stderr": "",
+      "output_sha256": "feaf27aee4eda50ca615ea6b46140eeb65d4d8c6a4bad1a0ced574bbd1bbd6ee",
+      "evidence_id": "498df717bdf1de75934951fd"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/validate.py",
+        "run",
+        "format"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "status": "PASS",
+      "stdout": "{\n  \"profile\": \"format\",\n  \"status\": \"PASS\",\n  \"missing\": [],\n  \"unformatted_go\": [],\n  \"candidate\": \"cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5\"\n}\n",
+      "stderr": "",
+      "output_sha256": "5db79ace010d18df4bf821dd1c1a30c58bf61801e312c6a3149b309e72b31552",
+      "evidence_id": "8a99ec3b130bd0fffa02a8b9"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/test_plan_routing.py"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "status": "PASS",
+      "stdout": "",
+      "stderr": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.690s\n\nOK\n",
+      "output_sha256": "a546b09619aa7f80a170cee1d7f2ee2af522008650864d280643fbda8bf6195a",
+      "evidence_id": "c56963207e647e5abba389cd"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/validate_plan_routing.py",
+        "plan/pd-d8-s02-platform-authority-certification.md",
+        "--package",
+        "WP-PD8S02-06"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "status": "PASS",
+      "stdout": "{\n  \"status\": \"PASS\",\n  \"issues\": []\n}\n",
+      "stderr": "",
+      "output_sha256": "611eeaed1ec1ac0685af2340b74cb129738004462646dcb959642ce4547ea50d",
+      "evidence_id": "3338853d7b9a646d23f33113"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/validate_plan_routing.py",
+        "plan/pd-d8-s02-platform-authority-certification.md"
+      ],
+      "returncode": 1,
+      "expected_returncode": 1,
+      "status": "EXPECTED_FAIL",
+      "stdout": "{\n  \"status\": \"FAIL\",\n  \"issues\": [\n    \"work package WP-PD8S02-01 must contain exactly one Route signature (found 0)\",\n    \"work package WP-PD8S02-02 must contain exactly one Route signature (found 0)\",\n    \"work package WP-PD8S02-03 must contain exactly one Route signature (found 0)\",\n    \"work package WP-PD8S02-04 must contain exactly one Route signature (found 0)\",\n    \"work package WP-PD8S02-05 must contain exactly one Route signature (found 0)\"\n  ]\n}\n",
+      "stderr": "",
+      "output_sha256": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856",
+      "evidence_id": "274bc91d130751b6021abe02"
+    }
+  ],
+  "source_tree_id": "35ab9cff97b273e9db958abf5812ea339688f21b",
+  "source_main_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+  "captured_in_detached_clean_worktree": true
+}

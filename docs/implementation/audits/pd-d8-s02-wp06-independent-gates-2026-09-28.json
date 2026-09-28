@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+  "engineering_review": {
+    "independent": true,
+    "evidence_id": "platform-wp06-1-review-cc07d88-2026-09-28",
+    "verdict": "PASS",
+    "findings": [],
+    "reviewed_candidate": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "evidence_id_aliases": [
+      "REV-WP061-cc07d88",
+      "platform-wp06-1-review-cc07d88-2026-09-28"
+    ],
+    "artifact_path": "pd-d8-s02-wp06-independent-gates-2026-09-28.json"
+  },
+  "tester_acceptance": {
+    "independent": true,
+    "verdict": "PASS",
+    "candidate": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "preflight": {
+      "path": "pd-d8-s02-wp06-evidence/preflight.stdout",
+      "sha256": "e12d68bac756ad74de6461914407e071ae233703cf4d26f32e66d068615409eb",
+      "index_diff_exit": 0,
+      "worktree_diff_exit": 0,
+      "head_matches_candidate": true,
+      "clean_worktree": true,
+      "clean_index": true
+    },
+    "artifact_manifest": {
+      "path": "pd-d8-s02-wp06-evidence/SHA256SUMS",
+      "sha256": "eda87b23e5f4f012ac57a3bf4c7e9f305bf34c104bd42358394266654337eefc",
+      "external_replay_manifests": [
+        "pd-d8-s02-wp06-evidence/tester-SHA256SUMS",
+        "pd-d8-s02-wp06-evidence/tester-E05-E07-SHA256SUMS"
+      ]
+    },
+    "checks": [
+      {
+        "id": "AC-WP061-02",
+        "command": "python3 scripts/test_plan_routing.py -v",
+        "result": "PASS; 11 tests",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "1bfca17189c7b97d7f7b6902efd2fc12737cd0e98e66c7c87eb8dda023b08ffa",
+        "exit": 0,
+        "run_id": "RUN-WP061-E01",
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/E01.stdout",
+          "pd-d8-s02-wp06-evidence/E01.stderr",
+          "pd-d8-s02-wp06-evidence/E01.exit"
+        ]
+      },
+      {
+        "id": "AC-WP061-01",
+        "command": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md --package WP-PD8S02-06",
+        "result": "PASS",
+        "stdout_sha256": "611eeaed1ec1ac0685af2340b74cb129738004462646dcb959642ce4547ea50d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "run_id": "RUN-WP061-E02",
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/E02.stdout",
+          "pd-d8-s02-wp06-evidence/E02.stderr",
+          "pd-d8-s02-wp06-evidence/E02.exit"
+        ]
+      },
+      {
+        "id": "AC-WP061-03",
+        "command": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md",
+        "result": "expected strict FAIL because terminal WP01\u2013WP05 have no new route signatures",
+        "stdout_sha256": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 1,
+        "run_id": "RUN-WP061-E03",
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/E03.stdout",
+          "pd-d8-s02-wp06-evidence/E03.stderr",
+          "pd-d8-s02-wp06-evidence/E03.exit"
+        ]
+      },
+      {
+        "id": "AC-WP061-05",
+        "command": "PATH=/usr/local/go/bin:$PATH python3 scripts/validate.py run format",
+        "result": "PASS",
+        "stdout_sha256": "5db79ace010d18df4bf821dd1c1a30c58bf61801e312c6a3149b309e72b31552",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "run_id": "RUN-WP061-E04",
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/E04.stdout",
+          "pd-d8-s02-wp06-evidence/E04.stderr",
+          "pd-d8-s02-wp06-evidence/E04.exit"
+        ]
+      },
+      {
+        "id": "AC-WP061-02",
+        "run_id": "RUN-WP061-E05-kind",
+        "command": "python3 scripts/validate_plan_routing.py invalid_kind.fixture --package WP06",
+        "result": "PASS; expected unsupported work-package kind rejection (exit 1)",
+        "stdout_sha256": "f8f7a5eb3e989c724e9677dd9c8afaef6ba6a9be93004cc901adc0005ff63a7a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fixture_sha256": "4231d7001222568a083e17cbcffd3f9016198ffeb6e89b2d6d9d3ec304e2ae5b",
+        "exit": 1,
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/invalid_kind.fixture",
+          "pd-d8-s02-wp06-evidence/E05-kind.stdout",
+          "pd-d8-s02-wp06-evidence/E05-kind.stderr",
+          "pd-d8-s02-wp06-evidence/E05-kind.exit"
+        ]
+      },
+      {
+        "id": "AC-WP061-02",
+        "run_id": "RUN-WP061-E06-risk",
+        "command": "python3 scripts/validate_plan_routing.py invalid_risk_valid_syntax.fixture --package WP06",
+        "result": "PASS; expected unsupported risk code UNKNOWN rejection (exit 1)",
+        "stdout_sha256": "96cf8ab1857270a70d962a5ee7d79dfd75d459c3a796826eee4aa1d08b87eca8",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fixture_sha256": "b94cfa53bf40e232a658fb24d3450e92d5c52e3c16d4d7425cbc3e695b5229a5",
+        "exit": 1,
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/invalid_risk_valid_syntax.fixture",
+          "pd-d8-s02-wp06-evidence/E06-risk.stdout",
+          "pd-d8-s02-wp06-evidence/E06-risk.stderr",
+          "pd-d8-s02-wp06-evidence/E06-risk.exit"
+        ]
+      },
+      {
+        "id": "NONACCEPTANCE-FIXTURE-FAIL",
+        "run_id": "RUN-WP061-E05-risk-invalid-fixture",
+        "command": "python3 scripts/validate_plan_routing.py invalid_risk.fixture --package WP06",
+        "result": "FIXTURE_FAIL; underscore syntax invalid, not acceptance evidence",
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/invalid_risk.fixture",
+          "pd-d8-s02-wp06-evidence/E05-risk.stdout",
+          "pd-d8-s02-wp06-evidence/E05-risk.stderr",
+          "pd-d8-s02-wp06-evidence/E05-risk.exit"
+        ]
+      },
+      {
+        "id": "AC-WP061-04",
+        "run_id": "RUN-WP061-E07-immutability",
+        "command": "git diff --exit-code 99002ff cc07d88 -- <13 WP01-WP05 audit/acceptance files> IMPLEMENTED.md plan/incomplete.md",
+        "result": "PASS; exit 0, empty stdout/stderr; listed terminal paths unchanged; active plan only appended WP06 scope",
+        "preflight_stdout_sha256": "2db534af98d99a33625d221b8d9e969ebf41db8cf9ea61fcf93b4675db2ff2ad",
+        "exit_file_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "artifact_paths": [
+          "pd-d8-s02-wp06-evidence/E07-command.txt",
+          "pd-d8-s02-wp06-evidence/E07-paths.txt",
+          "pd-d8-s02-wp06-evidence/E07-preflight.stdout",
+          "pd-d8-s02-wp06-evidence/E07.stdout",
+          "pd-d8-s02-wp06-evidence/E07.stderr",
+          "pd-d8-s02-wp06-evidence/E07.exit"
+        ]
+      }
+    ],
+    "completed_replay_rows": [
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05-kind",
+      "E06-risk",
+      "E07-immutability"
+    ],
+    "pending_rows": [],
+    "acceptance_run_map": [
+      {
+        "acceptance_row": "AC-WP061-01",
+        "supporting_run_ids": [
+          "RUN-WP061-E02"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-02",
+        "supporting_run_ids": [
+          "RUN-WP061-E01",
+          "RUN-WP061-E05-kind",
+          "RUN-WP061-E06-risk"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-03",
+        "supporting_run_ids": [
+          "RUN-WP061-E03"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-04",
+        "supporting_run_ids": [
+          "RUN-WP061-E07-immutability"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-05",
+        "supporting_run_ids": [
+          "RUN-WP061-E04"
+        ]
+      }
+    ],
+    "e05_e07_preflight": {
+      "path": "pd-d8-s02-wp06-evidence/e05-e07-preflight.stdout",
+      "sha256": "42a660ed3679ea57f988730b65fcba6c267476430dfe835e29c6e5a245420f9b"
+    },
+    "manifest_repair_history": {
+      "prior_sha256": "867980a574a89982a2713a068bb55c9ae17659939ecb0e3c63c0e726dcb112ea",
+      "corrected_sha256": "df0bd4e3db7c26a8595f7e59cddba638e460025d49bb4cb892db3030973a338a",
+      "finding_id": "R1-WP06-EVIDENCE-MANIFEST-01",
+      "preflight_entry": "./e05-e07-preflight.stdout"
+    }
+  },
+  "interpretation": "The terminal historical plan rows remain immutable; selected package validation passes, unscoped whole-plan validation retains its strict behavior.",
+  "reviewed_platform_candidate": {
+    "repo": "Platform",
+    "source_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "source_tree_id": "35ab9cff97b273e9db958abf5812ea339688f21b",
+    "scope": "WP06.1 selected-package routing defect implementation"
+  },
+  "wp06_2_review": {
+    "evidence_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "candidate_staged_trees": {
+      "Platform": "b16384b317f262b543381ec44f9ded4702c88683",
+      "CTRL": "dceecd9998e92fe77b833102d9d69eec630605fd",
+      "IMS": "a68bebd15d74cafb3b0c1a4edd19a7917c270095"
+    },
+    "artifact": "pd-d8-s02-wp06-independent-review-2026-09-28.json"
+  },
+  "wp06_2_tester": {
+    "evidence_id": "wp06-2-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "candidate_staged_trees": {
+      "Platform": "b16384b317f262b543381ec44f9ded4702c88683",
+      "CTRL": "dceecd9998e92fe77b833102d9d69eec630605fd",
+      "IMS": "a68bebd15d74cafb3b0c1a4edd19a7917c270095"
+    },
+    "artifact": "pd-d8-s02-wp06-tester-acceptance-2026-09-28.json",
+    "ims_context_artifacts": "pd-d8-s02-wp06-tester-acceptance-2026-09-28.json; raw stdout/stderr/exit/preflight files in pd-d8-s02-wp06-evidence/"
+  },
+  "wp06_2_candidate_status": "accepted by independent review and tester; source-freeze records are not terminal closeout",
+  "wp06_final_closeout_review": {
+    "evidence_id": "wp06-full-closeout-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "artifact": "pd-d8-s02-wp06-full-closeout-review-2026-09-28.json",
+    "candidate_staged_trees": {
+      "Platform": "8d77154f23342593547ae826499d0d083e10f196",
+      "CTRL": "c8ec11c9c57a1c8229521849e7356fa65788210f",
+      "IMS": "b34c2d895a76b88a9930de3833d40a6f35f2b071"
+    }
+  },
+  "wp06_final_closeout_tester": {
+    "evidence_id": "wp06-full-closeout-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "artifact": "pd-d8-s02-wp06-full-closeout-tester-2026-09-28.json",
+    "candidate_staged_trees": {
+      "Platform": "8d77154f23342593547ae826499d0d083e10f196",
+      "CTRL": "c8ec11c9c57a1c8229521849e7356fa65788210f",
+      "IMS": "b34c2d895a76b88a9930de3833d40a6f35f2b071"
+    }
+  },
+  "wp06_final_gate_status": "PASS on pre-terminal staged candidate; final exact-head validation and terminal queue/index moves remain pending",
+  "current_release_validation_repair": {
+    "fixture_names": "*.fixture",
+    "status": "profile reruns pending on this candidate"
+  },
+  "active_candidate_registry_check": {
+    "status": "PASS",
+    "candidate_tree": "ef65196aaad2a28cf7ff9f1548eeb700d413d677",
+    "report": "pd-d8-s02-wp06-final-active-validation-platform-2026-09-28.json",
+    "report_sha256": "c48a5da5de669da80c3cd06ef6e796983f0cbd792380d111f1f516efca1676bd",
+    "profile": "format",
+    "profile_id": "format; no report ID emitted",
+    "stdout_sha256": "2969c2211568d3a4c1854bf2ec997986560c3bd147e49d405b065e76d69bfe6d"
+  },
+  "corrected_preterminal_review": {
+    "evidence_id": "wp06-corrected-preterminal-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "artifact": "pd-d8-s02-wp06-corrected-preterminal-review-2026-09-28.json",
+    "candidate_tree_tuple": {
+      "Platform": "55468e98199f1e9ea2215f552cc74d4c9aab109d",
+      "CTRL": "2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd",
+      "IMS": "ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30"
+    },
+    "report_sha256": "33fba1be0f33f7ca704cb545c7e9da5185c2271628cb7ba6056e5dafe6b248dd"
+  },
+  "corrected_preterminal_tester_status": "PASS",
+  "corrected_preterminal_tester": {
+    "evidence_id": "wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "artifact": "pd-d8-s02-wp06-corrected-preterminal-tester-2026-09-28.json",
+    "candidate_tree_tuple": {
+      "Platform": "02b88a5dad7af21adbb37a456f2381f24d5d1274",
+      "CTRL": "dd986e47876c8d4ef7191980c507286ea078b66e",
+      "IMS": "a4cf60449bdde04245a6956f73829e53fbaee47b"
+    },
+    "sha256": "bd1f7df6b493eec153befea795a66a0f8f3572d34e994bafdf6a0f09228fe90d"
+  },
+  "terminal_candidate_status": {
+    "review": "PENDING on terminal plan/index/ledger tree",
+    "tester": "PENDING on terminal plan/index/ledger tree",
+    "exact_final_head_registry_validation": "PENDING",
+    "publication": "NOT PUBLISHED"
+  }
+}

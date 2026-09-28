@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-corrected-terminal-review-2026-09-28-r2",
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "role": "independent engineering reviewer",
+  "verdict": "PASS",
+  "findings": [],
+  "candidate_tree_tuple": {
+    "Platform": "d4cb0fd292d2cc73ebde925e6d47cc31ed099faa",
+    "CTRL": "f25ff26a4d86b2fb81bfcc3cdf80cdef25416d27",
+    "IMS": "e8ae1e750b760d5cd320a7bcec76e0b76b5016bc"
+  },
+  "review_checks": [
+    "All staged indexes match the reported candidate trees and worktrees are clean.",
+    "Both prior R1 findings and repairs are preserved in review history.",
+    "The IMS source tree matches the exact tree of source commit e1d7282050f1cee0bdd47b97dd8a873a9fa8319a.",
+    "Completed plans, ledgers and active queues reconcile; reviewer and tester predecessor tuples are distinguished.",
+    "Manifests, ancestry and WP01-WP05 immutability pass.",
+    "Production activation remains outside scope."
+  ],
+  "review_scope": "Read-only final terminal reconciliation review; exact-final-head validation and final tester acceptance remain pending."
+}

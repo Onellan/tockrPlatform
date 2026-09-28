@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "review_id": "wp06-2-cross-repo-independent-review-2026-09-28",
+  "reviewed_source_tuple": {
+    "platform": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "ctrl": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+    "ims": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a"
+  },
+  "reviewed_docs_tree_tuple": {
+    "tockrPlatform": "a4616e08de1b3938672dce494f0838af30de67b3",
+    "tockrCTRL": "776150c546dd34935cd7e73f7f406f51f6304b67",
+    "tockrIMS": "45dca6aae27b550be870c0bac2c883515d636d79"
+  },
+  "verdict": "BLOCK",
+  "findings": [
+    {
+      "id": "R1-WP062-EVIDENCE-HASH-01",
+      "severity": "R1",
+      "summary": "Source-freeze digest bindings did not match the staged independent-gates artifact and local evidence manifests.",
+      "observed": {
+        "gates_json_sha256": "8ad33e7bf0c908cdb50d967012200acee4b74a01f813725c6dd4d790b390bc04",
+        "actual_gates_json_sha256": "466bc7443cbdfc619185f1dc37f2196034675fb19c7ee53be9e64269e56ea5e3",
+        "claimed_raw_manifest_sha256": "9fd586ccff701001f4c6c37eb6bf463c6848de41e9212875370cb70c7fcc7045",
+        "actual_local_manifest_sha256": "8eccb00e69f26c13356d58f1d2966154e66c409d73fd71a998d00de5428d942f",
+        "tester_manifest_sha256s": [
+          "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b",
+          "867980a574a89982a2713a068bb55c9ae17659939ecb0e3c63c0e726dcb112ea"
+        ]
+      },
+      "repair": "Bind each source-freeze entry to the actual repo-local gates artifact and explicitly named local/original manifests; reverify links and hashes; request fresh independent review."
+    }
+  ],
+  "additional_review_findings": [
+    {
+      "review_id": "final-closeout-review-block-2026-09-28",
+      "reviewed_source_tuple": {
+        "Platform": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+        "CTRL": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+        "IMS": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a"
+      },
+      "reviewed_docs_tree_tuple": {
+        "Platform": "3fcb52cf6874bc12e4aeadbf0284ffabb09f4bba",
+        "CTRL": "a1f11d64a23e292379e10ac7e2dd85007144e433",
+        "IMS": "7b38a868262f340e03f3185711e4813969ff5447"
+      },
+      "verdict": "BLOCK",
+      "finding_ids": [
+        "R1-WP06-EVIDENCE-MANIFEST-01"
+      ],
+      "finding": "E05–E07 manifest referred to ./preflight.stdout (E01–E04 file, SHA e12d68ba…), while its own expected digest 42a660ed… belongs to ./e05-e07-preflight.stdout. Thus the E05–E07 manifest check failed in every repo and contradicted tester acceptance metadata.",
+      "prior_manifest_sha256": "867980a574a89982a2713a068bb55c9ae17659939ecb0e3c63c0e726dcb112ea",
+      "repair": "Give the E05–E07 preflight its distinct repo-local path in the manifest, preserve this initial manifest, recompute and verify all current manifests, update dependent hashes, request fresh independent review."
+    }
+  ],
+  "validation_context_history": [
+    {
+      "candidate_tree": "ef65196aaad2a28cf7ff9f1548eeb700d413d677",
+      "validation_commit": "ff7b09f82eec0b2b29436d0abb59f856ba96c84c",
+      "profile": "format",
+      "status": "PASS",
+      "report": "pd-d8-s02-wp06-final-active-validation-platform-2026-09-28.json",
+      "report_sha256": "c48a5da5de669da80c3cd06ef6e796983f0cbd792380d111f1f516efca1676bd",
+      "stdout_sha256": "2969c2211568d3a4c1854bf2ec997986560c3bd147e49d405b065e76d69bfe6d",
+      "failure_class": "NONE"
+    }
+  ],
+  "independent_review_history": [
+    {
+      "evidence_id": "wp06-corrected-preterminal-review-2026-09-28-r1",
+      "verdict": "PASS",
+      "findings": [],
+      "candidate_tree_tuple": {
+        "Platform": "55468e98199f1e9ea2215f552cc74d4c9aab109d",
+        "CTRL": "2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd",
+        "IMS": "ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30"
+      },
+      "report_sha256": "33fba1be0f33f7ca704cb545c7e9da5185c2271628cb7ba6056e5dafe6b248dd"
+    }
+  ],
+  "independent_tester_history": [
+    {
+      "evidence_id": "wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1",
+      "verdict": "PASS",
+      "candidate_tree_tuple": {
+        "Platform": "02b88a5dad7af21adbb37a456f2381f24d5d1274",
+        "CTRL": "dd986e47876c8d4ef7191980c507286ea078b66e",
+        "IMS": "a4cf60449bdde04245a6956f73829e53fbaee47b"
+      },
+      "sha256": "bd1f7df6b493eec153befea795a66a0f8f3572d34e994bafdf6a0f09228fe90d"
+    }
+  ],
+  "terminalization_review_findings": [
+    {
+      "finding_id": "R1-WP06-IMS-SOURCE-TREE-01",
+      "severity": "R1",
+      "summary": "IMS source tree in terminal cross-repository reconciliation had a 39-character typo and did not match the source commit tree.",
+      "observed_value": "90778a268b3b81826c50abf5812ea339ebde8c7",
+      "correct_value": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "authority": "git rev-parse e1d7282050f1cee0bdd47b97dd8a873a9fa8319a^{tree} and WP06 source-freeze record",
+      "repair": "Corrected the IMS source tree in all three cross-repository reconciliation copies and recorded the verified source tree."
+    },
+    {
+      "finding_id": "R1-WP06-STALE-PLAN-REFERENCE-01",
+      "severity": "R1",
+      "summary": "The terminal ledger retained a stale Ready / next reference to the former active plan path after the plan had moved to completed.",
+      "observed": "docs/implementation/IMPLEMENTED.md described D8-S02 as Ready / next and linked plan/pd-d8-s02-platform-authority-certification.md; cross-reconciliation history still labeled that path active and claimed the queues listed D8-S02.",
+      "repair": "Updated the ledger reference to the completed plan path and terminal status; reconciliation now identifies the completed plan and records D8-S02 removed from all three active queues. Independent review/tester tree tuples are recorded separately."
+    }
+  ],
+  "terminal_state_regression_history": {
+    "evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r1",
+    "verdict": "BLOCK",
+    "finding_id": "E03",
+    "classification": "TEST_FAIL in test harness caused by terminal-state queue/path drift; not application behavior failure.",
+    "failed_candidate_source_tuple": {
+      "Platform": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "CTRL": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "IMS": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a"
+    },
+    "failed_stage_tree_tuple": {
+      "Platform": "e03e175f05b0552bd2834322a02ab520955b06ae",
+      "CTRL": "8408b35b19a1d671883b2f206ddd800ea46a2f7e",
+      "IMS": "5ae61864d2d52cf3a9d7d6efbf2a96a9efce40e8"
+    },
+    "command": "python3 scripts/test_plan_routing.py -v",
+    "validation_commit": "6635f39d9cc11668b5bb3a2f1827a07d91bbaf0a",
+    "validation_tree": "e03e175f05b0552bd2834322a02ab520955b06ae",
+    "exit": 1,
+    "stdout_stderr_sha256": "0303ef6be2f75dcf7546e87255f233097e2c786476edfdaa4993e7b5767e0083",
+    "result_detail": "8 pass; one active-queue nonempty assertion failed; two delivery_state tests errored because they used the old active plan path.",
+    "failure_report": "pd-d8-s02-wp06-terminal-test-failure-2026-09-28.json",
+    "repair_source_commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+    "repair_validation_report": "pd-d8-s02-wp06-terminal-source-validation-platform-2026-09-28.json",
+    "repair_validation_sha256": "7ec10a52905b44005339bcec925907a08f0cfd9c3fde37f98e0e26fa6203f6fc"
+  },
+  "terminal_source_repair_review": {
+    "evidence_id": "wp06-rebound-terminal-review-2026-09-28-r3",
+    "verdict": "PASS",
+    "findings": [],
+    "reviewed_tree_tuple": {
+      "Platform": "5de83b7b7ecb75ef4da373e071d543c5bb7538f8",
+      "CTRL": "98c7c7fa4aa67a003cf9510f384e1b5eb11e4bca",
+      "IMS": "720240bbbbf5d59aa046821cc58978ff9345ffc6"
+    },
+    "artifact": "pd-d8-s02-wp06-rebound-terminal-review-2026-09-28.json",
+    "artifact_sha256": "acd1ea739e0ee551c78db6ac559a58e19559f1d6c72abbc81eba29a03e13d453"
+  },
+  "terminal_source_repair_tester": {
+    "evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r2",
+    "verdict": "PASS",
+    "candidate_tree_tuple": {
+      "Platform": "23bea27f51b29ea076df1d3c1ded08128c074a14",
+      "CTRL": "2466d0f300efaab8b78cb4ff605d84f196db9d1c",
+      "IMS": "9f706acd700fac42387aad4ac5fcf1e0f0be860e"
+    },
+    "artifact": "pd-d8-s02-wp06-final-terminal-tester-2026-09-28.json",
+    "artifact_sha256": "0e0a72f008967481cbcba586bff5925c40388af8416f59c6c78f6f1e2d2dc7f7",
+    "blocked_invocation_history": {
+      "evidence_id": "E07",
+      "failure_class": "INVOCATION_FAIL",
+      "counted_as_acceptance": "false"
+    }
+  }
+}

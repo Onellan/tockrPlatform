@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-terminal-source-validation-platform-2026-09-28-r2",
+  "status": "PASS",
+  "candidate": {
+    "repository": "tockrPlatform",
+    "branch": "main",
+    "commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+    "tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+    "source_worktree": "clean",
+    "source_index_tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5"
+  },
+  "ancestry": {
+    "published_baseline": "cc78557d8048bac6392f837166cb101460f43c98",
+    "wp05": "ec9bb853c20308dc8d808c425b257d8099f611fd",
+    "baseline_is_ancestor": true,
+    "wp05_is_ancestor": true
+  },
+  "preflight": {
+    "status": "PASS",
+    "stdout_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/preflight.stdout",
+    "stdout_sha256": "39e3b04985b5948c21ae59404f9b0d5cdff3700ef6c7103e5eb9083be9fa580c",
+    "head": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+    "head_tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+    "index_tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5"
+  },
+  "validations": [
+    {
+      "evidence_id": "E01",
+      "type": "registry-profile",
+      "profile": "format",
+      "describe_command": "python3 scripts/validate.py describe format",
+      "describe_stdout_sha256": "feaf27aee4eda50ca615ea6b46140eeb65d4d8c6a4bad1a0ced574bbd1bbd6ee",
+      "command": "PATH=/usr/local/go/bin:$PATH python3 scripts/validate.py run format",
+      "status": "PASS",
+      "exit": 0,
+      "stdout_sha256": "ad90b0eaec1875fafbf0f9d040111000f4a1c266a127dccfe8f922c0b587591b",
+      "stdout_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/format.stdout",
+      "exit_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/format.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "profile_description_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/format-describe.stdout",
+      "profile_description_sha256": "feaf27aee4eda50ca615ea6b46140eeb65d4d8c6a4bad1a0ced574bbd1bbd6ee"
+    },
+    {
+      "evidence_id": "E02",
+      "type": "focused-regression",
+      "command": "python3 scripts/test_plan_routing.py -v",
+      "status": "PASS",
+      "tests_passed": 11,
+      "exit": 0,
+      "stdout_sha256": "a52fb658439cf207602ae04fe01e10b569cbebf6bafadc68aa436350d9152c64",
+      "stdout_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/routing.stdout",
+      "exit_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/routing.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "evidence_id": "E03",
+      "type": "selected-package-routing",
+      "command": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md --package WP-PD8S02-06",
+      "status": "PASS",
+      "exit": 0,
+      "stdout_sha256": "611eeaed1ec1ac0685af2340b74cb129738004462646dcb959642ce4547ea50d",
+      "stdout_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/selected.stdout",
+      "exit_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/selected.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "evidence_id": "E04",
+      "type": "whole-plan-strict-routing",
+      "command": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md",
+      "status": "PASS_EXPECTED_REJECTION",
+      "exit": 1,
+      "stdout_sha256": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856",
+      "reason": "Historic terminal WP01-WP05 packages lack route signatures; unscoped validation remains strict.",
+      "stdout_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/strict.stdout",
+      "exit_path": "pd-d8-s02-wp06-evidence/terminal-source-validation-8b11a4e/strict.exit",
+      "exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    }
+  ],
+  "terminal_state_test_drift_history": {
+    "tester_evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r1",
+    "row": "E03",
+    "failed_command": "python3 scripts/test_plan_routing.py -v",
+    "failed_source_commit": "6635f39d9cc11668b5bb3a2f1827a07d91bbaf0a",
+    "failed_source_tree": "e03e175f05b0552bd2834322a02ab520955b06ae",
+    "classification": "TEST_FAIL in acceptance harness caused by terminal-state queue/path drift; not an application behavior failure",
+    "failure_details": "8 tests passed; 1 active-queue nonempty assertion failed; 2 delivery_state tests errored because they opened the former active plan path after it moved to plan/completed/.",
+    "failed_output_sha256": "0303ef6be2f75dcf7546e87255f233097e2c786476edfdaa4993e7b5767e0083"
+  },
+  "repair_scope": [
+    "allow the active-plan routeability check to pass vacuously for an empty queue",
+    "resolve the D8-S02 test plan from completed path after closeout and active path before its plan move lands",
+    "replace stale copy-ready first Slice prompt with a requirement for newly authorized queued work"
+  ],
+  "source_boundary": "No production configuration, migration or authority state changed; completed plan and acceptance history remain unchanged."
+}

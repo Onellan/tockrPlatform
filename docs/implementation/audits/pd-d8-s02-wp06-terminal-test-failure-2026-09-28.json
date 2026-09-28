@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r1",
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "verdict": "BLOCK",
+  "source_candidate_tuple": {
+    "Platform": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "CTRL": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+    "IMS": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a"
+  },
+  "staged_tree_tuple": {
+    "Platform": "e03e175f05b0552bd2834322a02ab520955b06ae",
+    "CTRL": "8408b35b19a1d671883b2f206ddd800ea46a2f7e",
+    "IMS": "5ae61864d2d52cf3a9d7d6efbf2a96a9efce40e8"
+  },
+  "acceptance": {
+    "E03": {
+      "result": "TEST_FAIL",
+      "command": "python3 scripts/test_plan_routing.py -v",
+      "Platform_validation_commit": "6635f39d9cc11668b5bb3a2f1827a07d91bbaf0a",
+      "Platform_validation_tree": "e03e175f05b0552bd2834322a02ab520955b06ae",
+      "exit": 1,
+      "stdout_stderr_sha256": "0303ef6be2f75dcf7546e87255f233097e2c786476edfdaa4993e7b5767e0083",
+      "details": "Eight tests passed; the active-plan test asserted that the queue must be nonempty after terminal closeout, and two delivery_state tests errored because they opened the former active plan path after it moved to plan/completed/."
+    },
+    "other_rows": "E01/E02/E04/E05/E06 PASS; independent reviewer wp06-corrected-terminal-review-2026-09-28-r2 PASS on the same staged tree tuple."
+  },
+  "classification": "Terminal-state test-path/queue drift; not an application behavior failure.",
+  "repair": "The routing suite now permits an empty active queue and resolves the D8-S02 plan from its completed path after closeout, falling back to active path before the plan move lands. The stale copy-ready prompt now requires a newly authorized queued plan.",
+  "superseded_by": {
+    "Platform_source_commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+    "Platform_source_tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+    "current_exact_source_validation": "pd-d8-s02-wp06-terminal-source-validation-platform-2026-09-28.json",
+    "status": "PASS; new independent review/tester required"
+  }
+}

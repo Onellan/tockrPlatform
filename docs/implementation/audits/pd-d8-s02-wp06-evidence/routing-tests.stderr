@@ -1,0 +1,16 @@
+test_all_active_execution_plans_are_routeable (__main__.PlanRoutingTests) ... ok
+test_delivery_state_allows_passed_terminal_packages_without_routes (__main__.PlanRoutingTests) ... ok
+test_delivery_state_requires_route_for_current_unpassed_package (__main__.PlanRoutingTests) ... ok
+test_duplicate_risk_codes_are_rejected (__main__.PlanRoutingTests) ... ok
+test_each_package_has_one_compact_route_signature (__main__.PlanRoutingTests) ... ok
+test_missing_duplicate_or_unknown_route_is_fail_closed (__main__.PlanRoutingTests) ... ok
+test_queued_active_package_still_requires_a_route (__main__.PlanRoutingTests) ... ok
+test_requested_package_must_be_present (__main__.PlanRoutingTests) ... ok
+test_router_plan_input_is_not_optional_in_the_contract (__main__.PlanRoutingTests) ... ok
+test_selected_package_ignores_unrelated_terminal_packages (__main__.PlanRoutingTests) ... ok
+test_selected_package_rejects_missing_duplicate_and_unknown (__main__.PlanRoutingTests) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.113s
+
+OK

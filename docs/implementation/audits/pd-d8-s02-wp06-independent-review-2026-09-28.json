@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "review_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+  "reviewer_role": "independent engineering reviewer",
+  "verdict": "PASS",
+  "candidate": {
+    "source_tuple": {
+      "Platform": {
+        "commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+        "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+        "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+        "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+        "staged_tree": "b16384b317f262b543381ec44f9ded4702c88683"
+      },
+      "CTRL": {
+        "commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+        "candidate_id": "2f4d232abba8c9bc163aa5fec8afa39c74ea1ec9525ba3bcd54e659be2476f34",
+        "fingerprint": "e92e1c5195b2bfd8c8df0a0e074d825e419978adef3419b62c989f74ced1476f",
+        "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+        "staged_tree": "dceecd9998e92fe77b833102d9d69eec630605fd"
+      },
+      "IMS": {
+        "commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+        "candidate_id": "0c8895e0f206c516488942f40cc41115f4f42c0ea7f6917f04e26a24eebf5feb",
+        "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+        "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+        "staged_tree": "a68bebd15d74cafb3b0c1a4edd19a7917c270095"
+      }
+    },
+    "preflight": "All three source SHAs are HEAD on main and their trees match recorded source trees. Each staged index tree matches supplied staged tree ID; no unstaged changes were present."
+  },
+  "finding_ids": [],
+  "criteria_checked": [
+    "Prior finding R1-WP062-EVIDENCE-HASH-01 is repaired and retained with its original candidate trees in review-history.",
+    "In all three repositories, source-freeze gate artifact SHA matches actual independent-gates JSON; local and external tester-manifest digests match their files.",
+    "All bundled and external manifest checksums pass, and all 42 checked local artifact/document links resolve in each repository.",
+    "Published baselines and WP05 candidates are ancestors of each source candidate.",
+    "D7 handoff values and D8-S01 references match existing authority records.",
+    "WP05 logs match recorded hashes and are marked disposable rehearsal evidence; production state is explicitly not claimed. Production activation, deployed modes, machine keys, deployed build identity, and applied migration versions are N/A or not supplied.",
+    "Validation reports and outputs are bound to exact source candidates.",
+    "WP06.1 review maps to PASS evidence platform-wp06-1-review-cc07d88-2026-09-28. Tester rows E01\u2013E07 map to acceptance rows; malformed underscore risk fixture is FIXTURE_FAIL and excluded, E06 provides valid-syntax unsupported-risk rejection evidence.",
+    "WP01\u2013WP05 terminal audit/acceptance documents, IMPLEMENTED.md and plan/incomplete.md are unchanged across WP06.1 comparison; immutability diff independently confirmed."
+  ],
+  "evidence_limits": [
+    "Read-only review; validation and tests were not rerun. Candidate binding, outputs, classifications and manifests were inspected and checksum-verified.",
+    "WP06.2 tester acceptance was pending at review time."
+  ]
+}

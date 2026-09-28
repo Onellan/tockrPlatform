@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r2",
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "verdict": "PASS",
+  "candidate": {
+    "source_tuple": {
+      "Platform": {
+        "commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+        "tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5"
+      },
+      "CTRL": {
+        "commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+        "tree": "0ddb20168bea615101d917e92368cea9a1ff0d25"
+      },
+      "IMS": {
+        "commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+        "tree": "90778a268b3b81826c50ab58d27706c29ebde8c7"
+      }
+    },
+    "staged_trees": {
+      "Platform": "23bea27f51b29ea076df1d3c1ded08128c074a14",
+      "CTRL": "2466d0f300efaab8b78cb4ff605d84f196db9d1c",
+      "IMS": "9f706acd700fac42387aad4ac5fcf1e0f0be860e"
+    },
+    "clean_validation_commits": {
+      "Platform": "3be3790a524fc21bc833938004ca4ef2b9a08bbc",
+      "CTRL": "67b0493b42e22429e4bad84a4eff6f29608e21aa",
+      "IMS": "8a3d340b6dc1163f0b3bd2040d38a1e96124a701"
+    }
+  },
+  "acceptance_evidence": [
+    {
+      "evidence_id": "E01",
+      "result": "PASS",
+      "details": "Each clean detached validation worktree matched its requested staged tree. Verified source tree identities and ancestry from each recorded baseline and WP05 commit."
+    },
+    {
+      "evidence_id": "E02",
+      "result": "PASS",
+      "target": "INFERRED: scripts/test_plan_routing.py, as directed by the completed WP06 plan",
+      "preflight": "PASS; file-based discovery found 11 tests (SHA256 2bfb2b2a8065da24a6b70b1d732f9d7864275098d1451d0a2661a37590ecd73e)",
+      "command": "python3 scripts/test_plan_routing.py -v",
+      "exit_code": 0,
+      "stdout_stderr_sha256": "64fb808a15b1ee06ce15c721026a67b2600498d27083c0b3e17dbdb56990dc5e",
+      "details": "All 11 tests passed, including terminal queue behavior, both delivery_state cases, active missing-route checks, and selected versus strict whole-plan routing."
+    },
+    {
+      "evidence_id": "E03",
+      "result": "PASS",
+      "details": [
+        {
+          "repository": "Platform",
+          "command": "python3 scripts/validate.py run format",
+          "exit_code": 0,
+          "stdout_stderr_sha256": "1c0097b62cc94798c924fa0814019cdab3004a9f48d4561b302e0bf14828bb65"
+        },
+        {
+          "repository": "CTRL",
+          "command": "python3 scripts/validate.py run ci-architecture",
+          "exit_code": 0,
+          "validation_report_id": "validation-report:ci-architecture:1f8ad07f0497e52ed2820871",
+          "stdout_stderr_sha256": "fd80db41a70def05d77d77d1eb39cbf56ad992ed88f1a9b68e0d58ebe2c711fe"
+        },
+        {
+          "repository": "IMS",
+          "command": "python3 scripts/validate.py run ci-architecture",
+          "exit_code": 0,
+          "stdout_stderr_sha256": "f337288a7906902f97a5c26571cd0b4430d58c7429c277f8a50d58291c092dbc"
+        }
+      ]
+    },
+    {
+      "evidence_id": "E04",
+      "result": "PASS",
+      "details": [
+        "Selected WP-PD8S02-06 validation passed on plan/completed/pd-d8-s02-platform-authority-certification.md (output SHA256 611eeaed1ec1ac0685af2340b74cb129738004462646d959642ce4547ea50d).",
+        "Unscoped validation rejected the historical WP01-WP05 missing routes as expected (output SHA256 996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856)."
+      ]
+    },
+    {
+      "evidence_id": "E05",
+      "result": "PASS",
+      "details": {
+        "current_manifests": {
+          "Platform": {
+            "SHA256SUMS": "d5b2bb7ee7647f220b4481c0311cfee4c6b43904e717dcc5819d52b148783d4d",
+            "tester-E05-E07-SHA256SUMS": "df0bd4e3db7c26a8595f7e59cddba638e460025d49bb4cb892db3030973a338a",
+            "tester-SHA256SUMS": "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b"
+          },
+          "CTRL": {
+            "SHA256SUMS": "72f97dc52162089547aa6c8669b72945147aa95c6aa38fbae635b358587979f1",
+            "tester-E05-E07-SHA256SUMS": "df0bd4e3db7c26a8595f7e59cddba638e460025d49bb4cb892db3030973a338a",
+            "tester-SHA256SUMS": "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b"
+          },
+          "IMS": {
+            "SHA256SUMS": "6466365d680297160f525a7864a220fa0f05930867b8c2e8dd658a356121f244",
+            "tester-E05-E07-SHA256SUMS": "df0bd4e3db7c26a8595f7e59cddba638e460025d49bb4cb892db3030973a338a",
+            "tester-SHA256SUMS": "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b"
+          }
+        },
+        "historical_manifests": "The before-fixture-rename and initial-blocked manifests do not verify against current paths; they are explicitly historical artifacts and were not treated as current evidence."
+      }
+    },
+    {
+      "evidence_id": "E06",
+      "result": "PASS",
+      "details": [
+        "The terminal reconciliation names the completed plan, removes D8-S02 from all three active queues, and lists all nine repository-level records.",
+        "Historical WP01-WP05 audit records match their source blobs: Platform 11/11, CTRL 10/10, IMS 10/10.",
+        "Review history preserves the earlier evidence-hash, manifest-path, IMS source-tree, stale-plan and terminal test-path findings alongside their repairs.",
+        "Production activation, deployed-mode changes, production migration, and compatibility retirement remain outside authorized scope."
+      ]
+    },
+    {
+      "evidence_id": "E07",
+      "result": "BLOCKED / NOT RUN",
+      "failure_class": "INVOCATION_FAIL",
+      "details": "An initial supplemental test-discovery probe imported scripts.test_plan_routing as a package and failed with ModuleNotFoundError. It was not used as acceptance evidence; the corrected file-based preflight passed and discovered 11 tests."
+    }
+  ],
+  "reviewer_evidence": {
+    "evidence_id": "wp06-rebound-terminal-review-2026-09-28-r3",
+    "verdict": "PASS",
+    "findings": [],
+    "reviewed_tree_tuple": {
+      "Platform": "5de83b7b7ecb75ef4da373e071d543c5bb7538f8",
+      "CTRL": "98c7c7fa4aa67a003cf9510f384e1b5eb11e4bca",
+      "IMS": "720240bbbbf5d59aa046821cc58978ff9345ffc6"
+    },
+    "scope_note": "The current candidate differs from those reviewed trees only in implementation records, reconciliation, review history, and source-freeze documentation; no implementation files changed."
+  },
+  "follow_up": "Persist this tester PASS in terminal-closeout records as a new candidate. Run final exact terminal-candidate validation and publication only after those records are staged and validated.",
+  "mutations": "None"
+}

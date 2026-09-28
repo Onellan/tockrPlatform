@@ -1,0 +1,21 @@
+# WP01 terminal acceptance/audit
+ docs/implementation/audits/pd-d8-s02-wp01-acceptance-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-wp01-review-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-wp01-semantic-comparison-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-wp01-semantic-comparison-2026-09-26.json
+# WP02 terminal acceptance/audit
+ docs/implementation/audits/pd-d8-s02-wp02-independent-acceptance-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-wp02-independent-review-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-wp02-writer-inventory-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-wp02-writer-inventory-2026-09-26.json
+# WP03 terminal audit
+ docs/implementation/audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.json
+# WP04 terminal audit
+ docs/implementation/audits/pd-d8-s02-wp04-retirement-2026-09-26.md
+# WP05 terminal audit
+ docs/implementation/audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md
+ docs/implementation/audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.json
+# Authoritative implemented status and queue
+ docs/implementation/IMPLEMENTED.md
+ plan/incomplete.md

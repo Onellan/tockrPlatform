@@ -1,0 +1,6 @@
+{
+  "status": "FAIL",
+  "issues": [
+    "line 2: unsupported work-package kind"
+  ]
+}

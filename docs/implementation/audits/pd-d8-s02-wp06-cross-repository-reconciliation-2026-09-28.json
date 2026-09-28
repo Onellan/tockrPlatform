@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "record_type": "cross-repository-closeout-reconciliation",
+  "captured_at": "2026-09-28",
+  "status": "Terminal reconciliation candidate; exact-final-head validation and publication remain pending.",
+  "certified_code_candidate_tuple": {
+    "Platform": {
+      "candidate_sha": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+      "source_tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+      "baseline": "cc78557d8048bac6392f837166cb101460f43c98",
+      "wp05": "ec9bb853c20308dc8d808c425b257d8099f611fd"
+    },
+    "CTRL": {
+      "candidate_sha": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "baseline": "71406518624d3260d96f52e0cbde8eb8b89d440c",
+      "wp05": "7d5b23629aa0a3725eaa1ff15dddf4e298b077ea"
+    },
+    "IMS": {
+      "candidate_sha": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "baseline": "d5d438b8707ae92136e4677bdc2a96ecbc76199c",
+      "wp05": "1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d"
+    }
+  },
+  "validation_report_ids": {
+    "Platform": [
+      "498df717bdf1de75934951fd",
+      "8a99ec3b130bd0fffa02a8b9",
+      "c56963207e647e5abba389cd",
+      "3338853d7b9a646d23f33113",
+      "274bc91d130751b6021abe02"
+    ],
+    "CTRL": [
+      "301cccfa7bf9b09ac0b3d0b4fbda1ca1600d83827db419a0861c0131ba9b88db",
+      "bcbc7010ed7824e44959a05bf42267b19f750ef4fb49df30bfdddec9345fc736"
+    ],
+    "IMS": [
+      "5398d28c0694e9686ca5652cfa5b46ec9959f258d7759ffe5b886cb86c71f65e",
+      "f337288a7906902f97a5c26571cd0b4430d58c7429c277f8a50d58291c092dbc"
+    ]
+  },
+  "nine_repository_level_records": {
+    "Platform": {
+      "implementation": "docs/implementation/audits/pd-d8-s02-wp06-implementation-2026-09-28.md",
+      "independent_review": "docs/implementation/audits/pd-d8-s02-wp06-independent-review-2026-09-28.json",
+      "tester_acceptance": "docs/implementation/audits/pd-d8-s02-wp06-tester-acceptance-2026-09-28.json",
+      "wp06_2_reviewer_evidence_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+      "wp06_2_tester_evidence_id": "wp06-2-tester-acceptance-2026-09-28-r1",
+      "gate_verdicts": "PASS"
+    },
+    "CTRL": {
+      "implementation": "docs/implementation/audits/pd-d8-s02-wp06-implementation-2026-09-28.md",
+      "independent_review": "docs/implementation/audits/pd-d8-s02-wp06-independent-review-2026-09-28.json",
+      "tester_acceptance": "docs/implementation/audits/pd-d8-s02-wp06-tester-acceptance-2026-09-28.json",
+      "wp06_2_reviewer_evidence_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+      "wp06_2_tester_evidence_id": "wp06-2-tester-acceptance-2026-09-28-r1",
+      "gate_verdicts": "PASS"
+    },
+    "IMS": {
+      "implementation": "docs/implementation/audits/pd-d8-s02-wp06-implementation-2026-09-28.md",
+      "independent_review": "docs/implementation/audits/pd-d8-s02-wp06-independent-review-2026-09-28.json",
+      "tester_acceptance": "docs/implementation/audits/pd-d8-s02-wp06-tester-acceptance-2026-09-28.json",
+      "wp06_2_reviewer_evidence_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+      "wp06_2_tester_evidence_id": "wp06-2-tester-acceptance-2026-09-28-r1",
+      "gate_verdicts": "PASS"
+    }
+  },
+  "terminal_history_preservation": {
+    "WP01-WP05": "preserved and immutable",
+    "WP01-WP05_implemented_entries": "unchanged",
+    "reconciliation": "D8-S02 removed from all three active queues by terminal reconciliation.",
+    "completed_plan": "plan/completed/pd-d8-s02-platform-authority-certification.md",
+    "queue_refs": {
+      "Platform": "plan/incomplete.md",
+      "CTRL": "plan/incomplete.md",
+      "IMS": "plan/incomplete.md"
+    }
+  },
+  "production_boundary": "No production activation, deployed mode change, production migration, or compatibility retirement authorized or performed. Production snapshot remains NOT ACTIVE / NOT PROVIDED; rehearsal data is disposable only.",
+  "final_closeout_candidate_staged_tree_tuple": {
+    "Platform": "8d77154f23342593547ae826499d0d083e10f196",
+    "CTRL": "c8ec11c9c57a1c8229521849e7356fa65788210f",
+    "IMS": "b34c2d895a76b88a9930de3833d40a6f35f2b071"
+  },
+  "final_gates": {
+    "review": {
+      "evidence_id": "wp06-full-closeout-review-2026-09-28-r1",
+      "verdict": "PASS",
+      "artifact": "pd-d8-s02-wp06-full-closeout-review-2026-09-28.json"
+    },
+    "tester": {
+      "evidence_id": "wp06-full-closeout-tester-acceptance-2026-09-28-r1",
+      "verdict": "PASS",
+      "artifact": "pd-d8-s02-wp06-full-closeout-tester-2026-09-28.json"
+    },
+    "exact_final_head_validation": "pending"
+  },
+  "active_candidate_registry_check": {
+    "status": "POSTCONDITION_FAIL on previous staged candidate; repaired fixture extensions, profile reruns pending",
+    "affected_profiles": [
+      "CTRL ci-architecture",
+      "IMS ci-architecture"
+    ],
+    "failure_class": "docs fixture format",
+    "repair": "Three behaviorally invalid route fixtures renamed from .md to .fixture with unchanged contents; manifests and local paths regenerated.",
+    "history_artifact": "pd-d8-s02-wp06-review-history-2026-09-28.json"
+  },
+  "corrected_candidate_validation": {
+    "Platform": {
+      "status": "PASS",
+      "candidate_tree": "ef65196aaad2a28cf7ff9f1548eeb700d413d677",
+      "profile": "format",
+      "validation_commit": "ff7b09f82eec0b2b29436d0abb59f856ba96c84c",
+      "report": "pd-d8-s02-wp06-final-active-validation-platform-2026-09-28.json",
+      "report_sha256": "c48a5da5de669da80c3cd06ef6e796983f0cbd792380d111f1f516efca1676bd"
+    }
+  },
+  "corrected_candidate_review": {
+    "evidence_id": "wp06-corrected-preterminal-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "candidate_tree_tuple": {
+      "Platform": "55468e98199f1e9ea2215f552cc74d4c9aab109d",
+      "CTRL": "2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd",
+      "IMS": "ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30"
+    },
+    "report": "pd-d8-s02-wp06-corrected-preterminal-review-2026-09-28.json",
+    "report_sha256": "33fba1be0f33f7ca704cb545c7e9da5185c2271628cb7ba6056e5dafe6b248dd"
+  },
+  "corrected_preterminal_tester_status": "PASS",
+  "corrected_candidate_tester": {
+    "evidence_id": "wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "candidate_tree_tuple": {
+      "Platform": "02b88a5dad7af21adbb37a456f2381f24d5d1274",
+      "CTRL": "dd986e47876c8d4ef7191980c507286ea078b66e",
+      "IMS": "a4cf60449bdde04245a6956f73829e53fbaee47b"
+    },
+    "artifact": "pd-d8-s02-wp06-corrected-preterminal-tester-2026-09-28.json",
+    "sha256": "bd1f7df6b493eec153befea795a66a0f8f3572d34e994bafdf6a0f09228fe90d"
+  },
+  "terminal_reconciliation": {
+    "plan_status": "Implemented / terminal",
+    "plan_path": "plan/completed/pd-d8-s02-platform-authority-certification.md",
+    "queue_state": "removed from active queues in Platform/CTRL/IMS",
+    "source_candidate_tuple": {
+      "Platform": {
+        "sha": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+        "tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+        "baseline": "cc78557d8048bac6392f837166cb101460f43c98",
+        "wp05": "ec9bb853c20308dc8d808c425b257d8099f611fd"
+      },
+      "CTRL": {
+        "sha": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+        "tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+        "baseline": "71406518624d3260d96f52e0cbde8eb8b89d440c",
+        "wp05": "7d5b23629aa0a3725eaa1ff15dddf4e298b077ea"
+      },
+      "IMS": {
+        "sha": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+        "tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+        "baseline": "d5d438b8707ae92136e4677bdc2a96ecbc76199c",
+        "wp05": "1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d"
+      }
+    },
+    "accepted_preterminal_record_trees": {
+      "Platform": "02b88a5dad7af21adbb37a456f2381f24d5d1274",
+      "CTRL": "dd986e47876c8d4ef7191980c507286ea078b66e",
+      "IMS": "a4cf60449bdde04245a6956f73829e53fbaee47b"
+    },
+    "independent_review": "wp06-corrected-preterminal-review-2026-09-28-r1 PASS",
+    "independent_tester": "wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1 PASS",
+    "production_activation": "not performed; outside scope",
+    "reviewed_record_tree_tuple": {
+      "Platform": "55468e98199f1e9ea2215f552cc74d4c9aab109d",
+      "CTRL": "2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd",
+      "IMS": "ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30"
+    },
+    "tested_record_tree_tuple": {
+      "Platform": "02b88a5dad7af21adbb37a456f2381f24d5d1274",
+      "CTRL": "dd986e47876c8d4ef7191980c507286ea078b66e",
+      "IMS": "a4cf60449bdde04245a6956f73829e53fbaee47b"
+    },
+    "independent_review_evidence_id": "wp06-corrected-preterminal-review-2026-09-28-r1",
+    "independent_tester_evidence_id": "wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1",
+    "source_tree_verification": {
+      "IMS_source_commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "verified_git_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "verification_command": "git rev-parse 'e1d7282050f1cee0bdd47b97dd8a873a9fa8319a^{tree}'",
+      "result": "PASS"
+    },
+    "review_history_findings": {
+      "R1-WP06-STALE-PLAN-REFERENCE-01": "repaired: completed plan link/status and queue reconciliation are recorded in terminal_history_preservation",
+      "R1-WP06-IMS-SOURCE-TREE-01": "repaired: verified 40-character IMS source tree is recorded in source_tree_verification"
+    },
+    "terminal_review": {
+      "evidence_id": "wp06-rebound-terminal-review-2026-09-28-r3",
+      "verdict": "PASS",
+      "findings": [],
+      "artifact": "docs/implementation/audits/pd-d8-s02-wp06-rebound-terminal-review-2026-09-28.json",
+      "artifact_sha256": "acd1ea739e0ee551c78db6ac559a58e19559f1d6c72abbc81eba29a03e13d453",
+      "reviewed_tree_tuple": {
+        "Platform": "5de83b7b7ecb75ef4da373e071d543c5bb7538f8",
+        "CTRL": "98c7c7fa4aa67a003cf9510f384e1b5eb11e4bca",
+        "IMS": "720240bbbbf5d59aa046821cc58978ff9345ffc6"
+      }
+    },
+    "terminal_tester": {
+      "evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r2",
+      "verdict": "PASS",
+      "artifact": "docs/implementation/audits/pd-d8-s02-wp06-final-terminal-tester-2026-09-28.json",
+      "artifact_sha256": "0e0a72f008967481cbcba586bff5925c40388af8416f59c6c78f6f1e2d2dc7f7",
+      "candidate_tree_tuple": {
+        "Platform": "23bea27f51b29ea076df1d3c1ded08128c074a14",
+        "CTRL": "2466d0f300efaab8b78cb4ff605d84f196db9d1c",
+        "IMS": "9f706acd700fac42387aad4ac5fcf1e0f0be860e"
+      },
+      "findings": []
+    },
+    "prior_terminal_record_review": {
+      "evidence_id": "wp06-corrected-terminal-review-2026-09-28-r2",
+      "verdict": "PASS",
+      "findings": [],
+      "artifact": "docs/implementation/audits/pd-d8-s02-wp06-corrected-terminal-review-2026-09-28.json",
+      "candidate_tree_tuple": {
+        "Platform": "d4cb0fd292d2cc73ebde925e6d47cc31ed099faa",
+        "CTRL": "f25ff26a4d86b2fb81bfcc3cdf80cdef25416d27",
+        "IMS": "e8ae1e750b760d5cd320a7bcec76e0b76b5016bc"
+      }
+    },
+    "source_repair_validation": {
+      "report": "docs/implementation/audits/pd-d8-s02-wp06-terminal-source-validation-platform-2026-09-28.json",
+      "sha256": "7ec10a52905b44005339bcec925907a08f0cfd9c3fde37f98e0e26fa6203f6fc",
+      "manifest_sha256": "d5b2bb7ee7647f220b4481c0311cfee4c6b43904e717dcc5819d52b148783d4d",
+      "candidate_commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+      "candidate_tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+      "status": "PASS"
+    }
+  },
+  "terminal_reconciliation_candidate_status": "Terminal source repair reviewer and tester PASS on recorded candidate tuples; exact final terminal-candidate validation and publication remain pending.",
+  "original_wp06_certified_code_candidate_tuple": {
+    "Platform": {
+      "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+      "baseline": "cc78557d8048bac6392f837166cb101460f43c98",
+      "wp05": "ec9bb853c20308dc8d808c425b257d8099f611fd",
+      "wp06_2_accepted_staged_tree": "b16384b317f262b543381ec44f9ded4702c88683"
+    },
+    "CTRL": {
+      "candidate_sha": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "baseline": "71406518624d3260d96f52e0cbde8eb8b89d440c",
+      "wp05": "7d5b23629aa0a3725eaa1ff15dddf4e298b077ea",
+      "wp06_2_accepted_staged_tree": "dceecd9998e92fe77b833102d9d69eec630605fd"
+    },
+    "IMS": {
+      "candidate_sha": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "baseline": "d5d438b8707ae92136e4677bdc2a96ecbc76199c",
+      "wp05": "1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d",
+      "wp06_2_accepted_staged_tree": "a68bebd15d74cafb3b0c1a4edd19a7917c270095"
+    }
+  },
+  "terminal_source_repair_candidate": {
+    "matched_source_tuple": {
+      "Platform": {
+        "commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+        "tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+        "baseline": "cc78557d8048bac6392f837166cb101460f43c98",
+        "wp05": "ec9bb853c20308dc8d808c425b257d8099f611fd"
+      },
+      "CTRL": {
+        "commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+        "tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+        "baseline": "71406518624d3260d96f52e0cbde8eb8b89d440c",
+        "wp05": "7d5b23629aa0a3725eaa1ff15dddf4e298b077ea"
+      },
+      "IMS": {
+        "commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+        "tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+        "baseline": "d5d438b8707ae92136e4677bdc2a96ecbc76199c",
+        "wp05": "1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d"
+      }
+    },
+    "Platform_validation_report": "docs/implementation/audits/pd-d8-s02-wp06-terminal-source-validation-platform-2026-09-28.json",
+    "Platform_validation_report_sha256": "7ec10a52905b44005339bcec925907a08f0cfd9c3fde37f98e0e26fa6203f6fc",
+    "Platform_validation_manifest_sha256": "d5b2bb7ee7647f220b4481c0311cfee4c6b43904e717dcc5819d52b148783d4d",
+    "Platform_validation_ids": [
+      "E01",
+      "E02",
+      "E03",
+      "E04"
+    ],
+    "Platform_validation_results": [
+      "format PASS",
+      "routing suite 11/11 PASS",
+      "selected package PASS",
+      "strict unscoped expected rejection"
+    ],
+    "historical_tester_BLOCK": "docs/implementation/audits/pd-d8-s02-wp06-terminal-test-failure-2026-09-28.json",
+    "historical_failure_evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r1",
+    "historical_failure_sha256": "ffbcd3135745959c650106450f587b32d718e86cb0b1bb31a441d762502e87e4",
+    "source_freeze": "docs/implementation/audits/pd-d8-s02-wp06-terminal-source-freeze-2026-09-28.json",
+    "fresh_review": "wp06-rebound-terminal-review-2026-09-28-r3 PASS",
+    "fresh_tester": "wp06-final-terminal-independent-tester-2026-09-28-r2 PASS",
+    "exact_final_candidate_validation": "PENDING",
+    "fresh_review_artifact_sha256": "acd1ea739e0ee551c78db6ac559a58e19559f1d6c72abbc81eba29a03e13d453",
+    "reviewed_tree_tuple": {
+      "Platform": "5de83b7b7ecb75ef4da373e071d543c5bb7538f8",
+      "CTRL": "98c7c7fa4aa67a003cf9510f384e1b5eb11e4bca",
+      "IMS": "720240bbbbf5d59aa046821cc58978ff9345ffc6"
+    },
+    "fresh_tester_artifact_sha256": "0e0a72f008967481cbcba586bff5925c40388af8416f59c6c78f6f1e2d2dc7f7",
+    "tested_tree_tuple": {
+      "Platform": "23bea27f51b29ea076df1d3c1ded08128c074a14",
+      "CTRL": "2466d0f300efaab8b78cb4ff605d84f196db9d1c",
+      "IMS": "9f706acd700fac42387aad4ac5fcf1e0f0be860e"
+    }
+  }
+}

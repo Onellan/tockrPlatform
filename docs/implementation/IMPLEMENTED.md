@@ -22,7 +22,7 @@
 - Accepted consumer code candidates: CTRL `bfbd808cec5c3dc705bef1c2e8e2e6296dead76c`, IMS `63e47c0929fd417b6d7c526bb662ba7fdf5cd5a5`
 - Platform handoff: [`pd-d8-s01-platform-handoff-2026-09-26.md`](pd-d8-s01-platform-handoff-2026-09-26.md)
 - Consumer plans and independent review/acceptance records are terminal in their repositories. The only repair was a tests-only current-time reconciliation fixture; Platform code and data were unchanged.
-- Next slice: [`plan/pd-d8-s02-platform-authority-certification.md`](../../plan/pd-d8-s02-platform-authority-certification.md) is **Ready / next**. Production authority activation remains separately gated.
+- Follow-on source certification: [`plan/completed/pd-d8-s02-platform-authority-certification.md`](../../plan/completed/pd-d8-s02-platform-authority-certification.md) is **Implemented / terminal**. Production authority activation remains separately gated.
 
 ## PD-D7-S01-PF — Durable Platform production reconciliation/import boundary
 
@@ -643,3 +643,18 @@ The following Platform Foundation Slices are terminally recorded:
 - Exact candidates: Platform `ec9bb853c20308dc8d808c425b257d8099f611fd`, CTRL `7d5b23629aa0a3725eaa1ff15dddf4e298b077ea`, IMS `1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d`.
 - Evidence: [cutover/recovery rehearsal](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md) and [machine-readable evidence](audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.json).
 - Backup/restore, projection resynchronisation, membership command correlation, Platform outage/recovery, staged cutover, bounded rollback, sole-writer, local-request and unchanged product-data checks passed. Production activation remains separately gated by WP06.
+
+
+## PD-D8-S02-WP-PD8S02-06 — Terminal cross-repository source certification
+
+- Status: **Implemented / terminal** for source authority certification; production activation remains outside scope.
+- Certified source candidates: Platform `cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5`, CTRL `f11de065237dc1c4dce5b4a77b2681ee5fb1eaae`, IMS `e1d7282050f1cee0bdd47b97dd8a873a9fa8319a`.
+- Independent reviewer PASS: `wp06-corrected-preterminal-review-2026-09-28-r1` on Platform `55468e98199f1e9ea2215f552cc74d4c9aab109d`, CTRL `2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd`, IMS `ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30`. Independent tester PASS: `wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1` on Platform `02b88a5dad7af21adbb37a456f2381f24d5d1274`, CTRL `dd986e47876c8d4ef7191980c507286ea078b66e`, IMS `a4cf60449bdde04245a6956f73829e53fbaee47b`.
+- Independent review: `wp06-corrected-preterminal-review-2026-09-28-r1` PASS. Independent tester: `wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1` PASS.
+- Validation before closeout: Platform `format` PASS (`2969c2211568d3a4c1854bf2ec997986560c3bd147e49d405b065e76d69bfe6d`); CTRL `ci-architecture` PASS (`ba1bfabc3ce9ea8f6d85b48355dd6a7d86fd8971cf0ca1cbc070c93e0632041d`); IMS `ci-architecture` PASS (`f337288a7906902f97a5c26571cd0b4430d58c7429c277f8a50d58291c092dbc`). These profiles were run on exact synthetic validation commits bound to their staged record trees; exact-final-head validation remains required before publication.
+- Terminal-state test-path repair candidate: Platform `8b11a4ecf9eca2e528e50066bcd5f425dcb28852` (tree `dacf779d7c073fff3a98034fb872318a99dcdcf5`), with CTRL `f11de065237dc1c4dce5b4a77b2681ee5fb1eaae` and IMS `e1d7282050f1cee0bdd47b97dd8a873a9fa8319a`. The prior tester BLOCK is retained as terminal queue/path drift in [failure history](audits/pd-d8-s02-wp06-terminal-test-failure-2026-09-28.json); exact-HEAD Platform format, 11 routing tests and selected-package routing pass. Fresh review/tester and exact terminal-candidate validation remain pending.
+- Final terminal tester: `wp06-final-terminal-independent-tester-2026-09-28-r2` PASS with no findings on Platform `23bea27f51b29ea076df1d3c1ded08128c074a14`, CTRL `2466d0f300efaab8b78cb4ff605d84f196db9d1c`, IMS `9f706acd700fac42387aad4ac5fcf1e0f0be860e` ([tester record](audits/pd-d8-s02-wp06-final-terminal-tester-2026-09-28.json)). Supplemental E07 is BLOCKED / NOT RUN (INVOCATION_FAIL) and excluded from acceptance; final exact terminal-candidate validation remains pending.
+- Rebound terminal source repair review: `wp06-rebound-terminal-review-2026-09-28-r3` PASS with no findings on Platform `5de83b7b7ecb75ef4da373e071d543c5bb7538f8`, CTRL `98c7c7fa4aa67a003cf9510f384e1b5eb11e4bca`, IMS `720240bbbbf5d59aa046821cc58978ff9345ffc6` ([review record](audits/pd-d8-s02-wp06-rebound-terminal-review-2026-09-28.json)); final tester and exact terminal-candidate validation remain pending.
+- Final terminal reconciliation review: `wp06-corrected-terminal-review-2026-09-28-r2` PASS with no findings on Platform `d4cb0fd292d2cc73ebde925e6d47cc31ed099faa`, CTRL `f25ff26a4d86b2fb81bfcc3cdf80cdef25416d27`, IMS `e8ae1e750b760d5cd320a7bcec76e0b76b5016bc`; [review record](audits/pd-d8-s02-wp06-corrected-terminal-review-2026-09-28.json). Final tester and exact-final-head validation remain pending.
+- Evidence: [implementation record](audits/pd-d8-s02-wp06-implementation-2026-09-28.md), [review](audits/pd-d8-s02-wp06-corrected-preterminal-review-2026-09-28.json), [tester](audits/pd-d8-s02-wp06-corrected-preterminal-tester-2026-09-28.json), and [cross-repository reconciliation](audits/pd-d8-s02-wp06-cross-repository-reconciliation-2026-09-28.json).
+- No production activation, deployed mode change, or production migration was performed or authorized. WP05 logs remain disposable rehearsal evidence.

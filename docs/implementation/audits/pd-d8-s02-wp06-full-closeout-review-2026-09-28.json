@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-full-closeout-review-2026-09-28-r1",
+  "role": "independent engineering reviewer",
+  "verdict": "PASS",
+  "findings": [],
+  "candidate": {
+    "Platform": {
+      "source_commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+      "staged_tree": "8d77154f23342593547ae826499d0d083e10f196"
+    },
+    "CTRL": {
+      "source_commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "candidate_id": "2f4d232abba8c9bc163aa5fec8afa39c74ea1ec9525ba3bcd54e659be2476f34",
+      "fingerprint": "e92e1c5195b2bfd8c8df0a0e074d825e419978adef3419b62c989f74ced1476f",
+      "staged_tree": "c8ec11c9c57a1c8229521849e7356fa65788210f"
+    },
+    "IMS": {
+      "source_commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "candidate_id": "0c8895e0f206c516488942f40cc41115f4f42c0ea7f6917f04e26a24eebf5feb",
+      "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+      "staged_tree": "b34c2d895a76b88a9930de3833d40a6f35f2b071"
+    }
+  },
+  "checks": [
+    "Reviewer independently checked the exact source tuple and staged trees listed above.",
+    "All local and tester manifests, links, nested digests, source ancestry, and validation records match.",
+    "Historical WP01-WP05 evidence, IMPLEMENTED ledgers, and active queue content remain unchanged relative to source candidates.",
+    "The previous manifest finding R1-WP06-EVIDENCE-MANIFEST-01 was repaired and preserved in review history.",
+    "Production boundary remains NOT ACTIVE / NOT PROVIDED; no production activation, deployed mode change, migration, or compatibility retirement is claimed."
+  ],
+  "evidence_scope": "Final closeout review on pre-terminal staged candidate; final exact-head validation and plan/queue terminal moves remain pending."
+}

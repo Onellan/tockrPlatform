@@ -1,0 +1,11 @@
+Candidate: cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5
+Worktree: /mnt/c/Temp/wp06-r1-e05-cc07d88-worktree (detached)
+Preflight: captured git rev-parse HEAD; git branch --show-current; git status --porcelain=v1; git diff --cached --quiet; git diff --quiet; python3 --version; test -f scripts/test_plan_routing.py; test -f scripts/validate_plan_routing.py.
+Contract inspection: rg -n -C 8 "def validate_text|selected-package|unsupported work-package kind|test_selected_package|test_missing_duplicate" scripts/validate_plan_routing.py scripts/test_plan_routing.py.
+
+E05 command: python3 scripts/validate_plan_routing.py /mnt/c/Temp/wp06-r1-e05-cc07d88-evidence/invalid_kind.md --package WP06
+Expected CLI exit 1 with `unsupported work-package kind`; this is acceptance PASS for rejecting an invalid selected route.
+E05-risk initial attempt: python3 scripts/validate_plan_routing.py /mnt/c/Temp/wp06-r1-e05-cc07d88-evidence/invalid_risk.md --package WP06
+Fixture used NOT_A_CODE, which does not match the route grammar because underscore is not allowed. Exit 1 only reported zero matching route signatures; classify this attempt FIXTURE_FAIL / not proof.
+E06 command: python3 scripts/validate_plan_routing.py /mnt/c/Temp/wp06-r1-e05-cc07d88-evidence/invalid_risk_valid_syntax.md --package WP06
+Expected CLI exit 1 with `unsupported risk code(s): UNKNOWN`; this is acceptance PASS for rejecting a syntactically valid but unsupported selected risk code.

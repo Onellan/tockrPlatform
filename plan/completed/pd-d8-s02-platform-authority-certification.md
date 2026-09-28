@@ -1,7 +1,7 @@
 # PD-D8-S02 — Platform authority integration certification
 
 **Priority:** PD — Platform Authority & Product Access Integration
-**Status:** In progress; WP03 compatibility ledger, WP04 bounded retirement and WP05 rehearsal are terminal; WP06 final cross-repository record remains gated
+**Status:** Implemented / terminal — WP06 cross-repository source certification and record reconciliation complete; production activation remains outside scope
 **Product:** TockrPlatform cross-repository authority
 **Dependencies:** Platform `cc78557d8048bac6392f837166cb101460f43c98`; terminal CTRL/IMS D8-S01 acceptance and published mains.
 

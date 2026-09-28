@@ -1,0 +1,369 @@
+{
+  "item": "PD-D8-S02",
+  "work_package": "WP-PD8S02-06",
+  "captured_at": "2026-09-28",
+  "source_candidate": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+  "source_branch": "main",
+  "source_worktree_at_freeze": "clean",
+  "source_index_at_freeze": "clean",
+  "matched_source_candidate_tuple": {
+    "platform": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "ctrl": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+    "ims": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a"
+  },
+  "ancestry": {
+    "required_published_baseline": "cc78557d8048bac6392f837166cb101460f43c98",
+    "wp05_source_candidate": "ec9bb853c20308dc8d808c425b257d8099f611fd",
+    "both_ancestors_of_source_candidate": true,
+    "verified_with_git_merge_base": true
+  },
+  "build_identity": {
+    "module": "github.com/Onellan/tockrplatform",
+    "go_directive": "1.26",
+    "go_toolchain": "go1.27.1 linux/amd64",
+    "binary_image_identity": "not applicable; source certification candidate; no image build claimed"
+  },
+  "contracts": {
+    "read_authority": "platform.read-authority.v2",
+    "read_authority_source_schema": 1,
+    "membership_command": "platform.membership-command.v1",
+    "reconciliation_report_schema": 1
+  },
+  "d7_handoff": {
+    "manifest_id": "2b831b31cd5686ef91c4ac66824f1f1301254d26876ad7cfcfc0e56084f3d211",
+    "manifest_sha256": "9c2f8adbd7831025137907dcb500626cfa438636afc0f5bd0e07ba4a5de78079",
+    "restore_point": "D7-S01-PF-RESTORE-2026-09-24",
+    "restore_point_sha256": "a4d931d8dca81236c8b67eb0e46d5f0bcb4c956833af838a8b4e76799eca1dd5",
+    "receipt_sha256": "c5b3a5db9e2866c5fa20bdfa1fc3bade4bfa371cadc130ba8fae57b9ea3f453",
+    "projection_cursor": "cur_22"
+  },
+  "d8_s01_acceptance": {
+    "status": "PASS terminal",
+    "local_reference": "docs/implementation/pd-d8-s01-platform-handoff-2026-09-26.md",
+    "matched_candidates": {
+      "platform": "cc78557d8048bac6392f837166cb101460f43c98",
+      "ctrl": "bfbd808cec5c3dc705bef1c2e8e2e6296dead76c",
+      "ims": "63e47c0929fd417b6d7c526bb662ba7fdf5cd5a5"
+    }
+  },
+  "wp01_wp05_terminal_evidence": {
+    "wp01": "docs/implementation/audits/pd-d8-s02-wp01-semantic-comparison-2026-09-26.md",
+    "wp02": "docs/implementation/audits/pd-d8-s02-wp02-independent-acceptance-2026-09-26.md",
+    "wp03": "docs/implementation/audits/pd-d8-s02-compatibility-usage-ledger-2026-09-26.md",
+    "wp04": "docs/implementation/audits/pd-d8-s02-wp04-retirement-2026-09-26.md",
+    "wp05": "docs/implementation/audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md"
+  },
+  "disposable_wp05_rehearsal_only": {
+    "source_logs": {
+      "ctrl": {
+        "file": "/mnt/c/Temp/d8-s02-wp05-20260926/ctrl-exact-cutover.log",
+        "sha256": "ba850fef35313b0fbf77d4032aff2a0da736867bb9059712310544f47af74a7e"
+      },
+      "ims": {
+        "file": "/mnt/c/Temp/d8-s02-wp05-20260926/ims-exact-cutover.log",
+        "sha256": "65dbc01fa37841fcae30eb0aba914fb6bf62403b9810da2c2d5fe92ecd5910f6"
+      }
+    },
+    "starting_modes": {
+      "ctrl": {
+        "auth": "local",
+        "membership_write": "local"
+      },
+      "ims": {
+        "auth": "local",
+        "membership_write": "local"
+      }
+    },
+    "cutover_mode": "platform/platform",
+    "rollback_mode": "platform/local",
+    "command_key_id": "d8-s02-wp05-rehearsal-command-20260926",
+    "projection_cursor": "cur_22",
+    "production_state_claimed": false
+  },
+  "configuration_flags": {
+    "ctrl": [
+      "TOCKR_PLATFORM_AUTH_MODE",
+      "TOCKR_PLATFORM_MEMBERSHIP_WRITE_MODE"
+    ],
+    "ims": [
+      "TOCKRIMS_PLATFORM_AUTH_MODE",
+      "TOCKRIMS_PLATFORM_MEMBERSHIP_WRITE_MODE"
+    ],
+    "source_defaults": "local/local per WP02 inventory; deployment values are not inferred"
+  },
+  "migration_ledgers": {
+    "source_supported_latest": "supported schema_migrations through v14; production-applied version NOT SUPPLIED",
+    "deployed_snapshot": "N/A \u2014 no production deployment/migration occurred; no migration performed in this slice"
+  },
+  "production_snapshot": {
+    "status": "NOT ACTIVE / NOT PROVIDED",
+    "deployed_authority_modes": "N/A \u2014 production activation did not occur in this slice",
+    "deployed_machine_key_ids": "N/A \u2014 only disposable rehearsal key ID exists",
+    "deployed_build_identity": "N/A \u2014 source/rehearsal certification only",
+    "production_activation": "not performed; explicitly outside scope",
+    "authority_refs": [
+      "docs/implementation/audits/pd-d8-s02-wp02-writer-inventory-2026-09-26.md",
+      "docs/implementation/audits/pd-d8-s02-wp05-cutover-recovery-2026-09-26.md"
+    ]
+  },
+  "validation": [
+    {
+      "id": "498df717bdf1de75934951fd",
+      "target": "python3 scripts/validate.py describe format",
+      "status": "PASS",
+      "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "output_sha256": "feaf27aee4eda50ca615ea6b46140eeb65d4d8c6a4bad1a0ced574bbd1bbd6ee"
+    },
+    {
+      "id": "8a99ec3b130bd0fffa02a8b9",
+      "target": "python3 scripts/validate.py run format",
+      "status": "PASS",
+      "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "output_sha256": "5db79ace010d18df4bf821dd1c1a30c58bf61801e312c6a3149b309e72b31552"
+    },
+    {
+      "id": "c56963207e647e5abba389cd",
+      "target": "python3 scripts/test_plan_routing.py",
+      "status": "PASS",
+      "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "output_sha256": "a546b09619aa7f80a170cee1d7f2ee2af522008650864d280643fbda8bf6195a"
+    },
+    {
+      "id": "3338853d7b9a646d23f33113",
+      "target": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md --package WP-PD8S02-06",
+      "status": "PASS",
+      "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "output_sha256": "611eeaed1ec1ac0685af2340b74cb129738004462646dcb959642ce4547ea50d"
+    },
+    {
+      "id": "274bc91d130751b6021abe02",
+      "target": "python3 scripts/validate_plan_routing.py plan/pd-d8-s02-platform-authority-certification.md",
+      "status": "EXPECTED_FAIL",
+      "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "output_sha256": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856"
+    },
+    {
+      "id": "platform-wp06-1-review-cc07d88-2026-09-28",
+      "target": "independent reviewer",
+      "status": "PASS",
+      "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "output_artifact": "pd-d8-s02-wp06-independent-gates-2026-09-28.json"
+    }
+  ],
+  "status": "Producer evidence assembled; WP06.2 independent review and tester gates pending.",
+  "wp06_1_independent_review": {
+    "evidence_id": "platform-wp06-1-review-cc07d88-2026-09-28",
+    "status": "PASS",
+    "finding_ids": [],
+    "candidate": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "evidence_id_aliases": [
+      "REV-WP061-cc07d88",
+      "platform-wp06-1-review-cc07d88-2026-09-28"
+    ]
+  },
+  "wp06_1_independent_tester": {
+    "status": "PASS; E01-E07 captured; malformed underscore risk fixture explicitly FIXTURE_FAIL",
+    "evidence_path": "pd-d8-s02-wp06-independent-gates-2026-09-28.json",
+    "acceptance_rows": [
+      {
+        "acceptance_row": "AC-WP061-01",
+        "supporting_run_ids": [
+          "RUN-WP061-E02"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-02",
+        "supporting_run_ids": [
+          "RUN-WP061-E01",
+          "RUN-WP061-E05-kind",
+          "RUN-WP061-E06-risk"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-03",
+        "supporting_run_ids": [
+          "RUN-WP061-E03"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-04",
+        "supporting_run_ids": [
+          "RUN-WP061-E07-immutability"
+        ]
+      },
+      {
+        "acceptance_row": "AC-WP061-05",
+        "supporting_run_ids": [
+          "RUN-WP061-E04"
+        ]
+      }
+    ],
+    "candidate": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "E07_immutability": {
+      "preflight_stdout_sha256": "2db534af98d99a33625d221b8d9e969ebf41db8cf9ea61fcf93b4675db2ff2ad",
+      "exit_file_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "outputs": "exit 0; empty stdout/stderr",
+      "file": "pd-d8-s02-wp06-evidence/E07-paths.txt"
+    }
+  },
+  "source_tree_id": "35ab9cff97b273e9db958abf5812ea339688f21b",
+  "validation_artifact": {
+    "path": "pd-d8-s02-wp06-validation-platform-2026-09-28.json",
+    "sha256": "d5986f41b7342e7d0d68ecd3b86b75e25938130b09ad27a11f115bb2c58e9700",
+    "candidate_sha": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+    "candidate_fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814"
+  },
+  "wp06_1_gate_artifact": {
+    "path": "pd-d8-s02-wp06-independent-gates-2026-09-28.json",
+    "sha256": "2f9bbc535d6782a54cfe9197f67cab5e8ae83509f7db6fa4a8c36855627e923d",
+    "raw_output_manifest_path": "pd-d8-s02-wp06-evidence/SHA256SUMS",
+    "raw_output_manifest_sha256": "8bce29c2fc759f640215ae0ae2acb15836fce5f7e62f10e23ec4b8b10c1d716a",
+    "original_external_manifests": {
+      "E01-E04": {
+        "path": "pd-d8-s02-wp06-evidence/tester-SHA256SUMS",
+        "sha256": "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b"
+      },
+      "E05-E07": {
+        "path": "pd-d8-s02-wp06-evidence/tester-E05-E07-SHA256SUMS",
+        "sha256": "df0bd4e3db7c26a8595f7e59cddba638e460025d49bb4cb892db3030973a338a"
+      }
+    }
+  },
+  "wp06_2_gate_status": "PASS: independent review and tester acceptance on exact staged documentation trees; terminal closeout/index/queue reconciliation still pending.",
+  "review_repair_history": {
+    "prior_docs_tree_id": "a4616e08de1b3938672dce494f0838af30de67b3",
+    "review_id": "wp06-2-cross-repo-independent-review-2026-09-28",
+    "verdict": "BLOCK",
+    "finding_ids": [
+      "R1-WP062-EVIDENCE-HASH-01"
+    ],
+    "status": "retained; repaired in this candidate; fresh review required"
+  },
+  "wp06_2_independent_review": {
+    "evidence_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "artifact": "pd-d8-s02-wp06-independent-review-2026-09-28.json",
+    "candidate_staged_trees": {
+      "Platform": "b16384b317f262b543381ec44f9ded4702c88683",
+      "CTRL": "dceecd9998e92fe77b833102d9d69eec630605fd",
+      "IMS": "a68bebd15d74cafb3b0c1a4edd19a7917c270095"
+    },
+    "artifact_sha256": "55f754008a41d85145f92cd1b5e50ef5dbee390aedefa13ba4a50b99d10aa8d7"
+  },
+  "wp06_2_tester_acceptance": {
+    "evidence_id": "wp06-2-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "artifact": "pd-d8-s02-wp06-tester-acceptance-2026-09-28.json",
+    "candidate_staged_trees": {
+      "Platform": "b16384b317f262b543381ec44f9ded4702c88683",
+      "CTRL": "dceecd9998e92fe77b833102d9d69eec630605fd",
+      "IMS": "a68bebd15d74cafb3b0c1a4edd19a7917c270095"
+    },
+    "artifact_sha256": "4924ceb58ef703de7136ef7e5ab9c435732a8eea51b3387265e65c4650357b35"
+  },
+  "wp06_2_review_artifact": {
+    "path": "pd-d8-s02-wp06-independent-review-2026-09-28.json",
+    "sha256": "55f754008a41d85145f92cd1b5e50ef5dbee390aedefa13ba4a50b99d10aa8d7",
+    "evidence_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+    "verdict": "PASS"
+  },
+  "wp06_2_tester_artifact": {
+    "path": "pd-d8-s02-wp06-tester-acceptance-2026-09-28.json",
+    "sha256": "4924ceb58ef703de7136ef7e5ab9c435732a8eea51b3387265e65c4650357b35",
+    "evidence_id": "wp06-2-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "ims_context_bundle_manifest_sha256": "8bce29c2fc759f640215ae0ae2acb15836fce5f7e62f10e23ec4b8b10c1d716a"
+  },
+  "wp06_2_gate_artifact": {
+    "path": "pd-d8-s02-wp06-independent-gates-2026-09-28.json",
+    "sha256": "2f9bbc535d6782a54cfe9197f67cab5e8ae83509f7db6fa4a8c36855627e923d",
+    "raw_output_manifest_path": "pd-d8-s02-wp06-evidence/SHA256SUMS",
+    "raw_output_manifest_sha256": "8bce29c2fc759f640215ae0ae2acb15836fce5f7e62f10e23ec4b8b10c1d716a"
+  },
+  "additional_review_history": [
+    {
+      "review_id": "final-closeout-review-block-2026-09-28",
+      "verdict": "BLOCK",
+      "finding_id": "R1-WP06-EVIDENCE-MANIFEST-01",
+      "candidate_trees": {
+        "Platform": "3fcb52cf6874bc12e4aeadbf0284ffabb09f4bba",
+        "CTRL": "a1f11d64a23e292379e10ac7e2dd85007144e433",
+        "IMS": "7b38a868262f340e03f3185711e4813969ff5447"
+      }
+    }
+  ],
+  "final_closeout_review": {
+    "evidence_id": "wp06-full-closeout-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "candidate_staged_trees": {
+      "Platform": "8d77154f23342593547ae826499d0d083e10f196",
+      "CTRL": "c8ec11c9c57a1c8229521849e7356fa65788210f",
+      "IMS": "b34c2d895a76b88a9930de3833d40a6f35f2b071"
+    },
+    "artifact": "pd-d8-s02-wp06-full-closeout-review-2026-09-28.json",
+    "sha256": "ed989717d4a8ed6967664a7578a0a01ac02cb699c45a1e316d12fde3859838c0"
+  },
+  "final_closeout_tester": {
+    "evidence_id": "wp06-full-closeout-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "candidate_staged_trees": {
+      "Platform": "8d77154f23342593547ae826499d0d083e10f196",
+      "CTRL": "c8ec11c9c57a1c8229521849e7356fa65788210f",
+      "IMS": "b34c2d895a76b88a9930de3833d40a6f35f2b071"
+    },
+    "artifact": "pd-d8-s02-wp06-full-closeout-tester-2026-09-28.json",
+    "sha256": "105206950fb10fbb9ffa75d44ba3b32f5d8a76f11cb099e6d4ac80dc1f19f8f5"
+  },
+  "current_release_validation_repair": {
+    "status": "PASS",
+    "candidate_tree": "ef65196aaad2a28cf7ff9f1548eeb700d413d677",
+    "validation_commit": "ff7b09f82eec0b2b29436d0abb59f856ba96c84c",
+    "profile": "format",
+    "profile_id": "format; no report ID emitted",
+    "report": "pd-d8-s02-wp06-final-active-validation-platform-2026-09-28.json",
+    "report_sha256": "c48a5da5de669da80c3cd06ef6e796983f0cbd792380d111f1f516efca1676bd",
+    "stdout_sha256": "2969c2211568d3a4c1854bf2ec997986560c3bd147e49d405b065e76d69bfe6d",
+    "combined_manifest_sha256": "8bce29c2fc759f640215ae0ae2acb15836fce5f7e62f10e23ec4b8b10c1d716a"
+  },
+  "corrected_preterminal_review": {
+    "evidence_id": "wp06-corrected-preterminal-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "candidate_tree_tuple": {
+      "Platform": "55468e98199f1e9ea2215f552cc74d4c9aab109d",
+      "CTRL": "2af7dc09b5ad73285f2b0f2187d6b81277b5b6fd",
+      "IMS": "ba4c7bfbf408ac10226dddfc918ae3a0d5eccc30"
+    },
+    "artifact": "pd-d8-s02-wp06-corrected-preterminal-review-2026-09-28.json",
+    "sha256": "33fba1be0f33f7ca704cb545c7e9da5185c2271628cb7ba6056e5dafe6b248dd"
+  },
+  "corrected_preterminal_tester_status": "PASS",
+  "corrected_preterminal_tester": {
+    "evidence_id": "wp06-corrected-preterminal-tester-acceptance-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "candidate_tree_tuple": {
+      "Platform": "02b88a5dad7af21adbb37a456f2381f24d5d1274",
+      "CTRL": "dd986e47876c8d4ef7191980c507286ea078b66e",
+      "IMS": "a4cf60449bdde04245a6956f73829e53fbaee47b"
+    },
+    "artifact": "pd-d8-s02-wp06-corrected-preterminal-tester-2026-09-28.json",
+    "sha256": "bd1f7df6b493eec153befea795a66a0f8f3572d34e994bafdf6a0f09228fe90d"
+  },
+  "terminal_candidate_gate_status": {
+    "review": "PENDING",
+    "tester": "PENDING",
+    "exact_final_head_validation": "PENDING",
+    "publication": "NOT PUBLISHED"
+  }
+}

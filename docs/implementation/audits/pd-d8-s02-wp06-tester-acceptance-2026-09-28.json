@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "evidence_id": "wp06-2-tester-acceptance-2026-09-28-r1",
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "scope": "WP06.2 exact staged source-freeze documentation candidate acceptance",
+  "verdict": "PASS",
+  "findings": [],
+  "candidate": {
+    "Platform": {
+      "commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+      "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+      "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+      "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+      "staged_tree": "b16384b317f262b543381ec44f9ded4702c88683",
+      "branch": "main",
+      "unstaged_clean": true
+    },
+    "CTRL": {
+      "commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "candidate_id": "2f4d232abba8c9bc163aa5fec8afa39c74ea1ec9525ba3bcd54e659be2476f34",
+      "fingerprint": "e92e1c5195b2bfd8c8df0a0e074d825e419978adef3419b62c989f74ced1476f",
+      "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "staged_tree": "dceecd9998e92fe77b833102d9d69eec630605fd",
+      "branch": "main",
+      "unstaged_clean": true
+    },
+    "IMS": {
+      "commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "candidate_id": "0c8895e0f206c516488942f40cc41115f4f42c0ea7f6917f04e26a24eebf5feb",
+      "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+      "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "staged_tree": "a68bebd15d74cafb3b0c1a4edd19a7917c270095",
+      "branch": "main",
+      "unstaged_clean": true
+    }
+  },
+  "acceptance": {
+    "AC-WP062-01": "PASS: git write-tree matched all staged IDs; worktrees have no unstaged changes; source SHA/tree bindings match. Validation ran in separate clean detached worktrees at source SHAs; staged indexes intentionally contain WP06.2 docs.",
+    "AC-WP062-02": "PASS: all WP06 JSON parsed; local links resolve; matched source tuples agree; 13 WP01-WP05 audit/acceptance docs plus IMPLEMENTED.md and plan/incomplete.md have no staged diff.",
+    "AC-WP062-03": "PASS: published-baseline and WP05 ancestry verified; production activation not performed; production-only modes/keys/build/applied migration snapshot are N/A/not supplied; WP02/WP05 authorities resolve.",
+    "AC-WP062-04": "PASS: validation artifact hashes, candidate IDs/fingerprints/trees, outputs, gate artifact and all manifests match; all three repositories SHA256SUMS and both tester manifests pass.",
+    "AC-WP062-05": "PASS: Platform format, 11 routing tests, selected route pass; CTRL ci-architecture pass; IMS ci-architecture pass after PATH fix; valid route accepted, invalid kind and valid-syntax unsupported risk rejected, whole-plan strict failure expected; malformed underscore fixture is FIXTURE_FAIL only.",
+    "AC-WP062-06": "PASS: accepts exact candidate-matched reviewer result wp06-2-cross-repo-independent-review-2026-09-28-r1 (PASS, no findings)."
+  },
+  "validation_artifacts": {
+    "Platform": {
+      "path": "docs/implementation/audits/pd-d8-s02-wp06-validation-platform-2026-09-28.json",
+      "sha256": "d5986f41b7342e7d0d68ecd3b86b75e25938130b09ad27a11f115bb2c58e9700",
+      "run_ids": {
+        "describe_format": "498df717bdf1de75934951fd",
+        "format": "8a99ec3b130bd0fffa02a8b9",
+        "routing_tests": "c56963207e647e5abba389cd",
+        "selected_route": "3338853d7b9a646d23f33113",
+        "strict_expected_fail": "274bc91d130751b6021abe02"
+      },
+      "outputs": {
+        "format": "5db79ace010d18df4bf821dd1c1a30c58bf61801e312c6a3149b309e72b31552",
+        "routing_tests": "a546b09619aa7f80a170cee1d7f2ee2af522008650864d280643fbda8bf6195a",
+        "selected_route": "611eeaed1ec1ac0685af2340b74cb129738004462646d959642ce4547ea50d",
+        "strict_expected_fail": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856"
+      }
+    },
+    "CTRL": {
+      "path": "docs/implementation/audits/pd-d8-s02-wp06-validation-ctrl-2026-09-28.json",
+      "sha256": "59a4e4eab10b940d0cc15346f0a116534fdcbae2d44d58adf9b1bcab3f0b3a62",
+      "profile": "ci-architecture",
+      "describe_sha256": "301cccfa7bf9b09ac0b3d0b4fbda1ca1600d83827db419a0861c0131ba9b88db",
+      "run_sha256": "bcbc7010ed7824e44959a05bf42267b19f750ef4fb49df30bfdddec9345fc736",
+      "status": "PASS"
+    },
+    "IMS": {
+      "path": "docs/implementation/audits/pd-d8-s02-wp06-validation-ims-2026-09-28.json",
+      "sha256": "e7b7bb59d0b5c84984a4c71867c08ff938dbe21d80871fee81aa2e4a7ab06884",
+      "profile": "ci-architecture",
+      "describe_sha256": "5398d28c0694e9686ca5652cfa5b46ec9959f258d7759ffe5b886cb86c71f65e",
+      "run_sha256": "f337288a7906902f97a5c26571cd0b4430d58c7429c277f8a50d58291c092dbc",
+      "status": "PASS"
+    }
+  },
+  "IMS_context_history": [
+    {
+      "evidence_id": "wp06-2-ims-ci-architecture-first-attempt-2026-09-28",
+      "command": "python3 scripts/validate.py run ci-architecture",
+      "status": "BLOCKED / NOT RUN",
+      "failure_class": "TOOL_FAIL",
+      "diagnosis": "gofmt absent from PATH; validator-labelled POSTCONDITION_FAIL subchecks are missing-tool context, not product failure",
+      "exit": 1,
+      "stdout_sha256": "e9e0d2c7f72052e8b8ecd3151aa5dd4773f89fc5ae063ba929470eabacd3e9cd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preflight_stdout_sha256": "bf8ec5ab3933321ca8f0b89438bc30383397eaf95da43796d0528fcc8ef0a448",
+      "artifacts": {
+        "preflight.stdout": "pd-d8-s02-wp06-evidence/ims-context-preflight.stdout",
+        "first.stdout": "pd-d8-s02-wp06-evidence/first.stdout",
+        "first.stderr": "pd-d8-s02-wp06-evidence/first.stderr",
+        "first.exit": "pd-d8-s02-wp06-evidence/first.exit"
+      }
+    },
+    {
+      "evidence_id": "wp06-2-ims-ci-architecture-rerun-2026-09-28",
+      "command": "PATH=/usr/local/go/bin:$PATH python3 scripts/validate.py run ci-architecture",
+      "status": "PASS",
+      "exit": 0,
+      "preflight": "/usr/local/go/bin/gofmt exists and responds",
+      "stdout_sha256": "f337288a7906902f97a5c26571cd0b4430d58c7429c277f8a50d58291c092dbc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_candidate": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "artifacts": {
+        "preflight.stdout": "pd-d8-s02-wp06-evidence/ims-context-preflight.stdout",
+        "gofmt-path.stdout": "pd-d8-s02-wp06-evidence/gofmt-path.stdout",
+        "gofmt-path.stderr": "pd-d8-s02-wp06-evidence/gofmt-path.stderr",
+        "gofmt-preflight.exit": "pd-d8-s02-wp06-evidence/gofmt-preflight.exit",
+        "rerun.stdout": "pd-d8-s02-wp06-evidence/rerun.stdout",
+        "rerun.stderr": "pd-d8-s02-wp06-evidence/rerun.stderr",
+        "rerun.exit": "pd-d8-s02-wp06-evidence/rerun.exit"
+      }
+    }
+  ],
+  "manifest_sha256": {
+    "Platform/SHA256SUMS": "ae503b2be5a8eaef460d4a49585955f79c3fbbe6bd53822a965c3a16aebc48a8",
+    "tester-SHA256SUMS": "1f944d2dbf9a062dd89d9ff322c19624de4916326f208bb9c5722e852534f87b",
+    "tester-E05-E07-SHA256SUMS": "8c1b30f5dddb8f2239629ab64c884cf0c1040ec32ca800f84343b3a714299d85",
+    "WP06.1-gate-artifact": "466bc7443cbdfc619185f1dc37f2196034675fb19c7ee53be9e64269e56ea5e3"
+  },
+  "reviewer_gate": {
+    "evidence_id": "wp06-2-cross-repo-independent-review-2026-09-28-r1",
+    "verdict": "PASS",
+    "findings": [],
+    "candidate_binding": {
+      "Platform": {
+        "commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+        "candidate_id": "71a2456c8ba12f920734c5087ccd45d39f200c7f13a1329c452c90992d6cb046",
+        "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+        "source_tree": "35ab9cff97b273e9db958abf5812ea339688f21b",
+        "staged_tree": "b16384b317f262b543381ec44f9ded4702c88683"
+      },
+      "CTRL": {
+        "commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+        "candidate_id": "2f4d232abba8c9bc163aa5fec8afa39c74ea1ec9525ba3bcd54e659be2476f34",
+        "fingerprint": "e92e1c5195b2bfd8c8df0a0e074d825e419978adef3419b62c989f74ced1476f",
+        "source_tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+        "staged_tree": "dceecd9998e92fe77b833102d9d69eec630605fd"
+      },
+      "IMS": {
+        "commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+        "candidate_id": "0c8895e0f206c516488942f40cc41115f4f42c0ea7f6917f04e26a24eebf5feb",
+        "fingerprint": "bb2159c1ed1ab7899b90e4161d1ecddf62c596e82f4862fac9081b189d3d9814",
+        "source_tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+        "staged_tree": "a68bebd15d74cafb3b0c1a4edd19a7917c270095"
+      }
+    }
+  },
+  "required_follow_up": "Write this PASS and reviewer PASS into subsequent terminal closeout records; new candidate requires fresh candidate-bound checks. This is not terminal WP06, publication, or production activation.",
+  "manifest_repair_history": {
+    "initial_manifest_sha256": "867980a574a89982a2713a068bb55c9ae17659939ecb0e3c63c0e726dcb112ea",
+    "initial_status": "BLOCKED: conflicting preflight.stdout path; finding R1-WP06-EVIDENCE-MANIFEST-01",
+    "corrected_manifest": "pd-d8-s02-wp06-evidence/tester-E05-E07-SHA256SUMS",
+    "preflight_path": "./e05-e07-preflight.stdout",
+    "preflight_sha256": "42a660ed3679ea57f988730b65fcba6c267476430dfe835e29c6e5a245420f9b",
+    "review_history": "pd-d8-s02-wp06-review-history-2026-09-28.json"
+  }
+}

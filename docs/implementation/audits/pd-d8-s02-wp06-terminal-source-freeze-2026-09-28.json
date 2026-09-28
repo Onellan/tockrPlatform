@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "item": "PD-D8-S02-WP-PD8S02-06",
+  "record_type": "terminal-source-repair-freeze",
+  "captured_at": "2026-09-28",
+  "status": "Source repair, independent review and tester accepted; final exact terminal-candidate validation and publication pending.",
+  "matched_source_candidate_tuple": {
+    "Platform": {
+      "commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+      "tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5",
+      "baseline": "cc78557d8048bac6392f837166cb101460f43c98",
+      "wp05": "ec9bb853c20308dc8d808c425b257d8099f611fd"
+    },
+    "CTRL": {
+      "commit": "f11de065237dc1c4dce5b4a77b2681ee5fb1eaae",
+      "tree": "0ddb20168bea615101d917e92368cea9a1ff0d25",
+      "baseline": "71406518624d3260d96f52e0cbde8eb8b89d440c",
+      "wp05": "7d5b23629aa0a3725eaa1ff15dddf4e298b077ea"
+    },
+    "IMS": {
+      "commit": "e1d7282050f1cee0bdd47b97dd8a873a9fa8319a",
+      "tree": "90778a268b3b81826c50ab58d27706c29ebde8c7",
+      "baseline": "d5d438b8707ae92136e4677bdc2a96ecbc76199c",
+      "wp05": "1cd229a77bb8aa17f4c6ce19faf4e9dec5f4406d"
+    }
+  },
+  "platform_validation": {
+    "report": "docs/implementation/audits/pd-d8-s02-wp06-terminal-source-validation-platform-2026-09-28.json",
+    "report_sha256": "7ec10a52905b44005339bcec925907a08f0cfd9c3fde37f98e0e26fa6203f6fc",
+    "manifest_path": "docs/implementation/audits/pd-d8-s02-wp06-evidence/SHA256SUMS",
+    "manifest_sha256": "d5b2bb7ee7647f220b4481c0311cfee4c6b43904e717dcc5819d52b148783d4d",
+    "validation_ids": [
+      "E01",
+      "E02",
+      "E03",
+      "E04"
+    ],
+    "statuses": [
+      "PASS",
+      "PASS",
+      "PASS",
+      "PASS_EXPECTED_REJECTION"
+    ],
+    "source_commit": "8b11a4ecf9eca2e528e50066bcd5f425dcb28852",
+    "source_tree": "dacf779d7c073fff3a98034fb872318a99dcdcf5"
+  },
+  "historical_tester_failure": {
+    "artifact": "docs/implementation/audits/pd-d8-s02-wp06-terminal-test-failure-2026-09-28.json",
+    "evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r1",
+    "verdict": "BLOCK",
+    "finding": "E03 TEST_FAIL, terminal test-path drift; not application behavior failure.",
+    "artifact_sha256": "ffbcd3135745959c650106450f587b32d718e86cb0b1bb31a441d762502e87e4"
+  },
+  "production_boundary": "No production activation, deployed mode change, production migration, or compatibility retirement performed.",
+  "review_gate": {
+    "evidence_id": "wp06-rebound-terminal-review-2026-09-28-r3",
+    "verdict": "PASS",
+    "findings": [],
+    "reviewed_tree_tuple": {
+      "Platform": "5de83b7b7ecb75ef4da373e071d543c5bb7538f8",
+      "CTRL": "98c7c7fa4aa67a003cf9510f384e1b5eb11e4bca",
+      "IMS": "720240bbbbf5d59aa046821cc58978ff9345ffc6"
+    },
+    "artifact": "docs/implementation/audits/pd-d8-s02-wp06-rebound-terminal-review-2026-09-28.json",
+    "artifact_sha256": "acd1ea739e0ee551c78db6ac559a58e19559f1d6c72abbc81eba29a03e13d453"
+  },
+  "tester_gate": {
+    "evidence_id": "wp06-final-terminal-independent-tester-2026-09-28-r2",
+    "verdict": "PASS",
+    "findings": [],
+    "tested_tree_tuple": {
+      "Platform": "23bea27f51b29ea076df1d3c1ded08128c074a14",
+      "CTRL": "2466d0f300efaab8b78cb4ff605d84f196db9d1c",
+      "IMS": "9f706acd700fac42387aad4ac5fcf1e0f0be860e"
+    },
+    "artifact": "docs/implementation/audits/pd-d8-s02-wp06-final-terminal-tester-2026-09-28.json",
+    "artifact_sha256": "0e0a72f008967481cbcba586bff5925c40388af8416f59c6c78f6f1e2d2dc7f7",
+    "E07": "BLOCKED / NOT RUN, INVOCATION_FAIL; excluded from acceptance PASS evidence."
+  }
+}

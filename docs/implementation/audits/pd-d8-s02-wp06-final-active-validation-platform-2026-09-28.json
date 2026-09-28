@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "candidate_status": "PASS",
+  "source_candidate": {
+    "commit": "cc07d88ca4fe2fb1a48d611d202c9f6ddfae8dd5",
+    "tree": "35ab9cff97b273e9db958abf5812ea339688f21b"
+  },
+  "staged_record_tree_validated": "ef65196aaad2a28cf7ff9f1548eeb700d413d677",
+  "validation_commit": "ff7b09f82eec0b2b29436d0abb59f856ba96c84c",
+  "preflight": {
+    "HEAD": "ff7b09f82eec0b2b29436d0abb59f856ba96c84c",
+    "worktree": "clean",
+    "index": "clean",
+    "preflight_head_sha256": "c889324f7672bc3ffe4a14ad7532bc25e261c98dc9e09882d211a23d22d5ec42",
+    "preflight_tree_sha256": "6ed8a011d382fbb26d632ac791bdb3660966d2710384d5f65b1d3d8e38bf6ce2",
+    "preflight_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index_diff_exit": "0",
+    "worktree_diff_exit": "0"
+  },
+  "registry": {
+    "profile": "format",
+    "evidence_id": "format; no report ID emitted",
+    "exit": 0,
+    "stdout_file": "pd-d8-s02-wp06-evidence/run.stdout",
+    "stdout_sha256": "2969c2211568d3a4c1854bf2ec997986560c3bd147e49d405b065e76d69bfe6d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "describe_stdout_sha256": "feaf27aee4eda50ca615ea6b46140eeb65d4d8c6a4bad1a0ced574bbd1bbd6ee",
+    "describe_exit": 0,
+    "command": "PATH=/usr/local/go/bin:$PATH python3 scripts/validate.py run format"
+  },
+  "focused_regression": {
+    "command": "python3 scripts/test_plan_routing.py -v",
+    "exit": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "4d3cef3e68b84a6bd1b7a84b970cbe8fbaa4bec0afb7109b3cf8f458347330bf",
+    "tests": "11 passed"
+  },
+  "selected_route": {
+    "exit": 0,
+    "stdout_sha256": "611eeaed1ec1ac0685af2340b74cb129738004462646dcb959642ce4547ea50d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "strict_whole_plan": {
+    "exit": 1,
+    "classification": "EXPECTED_FAIL",
+    "stdout_sha256": "996c4acb77c3a912737e49cc2934d6d0232a2ee06e6223ded4454709170ce856",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
