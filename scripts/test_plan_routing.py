@@ -12,6 +12,15 @@ from validate_plan_routing import validate_plan, validate_text
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_HEADING = re.compile(r"(?m)^\s{0,3}#{2,6}\s+(?:Work package\s+)?(?P<package>WP[A-Za-z0-9_-]*)\b")
+COMPLETED_D8_S02_PLAN = Path("plan/completed/pd-d8-s02-platform-authority-certification.md")
+ACTIVE_D8_S02_PLAN = Path("plan/pd-d8-s02-platform-authority-certification.md")
+
+
+def d8_s02_plan_path() -> str:
+    """Use the completed path after closeout, or active path before its move lands."""
+    if (ROOT / COMPLETED_D8_S02_PLAN).exists():
+        return COMPLETED_D8_S02_PLAN.as_posix()
+    return ACTIVE_D8_S02_PLAN.as_posix()
 
 
 def queued_active_plans() -> list[Path]:
@@ -107,7 +116,7 @@ Route: kind=defect; risk=E[GOV,DOC,API]
                 self.assertTrue(any("exactly one" in issue for issue in validate_text(text.replace(re.search(r"(?m)^\s*Route:.*$", section).group(0), "", 1), package)))
 
     def test_delivery_state_allows_passed_terminal_packages_without_routes(self):
-        path = "plan/completed/pd-d8-s02-platform-authority-certification.md"
+        path = d8_s02_plan_path()
         package_ids = [f"WP-PD8S02-0{number}" for number in range(1, 7)]
         state = new_state("PD-D8-S02-WP-PD8S02-06", path, current_candidate(ROOT), root=ROOT)
         state["packages"] = [{"id": package, "status": "pass"} for package in package_ids]
@@ -115,7 +124,7 @@ Route: kind=defect; risk=E[GOV,DOC,API]
         self.assertEqual(validate_state(state, root=ROOT), [])
 
     def test_delivery_state_requires_route_for_current_unpassed_package(self):
-        path = "plan/completed/pd-d8-s02-platform-authority-certification.md"
+        path = d8_s02_plan_path()
         package = "WP-PD8S02-02"
         state = new_state("PD-D8-S02-WP-PD8S02-06", path, current_candidate(ROOT), root=ROOT)
         state["packages"] = [{"id": package, "status": "running"}]
