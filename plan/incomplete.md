@@ -7,7 +7,7 @@ Detailed scope, authority and acceptance remain authoritative in the linked
 plan; this file controls sequence and provides the shortest safe prompt for
 resuming work.
 
-Current inventory: **0 open Platform-owned PD prerequisites** and **0 open PF execution Batches**. Cross-repository PD-D8-S02 is the next ready consumer/authority certification slice.
+Current inventory: **0 open Platform-owned PD prerequisites** and **0 open PF execution Batches**. PD-D8-S02 source certification is terminal; production activation remains operator-controlled and outside this slice.
 PF-B1 through PF-B12 are terminal at their accepted Platform scopes. CTRL and
 IMS retain separate downstream PD plans.
 
@@ -48,9 +48,8 @@ consumer cutover. It is not a PF-B13 expansion of terminal foundation scope:
 | Queue | Slice | State | Dependency | Plan |
 | --- | --- | --- | --- | --- |
 | PD-D7-S01-PF | Durable Platform production reconciliation/import boundary | **Terminal** | WP-PD7PF-01..06 accepted on the disposable restored database; CTRL/IMS snapshot/feed and mapping gates passed | [completed plan](completed/pd-d7-s01-platform-production-import.md) |
-| PD-D8-S02 | Platform authority integration certification | **Ready / next** | Terminal matched consumer PD-D8-S01 and published Platform read/write contracts | [plan](pd-d8-s02-platform-authority-certification.md) |
 
-Consumer authentication and membership-writer cutover are implemented and terminal in both consumers under PD-D7-S02. PD-D8-S01 product-access/isolation certification is terminal in both consumers. PD-D8-S02 is the next ready cross-repository authority certification; real production activation remains operator-controlled and proceeds only through its accepted cutover and rollback protocol.
+Consumer authentication, membership writer cutover, D8-S01 product-access certification, and D8-S02 source certification are terminal. Production activation remains operator-controlled and was not performed or authorized by D8-S02.
 
 PF is the owner-authorised Platform Foundation programme. It establishes
 shared identity, tenancy and product-access authority for future CTRL and IMS
@@ -119,11 +118,9 @@ programme plan.
 
 ## Copy-ready first Slice prompt
 
-> No open Platform Slice remains in PF-B12. The Platform command contract is
-> terminal. Deliver the Platform-owned PD-D7-S01-PF prerequisite from
-> [`plan/completed/pd-d7-s01-platform-production-import.md`](completed/pd-d7-s01-platform-production-import.md)
-> before real CTRL/IMS import or consumer cutover. Then continue with the
-> separately governed CTRL/IMS consumer plans.
+No active Platform Slice remains in this queue. The next Platform work requires
+a newly authorized plan to be added here before implementation begins. Do not
+restart or reimplement a completed slice based on this prompt.
 
 ## Closeout update
 

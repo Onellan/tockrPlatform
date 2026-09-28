@@ -80,7 +80,8 @@ Route: kind=defect; risk=E[GOV,DOC,API]
 
     def test_all_active_execution_plans_are_routeable(self):
         execution_plans = queued_active_plans()
-        self.assertTrue(execution_plans, "the incomplete-plan queue must identify active execution plans")
+        # An empty queue is valid after all active plans have been completed.
+        # In that case there are no active packages whose route can be checked.
         for path in execution_plans:
             text = path.read_text(encoding="utf-8")
             headings = list(PACKAGE_HEADING.finditer(text))
@@ -106,7 +107,7 @@ Route: kind=defect; risk=E[GOV,DOC,API]
                 self.assertTrue(any("exactly one" in issue for issue in validate_text(text.replace(re.search(r"(?m)^\s*Route:.*$", section).group(0), "", 1), package)))
 
     def test_delivery_state_allows_passed_terminal_packages_without_routes(self):
-        path = "plan/pd-d8-s02-platform-authority-certification.md"
+        path = "plan/completed/pd-d8-s02-platform-authority-certification.md"
         package_ids = [f"WP-PD8S02-0{number}" for number in range(1, 7)]
         state = new_state("PD-D8-S02-WP-PD8S02-06", path, current_candidate(ROOT), root=ROOT)
         state["packages"] = [{"id": package, "status": "pass"} for package in package_ids]
@@ -114,7 +115,7 @@ Route: kind=defect; risk=E[GOV,DOC,API]
         self.assertEqual(validate_state(state, root=ROOT), [])
 
     def test_delivery_state_requires_route_for_current_unpassed_package(self):
-        path = "plan/pd-d8-s02-platform-authority-certification.md"
+        path = "plan/completed/pd-d8-s02-platform-authority-certification.md"
         package = "WP-PD8S02-02"
         state = new_state("PD-D8-S02-WP-PD8S02-06", path, current_candidate(ROOT), root=ROOT)
         state["packages"] = [{"id": package, "status": "running"}]
