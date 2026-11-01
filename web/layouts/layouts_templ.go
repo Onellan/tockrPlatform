@@ -96,7 +96,7 @@ func App(title string, user domain.User, csrfToken, activePath string) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</title><link rel=\"stylesheet\" href=\"/static/presentation.css\"><link rel=\"stylesheet\" href=\"/static/platform.css\"></head><body class=\"pf-app-body\"><a class=\"pf-skip-link\" href=\"#main-content\">Skip to content</a><div class=\"pf-app-shell\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</title><link rel=\"stylesheet\" href=\"/static/presentation.css\"><link rel=\"stylesheet\" href=\"/static/platform.css\"></head><body class=\"pf-app-body\"><a class=\"pf-skip-link\" href=\"#main-content\">Skip to content</a><div class=\"pf-mobile-nav-backdrop\" data-mobile-nav-close hidden><span class=\"pf-sr-only\">Close navigation</span></div><div class=\"pf-app-shell\" data-app-shell>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -104,11 +104,7 @@ func App(title string, user domain.User, csrfToken, activePath string) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"pf-app-main\"><header class=\"pf-app-header\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.Brand().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"pf-app-main\"><header class=\"pf-app-header\"><button class=\"pf-mobile-menu-toggle\" type=\"button\" data-mobile-nav-toggle aria-controls=\"app-sidebar\" aria-expanded=\"false\">Menu</button> <span class=\"pf-app-label\">Tockr Platform</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -124,7 +120,7 @@ func App(title string, user domain.User, csrfToken, activePath string) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</main></div></div></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</main></div></div><script src=\"/static/platform.js\" defer></script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

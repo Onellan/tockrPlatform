@@ -36,16 +36,19 @@ templ App(title string, user domain.User, csrfToken, activePath string) {
 		</head>
 		<body class="pf-app-body">
 			<a class="pf-skip-link" href="#main-content">Skip to content</a>
-			<div class="pf-app-shell">
+			<div class="pf-mobile-nav-backdrop" data-mobile-nav-close hidden><span class="pf-sr-only">Close navigation</span></div>
+			<div class="pf-app-shell" data-app-shell>
 				@components.Sidebar(user, csrfToken, activePath)
 				<div class="pf-app-main">
 					<header class="pf-app-header">
-						@components.Brand()
+						<button class="pf-mobile-menu-toggle" type="button" data-mobile-nav-toggle aria-controls="app-sidebar" aria-expanded="false">Menu</button>
+						<span class="pf-app-label">Tockr Platform</span>
 						@components.AccountMenu(user, csrfToken)
 					</header>
 					<main id="main-content" class="pf-content" tabindex="-1">{ children... }</main>
 				</div>
 			</div>
+			<script src="/static/platform.js" defer></script>
 		</body>
 	</html>
 }

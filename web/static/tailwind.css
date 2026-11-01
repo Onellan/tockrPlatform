@@ -7,15 +7,15 @@
 
 @theme {
 	--font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
-	--color-platform-ink: #17324d;
-	--color-platform-muted: #5c7185;
+	--color-platform-ink: #122033;
+	--color-platform-muted: #708198;
 	--color-platform-surface: #ffffff;
-	--color-platform-canvas: #f4f8fb;
-	--color-platform-line: #d6e2eb;
-	--color-platform-primary: #1769aa;
-	--color-platform-primary-dark: #0f4f83;
-	--color-platform-teal: #0b8f83;
-	--color-platform-focus: #f0a51a;
+	--color-platform-canvas: #f6faff;
+	--color-platform-line: #dde7f1;
+	--color-platform-primary: #2f80ed;
+	--color-platform-primary-dark: #1d67d6;
+	--color-platform-teal: #14b8a6;
+	--color-platform-focus: #2f80ed;
 }
 
 @layer base {

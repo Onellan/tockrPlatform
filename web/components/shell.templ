@@ -12,8 +12,12 @@ templ Brand() {
 }
 
 templ Sidebar(user domain.User, csrfToken, activePath string) {
-	<aside class="pf-sidebar" aria-label="Platform navigation">
-		<div class="pf-sidebar-head">@Brand()</div>
+	<aside class="pf-sidebar" id="app-sidebar" aria-label="Platform navigation">
+		<div class="pf-sidebar-head">
+			@Brand()
+			<button class="pf-sidebar-collapse-toggle" type="button" data-sidebar-collapse aria-label="Collapse navigation" aria-expanded="true"><span class="sc-collapse" aria-hidden="true">‹</span><span class="sc-expand" aria-hidden="true">›</span></button>
+			<button class="pf-mobile-nav-close" type="button" data-mobile-nav-close aria-label="Close navigation">Close</button>
+		</div>
 		<nav class="pf-nav" aria-label="Primary">
 			<p class="pf-nav-label">Operate</p>
 			<a class={ navClass(activePath, "/") } href="/">Launcher</a>
@@ -34,7 +38,7 @@ templ Sidebar(user domain.User, csrfToken, activePath string) {
 
 templ AccountMenu(user domain.User, csrfToken string) {
 	<details class="pf-account-menu">
-		<summary><span class="pf-avatar" aria-hidden="true">{ userInitial(user.DisplayName) }</span><span>{ user.DisplayName }</span></summary>
+		<summary class="pf-account-trigger"><span class="pf-avatar" aria-hidden="true">{ userInitial(user.DisplayName) }</span><span class="pf-account-name">{ user.DisplayName }</span><span class="pf-account-chevron" aria-hidden="true">▾</span></summary>
 		<div class="pf-account-menu-items">
 			<a href="/account">Account security</a>
 			<form method="post" action="/logout">
