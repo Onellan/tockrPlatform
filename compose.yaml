@@ -16,9 +16,10 @@ services:
     volumes:
       - platform-data:/var/lib/tockrplatform
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       PLATFORM_HTTP_ADDR: ":8080"
+      PLATFORM_ALLOW_INSECURE_COOKIES: ${PLATFORM_ALLOW_INSECURE_COOKIES:-0}
       PLATFORM_DB_PATH: /var/lib/tockrplatform/platform.db
       PLATFORM_MFA_KEY: ${PLATFORM_MFA_KEY:?PLATFORM_MFA_KEY must be set}
       PLATFORM_ASSERTION_ISSUER: ${PLATFORM_ASSERTION_ISSUER:?PLATFORM_ASSERTION_ISSUER must be set}

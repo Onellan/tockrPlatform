@@ -11,11 +11,14 @@ RUN go mod download
 COPY . .
 RUN mkdir -p /out/data \
     && CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
-        -trimpath -ldflags="-s -w" -o /out/platform ./cmd/platform
+        -trimpath -ldflags="-s -w" -o /out/platform ./cmd/platform \
+    && CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
+        -trimpath -ldflags="-s -w" -o /out/platform-demo-seed ./cmd/demo-seed
 
 FROM gcr.io/distroless/static-debian12:nonroot
 
 COPY --from=build /out/platform /app/platform
+COPY --from=build /out/platform-demo-seed /app/platform-demo-seed
 COPY --from=build --chown=65532:65532 /src/web/static /app/web/static
 COPY --from=build --chown=65532:65532 /out/data /var/lib/tockrplatform
 
