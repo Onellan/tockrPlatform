@@ -19,6 +19,7 @@ type ProductOption struct {
 	Key         string
 	DisplayName string
 	AccessURL   string
+	HandoffURL  string
 }
 
 type LauncherProps struct {
@@ -52,4 +53,13 @@ type ProductAccessProps struct {
 	OrganisationName string
 	WorkspaceID      string
 	WorkspaceName    string
+}
+
+type ProductHandoffProps struct {
+	User        domain.User
+	CSRF        string
+	CurrentPath string
+	ProductName string
+	TargetURL   string
+	Assertion   string
 }

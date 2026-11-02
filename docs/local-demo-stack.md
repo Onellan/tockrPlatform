@@ -59,7 +59,10 @@ Shared product users have the same password:
 ## Try the seeded data
 
 1. **Platform:** open the organisation and workspace. Review shared users,
-   workspace roles, and active TockrCTRL and TockrIMS product access.
+   workspace roles, and active TockrCTRL and TockrIMS product access. Choose
+   **Open TockrCTRL** or **Open TockrIMS** to carry the signed Platform identity
+   and selected workspace into that app. You can also open **Review access**
+   first to see the access boundary before continuing.
 2. **TockrCTRL:** open Projects and select `NW-2407`. Explore its customers,
    workstreams, deliverables, tasks, timesheets and reports. The other two
    project references provide comparison examples.
@@ -72,13 +75,24 @@ customers and project controls. IMS owns project governance and Framework
 data. The shared project codes connect product examples; each app keeps its
 own project records.
 
+The local stack keeps each product's local login available as a fallback. The
+Platform handoff does not assign product roles or copy product data; each app
+checks the signed identity and uses its own roles, project records and database.
+
 ## Check, view or stop the stack
 
 ```bash
+./scripts/demo-stack.sh smoke
 ./scripts/demo-stack.sh status
 ./scripts/demo-stack.sh logs
 ./scripts/demo-stack.sh stop
 ```
 
+`smoke` exercises the real Platform launcher forms into both products, checks
+the signed audience and browser origin, rejects missing or untrusted origins
+and assertion replays, verifies the local login fallback, and checks the linked
+demo projects in both products. It also verifies that every shared demo user
+can launch both products and checks the Platform machine assertion endpoint
+used for non-browser integrations.
 `stop` preserves all three Docker volumes. Run `start` again to resume. The
 script does not delete volumes or reset the demo databases.

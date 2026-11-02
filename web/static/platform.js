@@ -70,4 +70,9 @@
 			setCollapsed(!shell.classList.contains("sidebar-collapsed"), true);
 		});
 	}
+
+	var handoffForm = document.querySelector("form[data-platform-handoff]");
+	if (handoffForm && typeof handoffForm.requestSubmit === "function") {
+		handoffForm.requestSubmit();
+	}
 })();

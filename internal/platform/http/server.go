@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -16,6 +18,7 @@ import (
 	"github.com/Onellan/tockrplatform/internal/auth"
 	"github.com/Onellan/tockrplatform/internal/domain"
 	"github.com/Onellan/tockrplatform/internal/platform/assertion"
+	platformconfig "github.com/Onellan/tockrplatform/internal/platform/config"
 	"github.com/Onellan/tockrplatform/internal/platform/readauthority"
 	"github.com/Onellan/tockrplatform/internal/store"
 	"github.com/Onellan/tockrplatform/web/templates"
@@ -41,6 +44,7 @@ type Config struct {
 	MaxRequestBodyBytes   int64
 	ReadAuthorityKeys     readauthority.PublicKeySet
 	MembershipCommandKeys readauthority.PublicKeySet
+	ProductLaunchTargets  map[string]platformconfig.ProductLaunchTarget
 }
 
 type Server struct {
@@ -50,6 +54,7 @@ type Server struct {
 	readAuthorityKeys     readauthority.PublicKeySet
 	membershipCommandKeys readauthority.PublicKeySet
 	readAuthorityRate     *readAuthorityRateLimiter
+	productLaunchTargets  map[string]platformconfig.ProductLaunchTarget
 }
 
 type sessionContextKey struct{}
@@ -72,7 +77,11 @@ func NewServer(persistence store.PlatformStore, cfg Config) *Server {
 	if len(commandKeys) == 0 {
 		commandKeys = cfg.ReadAuthorityKeys
 	}
-	return &Server{store: persistence, cfg: cfg, limiter: auth.NewLoginLimiter(cfg.LoginLimiter), readAuthorityKeys: cloneReadAuthorityKeys(cfg.ReadAuthorityKeys), membershipCommandKeys: cloneReadAuthorityKeys(commandKeys), readAuthorityRate: newReadAuthorityRateLimiter()}
+	targets := make(map[string]platformconfig.ProductLaunchTarget, len(cfg.ProductLaunchTargets))
+	for key, target := range cfg.ProductLaunchTargets {
+		targets[key] = target
+	}
+	return &Server{store: persistence, cfg: cfg, limiter: auth.NewLoginLimiter(cfg.LoginLimiter), readAuthorityKeys: cloneReadAuthorityKeys(cfg.ReadAuthorityKeys), membershipCommandKeys: cloneReadAuthorityKeys(commandKeys), readAuthorityRate: newReadAuthorityRateLimiter(), productLaunchTargets: targets}
 }
 
 func (s *Server) Handler() http.Handler {
@@ -98,6 +107,7 @@ func (s *Server) Handler() http.Handler {
 		protected.Get("/organisations", s.platformLauncher)
 		protected.Get("/organisations/{organisationID}/workspaces", s.workspaceSelector)
 		protected.Get("/launch/{productKey}", s.productAccessPage)
+		protected.Post("/launch/{productKey}/handoff", s.productHandoff)
 		protected.Get("/admin", s.adminLanding)
 		protected.Get("/admin/system/products", s.systemProductAdminPage)
 		protected.Post("/admin/system/products/{productKey}/retire", s.retireProductUI)
@@ -159,7 +169,23 @@ func (s *Server) Handler() http.Handler {
 
 func (s *Server) securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'")
+		formOrigins := make(map[string]struct{})
+		for _, target := range s.productLaunchTargets {
+			parsed, err := url.Parse(target.URL)
+			if err == nil && parsed.Scheme != "" && parsed.Host != "" && parsed.User == nil {
+				formOrigins[parsed.Scheme+"://"+parsed.Host] = struct{}{}
+			}
+		}
+		origins := make([]string, 0, len(formOrigins))
+		for origin := range formOrigins {
+			origins = append(origins, origin)
+		}
+		sort.Strings(origins)
+		formAction := "'self'"
+		if len(origins) > 0 {
+			formAction += " " + strings.Join(origins, " ")
+		}
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self'; form-action "+formAction+"; frame-ancestors 'none'; base-uri 'none'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "DENY")
 		w.Header().Set("Referrer-Policy", "no-referrer")

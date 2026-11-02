@@ -7,6 +7,7 @@ IMS_ROOT="$(cd -- "$ROOT/../tockrIMS" && pwd)"
 STATE_ROOT="${TOCKR_DEMO_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/tockr-demo}"
 ENV_FILE="$STATE_ROOT/demo.env"
 MANIFEST_FILE="$STATE_ROOT/platform-demo-fixture.json"
+INTEROP_NETWORK="tockr-demo-interoperability"
 DEMO_PASSWORD='Tockr-Demo-2026!'
 
 platform_compose() {
@@ -25,11 +26,12 @@ ims_compose() {
 
 usage() {
   cat <<'EOF'
-Usage: scripts/demo-stack.sh [start|status|logs|stop|help]
+Usage: scripts/demo-stack.sh [start|status|logs|smoke|stop|help]
 
 start   Build, start and seed all three local applications (default).
 status  Show the three Compose projects and their health.
 logs    Follow logs from all three applications.
+smoke   Exercise shared identity, assertion handoff and seeded project access.
 stop    Stop all three projects while preserving their demo databases.
 EOF
 }
@@ -39,24 +41,23 @@ ensure_env_file() {
   chmod 700 "$STATE_ROOT"
   if [[ -f "$ENV_FILE" ]]; then
     chmod 600 "$ENV_FILE"
-    return
-  fi
-  command -v openssl >/dev/null || { echo 'openssl is required to create local service keys.' >&2; exit 1; }
+  else
+    command -v openssl >/dev/null || { echo 'openssl is required to create local service keys.' >&2; exit 1; }
 
-  local key_file="$STATE_ROOT/assertion-private.pem"
-  umask 077
-  openssl genpkey -algorithm Ed25519 -out "$key_file" >/dev/null 2>&1
-  local seed public private
-  seed="$(openssl pkey -in "$key_file" -outform DER 2>/dev/null | tail -c 32 | od -An -vtx1 | tr -d ' \n')"
-  public="$(openssl pkey -in "$key_file" -pubout -outform DER 2>/dev/null | tail -c 32 | od -An -vtx1 | tr -d ' \n')"
-  private="${seed}${public}"
-  rm -f "$key_file"
-  if [[ ${#private} -ne 128 ]]; then
-    echo 'Could not generate the local Platform assertion key.' >&2
-    exit 1
-  fi
+    local key_file="$STATE_ROOT/assertion-private.pem"
+    umask 077
+    openssl genpkey -algorithm Ed25519 -out "$key_file" >/dev/null 2>&1
+    local seed public private
+    seed="$(openssl pkey -in "$key_file" -outform DER 2>/dev/null | tail -c 32 | od -An -vtx1 | tr -d ' \n')"
+    public="$(openssl pkey -in "$key_file" -pubout -outform DER 2>/dev/null | tail -c 32 | od -An -vtx1 | tr -d ' \n')"
+    private="${seed}${public}"
+    rm -f "$key_file"
+    if [[ ${#private} -ne 128 ]]; then
+      echo 'Could not generate the local Platform assertion key.' >&2
+      exit 1
+    fi
 
-  cat >"$ENV_FILE" <<EOF
+    cat >"$ENV_FILE" <<EOF
 PLATFORM_MFA_KEY=$(openssl rand -hex 32)
 PLATFORM_ASSERTION_ISSUER=https://tockr-platform.local-demo
 PLATFORM_ASSERTION_KEY_ID=local-demo-v1
@@ -74,7 +75,14 @@ TOCKRIMS_DEFAULT_ORGANISATION=Default Organisation
 TOCKRIMS_SESSION_SECRET=$(openssl rand -hex 32)
 TOCKRIMS_ENCRYPTION_KEY=$(openssl rand -hex 32)
 EOF
-  chmod 600 "$ENV_FILE"
+    chmod 600 "$ENV_FILE"
+  fi
+
+  if ! grep -q '^PLATFORM_PRODUCT_LAUNCH_TARGETS=' "$ENV_FILE"; then
+    cat >>"$ENV_FILE" <<'EOF'
+PLATFORM_PRODUCT_LAUNCH_TARGETS='{"product.tockrctrl":{"url":"http://localhost:8029/auth/platform/session","audience":"tockrctrl"},"product.tockrims":{"url":"http://localhost:8030/auth/platform/session","audience":"tockrims"}}'
+EOF
+  fi
 }
 
 preflight() {
@@ -88,6 +96,12 @@ preflight() {
     echo 'Docker is not reachable. Start Docker Desktop and enable this WSL distribution in Settings > Resources > WSL Integration.' >&2
     exit 1
   }
+}
+
+ensure_interoperability_network() {
+  if ! docker network inspect "$INTEROP_NETWORK" >/dev/null 2>&1; then
+    docker network create "$INTEROP_NETWORK" >/dev/null
+  fi
 }
 
 wait_for_http() {
@@ -106,6 +120,7 @@ wait_for_http() {
 start_stack() {
   preflight
   ensure_env_file
+  ensure_interoperability_network
   echo 'Building and starting Tockr Platform...'
   platform_compose up -d --build
   wait_for_http 'Tockr Platform' 'http://127.0.0.1:8080/readyz'
@@ -146,6 +161,12 @@ show_logs() {
   docker compose -p tockrims-demo --env-file "$ENV_FILE" -f "$IMS_ROOT/docker-compose.yml" -f "$IMS_ROOT/docker-compose.local-demo.yml" logs --tail=100 --no-color
 }
 
+run_smoke() {
+  ensure_env_file
+  command -v python3 >/dev/null || { echo 'python3 is required for the demo interoperability smoke check.' >&2; exit 1; }
+  python3 "$ROOT/scripts/demo-stack-interop.py" "$ENV_FILE"
+}
+
 stop_stack() {
   ensure_env_file
   platform_compose down
@@ -158,6 +179,7 @@ case "${1:-start}" in
   start) start_stack ;;
   status) show_status ;;
   logs) show_logs ;;
+  smoke) run_smoke ;;
   stop) stop_stack ;;
   help|-h|--help) usage ;;
   *) usage >&2; exit 2 ;;

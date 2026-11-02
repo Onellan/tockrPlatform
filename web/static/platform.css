@@ -85,7 +85,8 @@ body.pf-app-body.nav-open { overflow: hidden; }
 .pf-product-card { display: flex; flex-direction: column; gap: .85rem; min-block-size: 13rem; border: 1px solid var(--pf-line); border-radius: 8px; background: #fff; padding: 1rem; }
 .pf-product-card h3 { margin: .25rem 0 .1rem; font-size: 1.05rem; }
 .pf-product-card p { margin: 0; font-size: .86rem; }
-.pf-product-card .pf-button { align-self: start; margin-top: auto; }
+.pf-product-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; margin-top: auto; }
+.pf-product-card .pf-button { align-self: start; }
 .pf-product-key { color: var(--pf-muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .75rem !important; }
 .pf-empty { border: 1px dashed var(--pf-line-strong); border-radius: 8px; background: var(--pf-surface-soft); padding: 1.4rem; text-align: center; }
 .pf-empty h2 { margin: 0 0 .4rem; font-size: 1rem; }

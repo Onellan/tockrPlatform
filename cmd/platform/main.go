@@ -53,6 +53,7 @@ func runWithListener(parent context.Context, getenv func(string) string, listen 
 		ReadinessCheck:        store.DB().PingContext,
 		ReadAuthorityKeys:     cfg.ReadAuthorityKeys,
 		MembershipCommandKeys: cfg.ReadAuthorityKeys,
+		ProductLaunchTargets:  cfg.ProductLaunchTargets,
 	})
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,

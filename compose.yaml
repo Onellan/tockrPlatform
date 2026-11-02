@@ -17,6 +17,11 @@ services:
       - platform-data:/var/lib/tockrplatform
     ports:
       - "127.0.0.1:8080:8080"
+    networks:
+      default: {}
+      tockr-demo-interoperability:
+        aliases:
+          - tockr-platform
     environment:
       PLATFORM_HTTP_ADDR: ":8080"
       PLATFORM_ALLOW_INSECURE_COOKIES: ${PLATFORM_ALLOW_INSECURE_COOKIES:-0}
@@ -27,6 +32,11 @@ services:
       PLATFORM_ASSERTION_PRIVATE_KEY: ${PLATFORM_ASSERTION_PRIVATE_KEY:?PLATFORM_ASSERTION_PRIVATE_KEY must be set}
       PLATFORM_ASSERTION_AUDIENCES: ${PLATFORM_ASSERTION_AUDIENCES:?PLATFORM_ASSERTION_AUDIENCES must be set}
       PLATFORM_ASSERTION_VERIFY_KEYS: ${PLATFORM_ASSERTION_VERIFY_KEYS:-}
+      PLATFORM_PRODUCT_LAUNCH_TARGETS: ${PLATFORM_PRODUCT_LAUNCH_TARGETS:-}
 
 volumes:
   platform-data:
+
+networks:
+  tockr-demo-interoperability:
+    external: true

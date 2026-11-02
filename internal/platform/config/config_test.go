@@ -87,3 +87,46 @@ func TestFromEnvironmentParsesReadAuthorityKeyOverlapWithoutPrivateMaterial(t *t
 		t.Fatalf("invalid read-authority keys error = %v", err)
 	}
 }
+
+func TestFromEnvironmentParsesExplicitProductBrowserLaunchTargets(t *testing.T) {
+	values := map[string]string{
+		"PLATFORM_MFA_KEY":                strings.Repeat("ab", 32),
+		"PLATFORM_ALLOW_INSECURE_COOKIES": "1",
+		"PLATFORM_PRODUCT_LAUNCH_TARGETS": `{"product.tockrctrl":{"url":"http://localhost:8029/auth/platform/session","audience":"tockrctrl"}}`,
+	}
+	config, err := FromEnvironment(func(key string) string { return values[key] })
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, ok := config.ProductLaunchTargets["product.tockrctrl"]
+	if !ok || target.URL != "http://localhost:8029/auth/platform/session" || target.Audience != "tockrctrl" {
+		t.Fatalf("product launch targets = %#v", config.ProductLaunchTargets)
+	}
+}
+
+func TestFromEnvironmentRejectsUnsafeProductBrowserLaunchTargets(t *testing.T) {
+	base := map[string]string{
+		"PLATFORM_MFA_KEY":                strings.Repeat("ab", 32),
+		"PLATFORM_ALLOW_INSECURE_COOKIES": "1",
+	}
+	for name, targets := range map[string]string{
+		"unknown field":                       `{"product.tockrctrl":{"url":"http://localhost:8029/auth/platform/session","audience":"tockrctrl","extra":"no"}}`,
+		"non product key":                     `{"tockrctrl":{"url":"http://localhost:8029/auth/platform/session","audience":"tockrctrl"}}`,
+		"wrong route":                         `{"product.tockrctrl":{"url":"http://localhost:8029/","audience":"tockrctrl"}}`,
+		"credentials":                         `{"product.tockrctrl":{"url":"http://user:pass@localhost:8029/auth/platform/session","audience":"tockrctrl"}}`,
+		"query":                               `{"product.tockrctrl":{"url":"http://localhost:8029/auth/platform/session?next=//evil","audience":"tockrctrl"}}`,
+		"invalid audience":                    `{"product.tockrctrl":{"url":"http://localhost:8029/auth/platform/session","audience":"tockrctrl\r\nform-action"}}`,
+		"audience belongs to another product": `{"product.tockrctrl":{"url":"http://localhost:8029/auth/platform/session","audience":"tockrims"}}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			values := map[string]string{}
+			for key, value := range base {
+				values[key] = value
+			}
+			values["PLATFORM_PRODUCT_LAUNCH_TARGETS"] = targets
+			if _, err := FromEnvironment(func(key string) string { return values[key] }); err == nil || !strings.Contains(err.Error(), ErrConfiguration.Error()) {
+				t.Fatalf("unsafe target error = %v", err)
+			}
+		})
+	}
+}

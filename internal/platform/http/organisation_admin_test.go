@@ -275,8 +275,16 @@ func TestAdministrationUISurfacesRespectRoleVisibilityAndCSRF(t *testing.T) {
 	memberSession, memberCSRF := loginHTTPUser(t, f, f.users[2])
 
 	response := organisationHTTPRequest(t, f, http.MethodGet, "/organisations/"+f.organisation.ID+"/admin/members", ownerSession, ownerCSRF, "", "")
-	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Organisation membership") || !strings.Contains(response.Body.String(), "Add member") || strings.Contains(response.Body.String(), "<script") {
-		t.Fatalf("owner administration page = %d/%s", response.Code, response.Body.String())
+	body := response.Body.String()
+	addMemberFormStart := strings.Index(body, `method="post" action="/organisations/`+f.organisation.ID+`/admin/members/add"`)
+	addMemberFormHasCSRF := false
+	if addMemberFormStart >= 0 {
+		if formEnd := strings.Index(body[addMemberFormStart:], "</form>"); formEnd >= 0 {
+			addMemberFormHasCSRF = strings.Contains(body[addMemberFormStart:addMemberFormStart+formEnd], `name="csrf"`)
+		}
+	}
+	if response.Code != http.StatusOK || !strings.Contains(body, "Organisation membership") || !strings.Contains(body, "Add member") || !addMemberFormHasCSRF {
+		t.Fatalf("owner administration page = %d/%s; expected a native CSRF-protected add-member form", response.Code, body)
 	}
 
 	response = organisationHTTPRequest(t, f, http.MethodGet, "/organisations/"+f.organisation.ID+"/admin/general", memberSession, memberCSRF, "", "")

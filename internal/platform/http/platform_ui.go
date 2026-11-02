@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/Onellan/tockrplatform/internal/domain"
+	"github.com/Onellan/tockrplatform/internal/platform/assertion"
 	"github.com/Onellan/tockrplatform/internal/store"
 	"github.com/Onellan/tockrplatform/web/pages"
 	"github.com/go-chi/chi/v5"
@@ -102,6 +104,9 @@ func (s *Server) productAccessPage(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		product = pages.ProductOption{Key: candidate.Key, DisplayName: candidate.DisplayName}
+		if _, configured := s.productLaunchTargets[candidate.Key]; configured {
+			product.HandoffURL = "/launch/" + url.PathEscape(candidate.Key) + "/handoff"
+		}
 		break
 	}
 	if product.Key == "" {
@@ -119,6 +124,77 @@ func (s *Server) productAccessPage(w http.ResponseWriter, r *http.Request) {
 		WorkspaceName:    workspace.Name,
 	}
 	if err := render(w, r, pages.ProductAccess(props)); err != nil {
+		http.Error(w, "service unavailable", http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) productHandoff(w http.ResponseWriter, r *http.Request) {
+	session, csrf, ok := s.uiSession(w, r)
+	if !ok {
+		return
+	}
+	if err := parseBoundedForm(w, r); err != nil {
+		return
+	}
+	if !s.verifyMutationCSRF(w, r) {
+		return
+	}
+	productKey := strings.TrimSpace(chi.URLParam(r, "productKey"))
+	target, configured := s.productLaunchTargets[productKey]
+	if !configured || s.cfg.AssertionIssuer == nil {
+		http.NotFound(w, r)
+		return
+	}
+	organisationID := strings.TrimSpace(r.FormValue("organisation_id"))
+	workspaceID := strings.TrimSpace(r.FormValue("workspace_id"))
+	if organisationID == "" || workspaceID == "" {
+		http.NotFound(w, r)
+		return
+	}
+	access, err := s.store.ProveProductAccess(r.Context(), session.User.ID, organisationID, productKey, workspaceID)
+	if err != nil {
+		s.uiNotFoundOrError(w, err)
+		return
+	}
+	products, err := s.store.ListLaunchableProducts(r.Context(), session.User.ID, access.OrganisationID, access.WorkspaceID)
+	if err != nil {
+		s.uiNotFoundOrError(w, err)
+		return
+	}
+	productName := productKey
+	productFound := false
+	for _, product := range products {
+		if product.Key == productKey {
+			productName = product.DisplayName
+			productFound = true
+			break
+		}
+	}
+	if !productFound {
+		http.NotFound(w, r)
+		return
+	}
+	token, _, err := s.cfg.AssertionIssuer.Issue(assertion.IssueRequest{
+		Audience:       target.Audience,
+		PlatformUserID: access.UserID,
+		OrganisationID: access.OrganisationID,
+		WorkspaceID:    access.WorkspaceID,
+	}, time.Now().UTC())
+	if err != nil {
+		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
+	props := pages.ProductHandoffProps{
+		User:        session.User,
+		CSRF:        csrf,
+		CurrentPath: r.URL.Path,
+		ProductName: productName,
+		TargetURL:   target.URL,
+		Assertion:   token,
+	}
+	if err := render(w, r, pages.ProductHandoff(props)); err != nil {
 		http.Error(w, "service unavailable", http.StatusInternalServerError)
 	}
 }
@@ -194,7 +270,11 @@ func (s *Server) launcherProps(r *http.Request, userID, csrf string) (pages.Laun
 			}
 			for _, product := range launchable {
 				values := url.Values{"organisation_id": {organisationID}, "workspace_id": {workspaceID}}
-				products = append(products, pages.ProductOption{Key: product.Key, DisplayName: product.DisplayName, AccessURL: "/launch/" + url.PathEscape(product.Key) + "?" + values.Encode()})
+				option := pages.ProductOption{Key: product.Key, DisplayName: product.DisplayName, AccessURL: "/launch/" + url.PathEscape(product.Key) + "?" + values.Encode()}
+				if _, configured := s.productLaunchTargets[product.Key]; configured {
+					option.HandoffURL = "/launch/" + url.PathEscape(product.Key) + "/handoff"
+				}
+				products = append(products, option)
 			}
 		}
 	}

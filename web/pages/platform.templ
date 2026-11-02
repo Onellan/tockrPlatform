@@ -59,7 +59,19 @@ templ Launcher(props LauncherProps) {
 						<article class="pf-product-card">
 							<div><p class="pf-kicker">Platform verified</p><h3>{ product.DisplayName }</h3><p class="pf-product-key">{ product.Key }</p></div>
 							<p>Shared identity and Workspace access are ready. The product remains authoritative for its own roles and records.</p>
-							<a class="pf-button" href={ templ.SafeURL(product.AccessURL) }>Open product access</a>
+							if product.HandoffURL != "" {
+								<div class="pf-product-actions">
+									<form method="post" action={ templ.SafeURL(product.HandoffURL) }>
+										<input type="hidden" name="csrf" value={ props.CSRF } />
+										<input type="hidden" name="organisation_id" value={ props.OrganisationID } />
+										<input type="hidden" name="workspace_id" value={ props.WorkspaceID } />
+										<button class="pf-button" type="submit">Open { product.DisplayName }</button>
+									</form>
+									<a class="pf-text-link" href={ templ.SafeURL(product.AccessURL) }>Review access</a>
+								</div>
+							} else {
+								<a class="pf-button" href={ templ.SafeURL(product.AccessURL) }>Open product access</a>
+							}
 						</article>
 					}
 				</div>
@@ -94,7 +106,32 @@ templ ProductAccess(props ProductAccessProps) {
 			<h2 id="product-access-heading">{ props.Product.DisplayName }</h2>
 			<p>Platform has verified the active User, Organisation membership, product entitlement, user assignment and Workspace access.</p>
 			<p class="pf-boundary-note">Product roles, project records and operational authority remain inside the product. This Platform surface does not copy or decide them.</p>
-			<div class="pf-action-row"><a class="pf-button" href={ templ.SafeURL("/?organisation_id=" + props.OrganisationID + "&workspace_id=" + props.WorkspaceID) }>Return to launcher</a><a class="pf-text-link" href={ templ.SafeURL("/organisations/" + props.OrganisationID + "/workspaces") }>Choose another Workspace</a></div>
+			<div class="pf-action-row">
+				if props.Product.HandoffURL != "" {
+					<form method="post" action={ templ.SafeURL(props.Product.HandoffURL) }>
+						<input type="hidden" name="csrf" value={ props.CSRF } />
+						<input type="hidden" name="organisation_id" value={ props.OrganisationID } />
+						<input type="hidden" name="workspace_id" value={ props.WorkspaceID } />
+						<button class="pf-button" type="submit">Open { props.Product.DisplayName }</button>
+					</form>
+				}
+				<a class="pf-button" href={ templ.SafeURL("/?organisation_id=" + props.OrganisationID + "&workspace_id=" + props.WorkspaceID) }>Return to launcher</a><a class="pf-text-link" href={ templ.SafeURL("/organisations/" + props.OrganisationID + "/workspaces") }>Choose another Workspace</a>
+			</div>
+		</section>
+	}
+}
+
+templ ProductHandoff(props ProductHandoffProps) {
+	@layouts.App("Opening product", props.User, props.CSRF, props.CurrentPath) {
+		@components.ContextHeader("Opening product", "", "")
+		<section class="pf-section pf-selector-page" aria-labelledby="handoff-heading">
+			<p class="pf-kicker">Platform identity verified</p>
+			<h2 id="handoff-heading">Opening { props.ProductName }</h2>
+			<p>Your signed, short-lived identity handoff is being sent securely to the product. Product roles and records remain under that product’s authority.</p>
+			<form method="post" action={ templ.SafeURL(props.TargetURL) } data-platform-handoff>
+				<input type="hidden" name="assertion" value={ props.Assertion } />
+				<button class="pf-button" type="submit">Continue to { props.ProductName }</button>
+			</form>
 		</section>
 	}
 }

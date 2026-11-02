@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -30,18 +32,31 @@ const (
 var ErrConfiguration = errors.New("invalid Platform runtime configuration")
 
 type Config struct {
-	DBPath              string
-	MFAKey              []byte
-	HTTPAddr            string
-	AllowInsecureCookie bool
-	MaxHeaderBytes      int
-	ReadHeaderTimeout   time.Duration
-	ReadTimeout         time.Duration
-	WriteTimeout        time.Duration
-	IdleTimeout         time.Duration
-	ShutdownTimeout     time.Duration
-	ReadAuthorityKeys   readauthority.PublicKeySet
+	DBPath               string
+	MFAKey               []byte
+	HTTPAddr             string
+	AllowInsecureCookie  bool
+	MaxHeaderBytes       int
+	ReadHeaderTimeout    time.Duration
+	ReadTimeout          time.Duration
+	WriteTimeout         time.Duration
+	IdleTimeout          time.Duration
+	ShutdownTimeout      time.Duration
+	ReadAuthorityKeys    readauthority.PublicKeySet
+	ProductLaunchTargets map[string]ProductLaunchTarget
 }
+
+// ProductLaunchTarget is an explicitly configured browser handoff destination.
+// Platform owns the assertion audience; it never comes from the browser.
+type ProductLaunchTarget struct {
+	URL      string `json:"url"`
+	Audience string `json:"audience"`
+}
+
+var (
+	launchProductKeyPattern = regexp.MustCompile(`^product\.[a-z0-9][a-z0-9.-]{0,98}$`)
+	launchAudiencePattern   = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]{0,99}$`)
+)
 
 // FromEnvironment validates process configuration without echoing secret
 // material. Defaults are safe for local development and the container sets an
@@ -81,20 +96,63 @@ func FromEnvironment(getenv func(string) string) (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("%w: PLATFORM_READ_AUTHORITY_KEYS", ErrConfiguration)
 	}
+	productLaunchTargets, err := parseProductLaunchTargets(getenv("PLATFORM_PRODUCT_LAUNCH_TARGETS"), allowInsecure)
+	if err != nil {
+		return Config{}, fmt.Errorf("%w: PLATFORM_PRODUCT_LAUNCH_TARGETS", ErrConfiguration)
+	}
 
 	return Config{
-		DBPath:              dbPath,
-		MFAKey:              append([]byte(nil), key...),
-		HTTPAddr:            addr,
-		AllowInsecureCookie: allowInsecure,
-		MaxHeaderBytes:      defaultMaxHeaders,
-		ReadHeaderTimeout:   defaultReadHeader,
-		ReadTimeout:         defaultReadTimeout,
-		WriteTimeout:        defaultWriteTimeout,
-		IdleTimeout:         defaultIdleTimeout,
-		ShutdownTimeout:     defaultShutdown,
-		ReadAuthorityKeys:   readAuthorityKeys,
+		DBPath:               dbPath,
+		MFAKey:               append([]byte(nil), key...),
+		HTTPAddr:             addr,
+		AllowInsecureCookie:  allowInsecure,
+		MaxHeaderBytes:       defaultMaxHeaders,
+		ReadHeaderTimeout:    defaultReadHeader,
+		ReadTimeout:          defaultReadTimeout,
+		WriteTimeout:         defaultWriteTimeout,
+		IdleTimeout:          defaultIdleTimeout,
+		ShutdownTimeout:      defaultShutdown,
+		ReadAuthorityKeys:    readAuthorityKeys,
+		ProductLaunchTargets: productLaunchTargets,
 	}, nil
+}
+
+func parseProductLaunchTargets(value string, allowInsecure bool) (map[string]ProductLaunchTarget, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil, nil
+	}
+	var targets map[string]ProductLaunchTarget
+	decoder := json.NewDecoder(strings.NewReader(value))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&targets); err != nil || targets == nil {
+		return nil, errors.New("launch targets must be an object")
+	}
+	var trailing any
+	if !errors.Is(decoder.Decode(&trailing), io.EOF) {
+		return nil, errors.New("launch targets contain trailing data")
+	}
+	for productKey, target := range targets {
+		if !launchProductKeyPattern.MatchString(productKey) || !launchAudiencePattern.MatchString(target.Audience) || target.Audience != strings.TrimPrefix(productKey, "product.") {
+			return nil, errors.New("invalid launch product or audience")
+		}
+		parsed, err := url.Parse(target.URL)
+		if err != nil || parsed == nil || parsed.User != nil || parsed.Host == "" || parsed.Hostname() == "" || parsed.Opaque != "" ||
+			(parsed.Scheme != "https" && !(allowInsecure && parsed.Scheme == "http")) ||
+			parsed.Path != "/auth/platform/session" || parsed.RawPath != "" || parsed.RawQuery != "" || parsed.ForceQuery || parsed.Fragment != "" || parsed.RawFragment != "" {
+			return nil, errors.New("invalid launch endpoint")
+		}
+		if _, err := url.ParseRequestURI(target.URL); err != nil {
+			return nil, errors.New("invalid launch endpoint")
+		}
+		if parsed.Port() != "" {
+			port, err := strconv.Atoi(parsed.Port())
+			if err != nil || port < 1 || port > 65535 {
+				return nil, errors.New("invalid launch endpoint port")
+			}
+		}
+	}
+	return targets, nil
 }
 
 func parseReadAuthorityKeys(value string) (readauthority.PublicKeySet, error) {
