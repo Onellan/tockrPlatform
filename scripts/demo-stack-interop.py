@@ -101,7 +101,10 @@ def read_demo_env(path: Path) -> dict[str, str]:
 def new_client() -> tuple[urllib.request.OpenerDirector, http.cookiejar.CookieJar]:
     cookies = http.cookiejar.CookieJar()
     return (
-        urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookies)),
+        urllib.request.build_opener(
+            urllib.request.ProxyHandler({}),
+            urllib.request.HTTPCookieProcessor(cookies),
+        ),
         cookies,
     )
 
@@ -364,10 +367,34 @@ def run(env_path: Path) -> None:
     manifest_path = env_path.parent / "platform-demo-fixture.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     require(manifest.get("fixture") == "tockr-local-demo-v1", "shared Platform identity fixture is missing or unexpected")
-    for user in manifest.get("users", []):
-        user_email = user.get("email", "")
-        if not user_email or user_email == email:
+    require(manifest.get("version") == 1, "shared Platform identity fixture version is unsupported")
+    products = manifest.get("products")
+    expected_products = {product["key"] for product in PRODUCTS}
+    require(
+        isinstance(products, list)
+        and all(isinstance(product, str) for product in products)
+        and len(products) == len(expected_products)
+        and set(products) == expected_products,
+        "shared Platform identity fixture does not grant both demo products",
+    )
+    users = manifest.get("users")
+    require(isinstance(users, list) and users, "shared Platform identity fixture has no users")
+    seen_emails: set[str] = set()
+    checked_shared_users = 0
+    for user in users:
+        require(isinstance(user, dict), "shared Platform identity fixture contains an invalid user")
+        user_email = user.get("email")
+        require(
+            isinstance(user_email, str) and bool(user_email.strip()),
+            "shared Platform identity fixture contains a user without an email",
+        )
+        user_email = user_email.strip()
+        normalized_email = user_email.casefold()
+        require(normalized_email not in seen_emails, "shared Platform identity fixture contains duplicate user emails")
+        seen_emails.add(normalized_email)
+        if normalized_email == email.casefold():
             continue
+        checked_shared_users += 1
         shared_client, _ = new_client()
         account_page = login(shared_client, PLATFORM, user_email, password)
         shared_launcher = request(shared_client, f"{PLATFORM}/")
@@ -420,6 +447,7 @@ def run(env_path: Path) -> None:
                 require(marker in page, f"{user_email} {product_key} is missing demo record {marker}")
             logout(product_client, base, page)
         logout(shared_client, PLATFORM, account_page)
+    require(checked_shared_users > 0, "shared Platform identity fixture has no non-admin users to exercise")
     print("PASS all shared demo users hand off from Platform to both products")
 
 

@@ -20,7 +20,8 @@ ctrl_compose() {
 }
 
 ims_compose() {
-  docker compose -p tockrims-demo --env-file "$ENV_FILE" \
+  TOCKRIMS_PUBLISH_ADDR=127.0.0.1 TOCKRIMS_PUBLISH_PORT=8030 \
+    docker compose -p tockrims-demo --env-file "$ENV_FILE" \
     -f "$IMS_ROOT/docker-compose.yml" -f "$IMS_ROOT/docker-compose.local-demo.yml" "$@"
 }
 
