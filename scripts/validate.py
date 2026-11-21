@@ -163,18 +163,20 @@ def run_one(profile: str) -> dict[str, object]:
             )
             if checked.returncode != 0:
                 route_failures.append(str(path.relative_to(ROOT)))
+        audit_script_test = run_command([sys.executable, str(ROOT / "scripts/test_audit_codebase.py")])
         # PF-B11-S01-R1 is an explicitly authorised superseding slice. Keep
         # the count exact so an accidental untracked plan cannot disappear
         # behind a minimum-count check.
         expected_plan_count = 28
         return {
             "profile": profile,
-            "status": "PASS" if len(plans) == expected_plan_count and routes >= 81 and not route_failures else "FAIL",
+            "status": "PASS" if len(plans) == expected_plan_count and routes >= 81 and not route_failures and audit_script_test["status"] == "PASS" else "FAIL",
             "slice_plan_count": len(plans),
             "active_slice_plan_count": len(active_plans),
             "completed_slice_plan_count": len(completed_plans),
             "route_signature_count": routes,
             "route_failures": route_failures,
+            "audit_script_test": audit_script_test,
         }
     raise AssertionError(f"unhandled profile: {profile}")
 
