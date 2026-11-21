@@ -17,9 +17,18 @@ is certified at the authorised scope.
 - `.agents/skills/` and `.codex/agents/` define the delivery workflow.
 - `scripts/validate.py` is the local validation command authority.
 
-Platform owns shared identity and access decisions only. TockrCTRL continues to
-own CTRL Projects and product roles; TockrIMS continues to own IMS Projects,
-governance and product roles. Billing and payment are outside this programme.
+## Tockr suite responsibilities
+
+| Product | Position and domain authority |
+| --- | --- |
+| **Tockr Platform** | Shared user identity, authentication, Organisation/Workspace membership, product entitlement and user assignment. It does not own product Projects or product-specific roles. |
+| **TockrCTRL** | Engineering delivery control: CTRL Projects, Engineering WBS, engineering baseline and actuals, physical progress, performance, forecast, control reviews/actions, and CTRL project roles. |
+| **TockrIMS** | Broader project governance: IMS Projects, Framework Pack adoption, governance baselines, lifecycle/gates, cross-discipline controls, evidence/assurance, and IMS project roles. |
+
+Platform identity and product access are shared foundations. Each product still
+authorizes access to its own Projects and records; a CTRL project role does not
+grant an IMS role, and an IMS project role does not grant a CTRL role. Billing
+and payment are outside this programme.
 
 ## Local validation
 
